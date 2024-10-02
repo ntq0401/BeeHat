@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Belt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +21,12 @@ public class Belt {
     private String name;
     @Column(name = "status")
     private Byte status;
-    @Column(name = "created_date")
+    @Column(name = "created_date", insertable = false, updatable = false)
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+    @PreUpdate
+    public void preUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
 }

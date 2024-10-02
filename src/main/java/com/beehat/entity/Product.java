@@ -39,9 +39,12 @@ public class Product {
 
     private Byte status;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", insertable = false, updatable = false)
     private LocalDateTime createdDate;
-
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+    @PreUpdate
+    public void preUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
 }

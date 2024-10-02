@@ -28,9 +28,12 @@ public class Rating {
 
     private Byte status; // Trạng thái (TINYINT)
 
-    @Column(name = "created_date")
-    private LocalDateTime createdDate; // Ngày tạo
-
+    @Column(name = "created_date", insertable = false, updatable = false)
+    private LocalDateTime createdDate;
     @Column(name = "updated_date")
-    private LocalDateTime updatedDate; // Ngày cập nhật
+    private LocalDateTime updatedDate;
+    @PreUpdate
+    public void preUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
 }
