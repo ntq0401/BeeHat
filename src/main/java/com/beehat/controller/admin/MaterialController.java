@@ -12,27 +12,32 @@ import org.springframework.web.bind.annotation.*;
 public class MaterialController {
     @Autowired
     MaterialRepo materialRepo;
+
     @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("material", materialRepo.findAll());
-        model.addAttribute("m",new Material());
+        model.addAttribute("m", new Material());
         return "admin/material";
     }
+
     @PostMapping("/add")
     public String add(@ModelAttribute("m") Material material) {
         materialRepo.save(material);
         return "redirect:/admin/material/index";
     }
+
     @GetMapping("/update/{id}")
     public String update(@PathVariable int id, Model model) {
         model.addAttribute("material", materialRepo.findById(id).orElse(null));
         return "admin/form-material";
     }
+
     @PostMapping("/update/{id}")
     public String update(@PathVariable int id, @ModelAttribute("m") Material material) {
         materialRepo.save(material);
         return "redirect:/admin/material/index";
     }
+
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
         materialRepo.deleteById(id);

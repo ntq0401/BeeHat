@@ -1,12 +1,48 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
 <head>
-  <meta charset="UTF-8">
-  <title>Quản lí sản phẩm</title>
+    <meta charset="UTF-8">
+    <title>Quản lí kích cỡ</title>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <h1>Quản lí sản phẩm</h1>
+    <h1>Quản lí kích cỡ</h1>
+    <form method="post" th:object="${m}">
+        <p>Tên kích cỡ :
+            <input type="text" class="form-control" th:field="${m.name}">
+        </p>
+        <p>Trạng thái :
+            <input type="radio" value="1" class="form-radio" th:field="${m.status}">Hoạt động
+            <input type="radio" value="0" class="form-radio" th:field="${m.status}">Không hoạt động
+        </p>
+        <button class="btn btn-success" formaction="/admin/size/add">Create</button>
+    </form>
+    <table class="table">
+        <tr>
+            <th>STT</th>
+            <th>ID</th>
+            <th>Tên kích cỡ</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Hành động</th>
+        </tr>
+        <tr th:each="size,stt : ${size}">
+            <td>[[${stt.index + 1}]]</td>
+            <td>[[${size.id}]]</td>
+            <td>[[${size.name}]]</td>
+            <td>[[${size.status} == 1 ? 'Hoạt động':'Không hoạt động']]</td>
+            <td>[[${size.createdDate.toString().substring(0,10)}]]</td>
+            <td colspan="2">
+                <a th:href="@{/admin/size/update/{id}(id=${size.id})}">
+                    <button class="btn btn-warning">Update</button>
+                </a>
+                <a th:href="@{/admin/size/delete/{id}(id=${size.id})}"
+                   onclick="return confirm('Bạn có chắc là muốn xoá ?')">
+                    <button class="btn btn-danger">Delete</button>
+                </a>
+            </td>
+        </tr>
+    </table>
 </main>
 </body>
 </html>

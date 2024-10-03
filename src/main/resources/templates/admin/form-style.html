@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lí kiểu dáng</title>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+  <h1>Quản lí kiểu dáng</h1>
+  <form method="post" th:object="${style}">
+    <p>Id :
+      <input type="text" th:field="${style.id}" class="form-control" disabled>
+    </p>
+    <p>Tên kiểu dáng :
+      <input type="text" th:field="${style.name}" class="form-control">
+    </p>
+    <p>Trạng thái :
+      <input type="radio" th:field="${style.status}" class="form-radio" value="1">Hoạt động
+      <input type="radio" th:field="${style.status}" class="form-radio" value="0">Không hoạt động
+    </p>
+    <button type="submit" class="btn btn-success">Update</button>
+  </form>
+</main>
+</body>
+</html>
