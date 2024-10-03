@@ -41,4 +41,14 @@ public class Employee {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    public Employee(String username, String password, String fullname, String email, String phone, String photo, Byte role, Byte status) {
+        this.username = username;
+        this.password = password;
+        this.fullname = fullname;
+        this.email = email;
+        this.phone = phone;
+        this.photo = photo;
+        this.role = role;
+        this.status = status;
+    }
 }

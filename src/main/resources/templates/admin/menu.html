@@ -118,11 +118,12 @@
             <span>Đổi mật khẩu</span>
           </a>
           <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">
-            <i class="ph-bold ph-sign-out"></i>
-            <span>Đăng xuất</span>
-          </a>
-
+          <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="dropdown-item">
+              <i class="ph-bold ph-sign-out"></i>
+              <span>Đăng xuất</span>
+            </button>
+          </form>
         </div>
       </li>
     </ul>

@@ -6,10 +6,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @Controller
-@RequestMapping("/admin/index")
+@RequestMapping("/admin")
 public class AdminController {
-    @GetMapping
+
+    @GetMapping("/index")
     public String index() {
         return "admin/index";
     }
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "admin/loginadmin";
+    }
+
 }
