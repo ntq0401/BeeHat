@@ -26,14 +26,7 @@ public class ProductDetail {
 
     @ManyToOne @JoinColumn(name = "size_id")
     private Size size;
-
-    private Integer weight;
-
-    @Column(name = "care_instructions")
-    private String careInstructions;
-
-    private Integer warranty;
-
+    private Integer price;
     private Integer stock;
 
     private Byte status;

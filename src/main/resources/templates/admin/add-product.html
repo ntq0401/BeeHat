@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí sản phẩm</title>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <h1>Quản lí sản phẩm</h1>
+    <form method="post" th:object="${p}">
+        <p th:if="${!isAdd}">ID :
+            <input class="form-control" th:field="${p.id}" type="text" disabled>
+        </p>
+        <p>Tên sản phẩm :
+            <input class="form-control" th:field="${p.name}" type="text">
+        </p>
+        <p>Ảnh sản phẩm :
+            <input class="form-control" th:field="${p.image}" type="text">
+        </p>
+        <p>Mô tả sản phẩm :
+            <input class="form-control" th:field="${p.description}" type="text">
+        </p>
+        <p>Danh mục :
+            <select class="form-select" th:field="${p.category}">
+                <option value="" selected>Chọn danh mục</option>
+                <option th:each="category : ${listCategory}"
+                        th:value="${category.id}"
+                        th:text="${category.name}">
+                </option>
+            </select>
+        </p>
+        <p>Chất liệu :
+            <select class="form-select" th:field="${p.material}">
+                <option value="" selected>Chọn danh mục</option>
+                <option th:each="material : ${listMaterial}"
+                        th:value="${material.id}"
+                        th:text="${material.name}">
+                </option>
+            </select>
+        </p>
+        <p>Vải lót :
+            <select class="form-select" th:field="${p.lining}">
+                <option value="" selected>Chọn danh mục</option>
+                <option th:each="lining : ${listLining}"
+                        th:value="${lining.id}"
+                        th:text="${lining.name}">
+                </option>
+            </select>
+        </p>
+        <p>Đai mũ :
+            <select class="form-select" th:field="${p.belt}">
+                <option value="" selected>Chọn danh mục</option>
+                <option th:each="belt : ${listBelt}"
+                        th:value="${belt.id}"
+                        th:text="${belt.name}">
+                </option>
+            </select>
+        </p>
+        <p>Kiểu dáng :
+            <select class="form-select" th:field="${p.style}">
+                <option value="" selected>Chọn danh mục</option>
+                <option th:each="style : ${listStyle}"
+                        th:value="${style.id}"
+                        th:text="${style.name}">
+                </option>
+            </select>
+        </p>
+        <p>Trạng thái :
+            <input type="radio" class="form-radio" th:field="${p.status}" value="1">Hoạt động
+            <input type="radio" class="form-radio" th:field="${p.status}" value="0">Không hoạt động
+        </p>
+        <button th:if="${isAdd}" formaction="/admin/product/add-product" type="submit" class="btn btn-success">Create</button>
+        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}" type="submit" class="btn btn-success">Update</button>
+    </form>
+</main>
+</body>
+</html>
