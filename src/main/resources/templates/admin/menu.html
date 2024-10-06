@@ -1,7 +1,7 @@
 <aside id="sidebar" th:fragment="sidebar">
   <div class="d-flex">
     <button class="toggle-btn" type="button">
-      <i class="icon ph-bold ph-squares-four"></i>
+      <i class="icon ph-bold ph-list"></i>
     </button>
     <div class="sidebar-logo">
       <a href="/admin/index">BeeHat</a>
@@ -24,14 +24,14 @@
       </a>
     </li>
     <li class="sidebar-item">
-      <a href="/admin/product" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+      <a href="/admin/product/index" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
          data-bs-target="#product" aria-expanded="false" aria-controls="product">
         <i class="ph-bold ph ph-baseball-cap"></i>
         <span>Quản lí sản phẩm</span>
       </a>
       <ul id="product" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
         <li class="sidebar-item">
-          <a href="/admin/product" class="sidebar-link">Sản phẩm</a>
+          <a href="/admin/product/index" class="sidebar-link">Sản phẩm</a>
         </li>
         <li class="sidebar-item">
           <a href="/admin/color/index" class="sidebar-link">Màu sắc</a>
@@ -97,13 +97,10 @@
     </a>
   </div>
 </aside>
-<nav th:fragment="navbar" style="background: lightgray" class="navbar navbar-expand px-4 py-3">
-  <form class="d-flex" role="search">
-    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-    <button class="btn btn-outline-success" type="submit">Search</button>
-  </form>
+<nav th:fragment="navbar" class="navbar navbar-expand px-3 py-2">
   <div class="navbar-collapse collapse">
     <ul class="navbar-nav ms-auto">
+
       <li class="nav-item dropdown">
         <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
           <img src="/account.png" class="avatar img-fluid" alt="">
