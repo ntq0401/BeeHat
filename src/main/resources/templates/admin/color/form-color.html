@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí màu sắc</title>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <h1>Quản lí màu sắc</h1>
+    <form th:object="${c}" method="post">
+        <p>Id :
+            <input type="text" class="form-control" th:field="*{id}" disabled>
+        </p>
+        <p>Tên màu sắc :
+            <input type="text" class="form-control" th:field="*{name}">
+            <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+        </p>
+        <p>Mã màu sắc :
+            <input type="color" class="form-color" th:field="*{code}">
+            <p th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></p>
+        </p>
+        <p>Trạng thái :
+            <input class="form-radio" type="radio" value="1" th:field="*{status}">Hoạt động
+            <input class="form-radio" type="radio" value="0" th:field="*{status}">Không hoạt động
+        <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+        </p>
+        <button type="submit" class="btn btn-success">Update</button>
+    </form>
+</main>
+</body>
+</html>

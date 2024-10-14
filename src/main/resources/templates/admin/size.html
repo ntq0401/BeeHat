@@ -7,13 +7,15 @@
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
     <h1>Quản lí kích cỡ</h1>
-    <form method="post" th:object="${m}">
+    <form method="post" th:object="${s}">
         <p>Tên kích cỡ :
-            <input type="text" class="form-control" th:field="${m.name}">
+            <input type="text" class="form-control" th:field="*{name}">
+            <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
         </p>
         <p>Trạng thái :
-            <input type="radio" value="1" class="form-radio" th:field="${m.status}">Hoạt động
-            <input type="radio" value="0" class="form-radio" th:field="${m.status}">Không hoạt động
+            <input type="radio" value="1" class="form-radio" th:field="*{status}">Hoạt động
+            <input type="radio" value="0" class="form-radio" th:field="*{status}">Không hoạt động
+            <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
         </p>
         <button class="btn btn-success" formaction="/admin/size/add">Create</button>
     </form>
@@ -26,7 +28,7 @@
             <th>Ngày tạo</th>
             <th>Hành động</th>
         </tr>
-        <tr th:each="size,stt : ${size}">
+        <tr th:each="size,stt : ${listSize}">
             <td>[[${stt.index + 1}]]</td>
             <td>[[${size.id}]]</td>
             <td>[[${size.name}]]</td>

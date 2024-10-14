@@ -8,52 +8,65 @@
 <main class="content px-3 py-4" layout:fragment="main">
     <form method="post" th:object="${pd}">
         <p>ID Sản phẩm :
-            <input class="form-control" type="text" th:field="${pd.product.id}" disabled>
+            <input class="form-control" type="text" th:field="*{product.id}" disabled>
         </p>
-        <p>Màu sắc :
-            <select class="form-select" th:field="${pd.color}">
-                <option value="" selected>Chọn màu sắc</option>
-                <option th:each="color : ${listColor}" th:value="${color.id}">[[${color.name}]]</option>
-            </select>
-        </p>
-        <p>Kích cỡ :
-            <select class="form-select" th:field="${pd.size}">
-                <option value="" selected>Chọn kích cỡ</option>
-                <option th:each="size : ${listSize}" th:value="${size.id}">[[${size.name}]]</option>
-            </select>
-        </p>
+        <p>Màu sắc :</p>
+        <div th:each="color : ${listColor}">
+            <input class="form-color" type="checkbox" th:field="*{color.id}" th:value="${color.id}" name="colors">
+            [[${color.name}]]
+        </div>
+
+        <p>Kích cỡ :</p>
+        <div th:each="size : ${listSize}">
+            <input type="checkbox" th:field="*{size.id}" th:value="${size.id}" name="sizes"> [[${size.name}]]
+        </div>
         <p>Giá :
-            <input class="form-control" type="number" th:field="${pd.price}">
+            <input class="form-control" type="number" th:field="*{price}">
         </p>
         <p>Số lượng :
-            <input class="form-control" type="number" th:field="${pd.stock}">
+            <input class="form-control" type="number" th:field="*{stock}">
         </p>
         <p>Trạng thái :
-            <input type="radio" class="form-radio" th:field="${pd.status}" value="1">Hoạt động
-            <input type="radio" class="form-radio" th:field="${pd.status}" value="0">Không hoạt động
+            <input type="radio" class="form-radio" th:field="*{status}" value="1">Hoạt động
+            <input type="radio" class="form-radio" th:field="*{status}" value="0">Không hoạt động
         </p>
         <button type="submit" class="btn btn-success">Create</button>
     </form>
-    <table class="table">
-        <tr>
-            <th>STT</th>
-            <th>Tên sản phẩm</th>
-            <th>Màu sắc</th>
-            <th>Kích cỡ</th>
-            <th>Giá</th>
-            <th>Số lượng</th>
-            <th>Trạng thái</th>
-        </tr>
-        <tr th:each="pd,stt : ${prd}">
-            <td th:text="${stt.index + 1}"></td>
-            <td th:text="${pd.product.name}"></td>
-            <td th:text="${pd.color.name}"></td>
-            <td th:text="${pd.size.name}"></td>
-            <td th:text="${pd.price}"></td>
-            <td th:text="${pd.stock}"></td>
-            <td th:text="${pd.status} == 1 ? 'Hoạt động':'Không hoạt động'"></td>
-        </tr>
-    </table>
+    <div th:each="entry : ${groupedByColor}">
+        <!-- Hiển thị tên màu từ đối tượng Color -->
+        <h3>Danh sách chi tiết sản phẩm màu : [[${entry.key.name}]]</h3>
+        <!-- entry.key là đối tượng Color, có thuộc tính name -->
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID sản phẩm</th>
+                <th>Tên sản phẩm</th>
+                <th>Màu sắc</th>
+                <th>Kích cỡ</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Hiển thị danh sách sản phẩm theo màu -->
+            <tr th:each="productDetail : ${entry.value}">
+                <td>[[${productDetail.product.id}]]</td>
+                <td>[[${productDetail.product.name}]]</td>
+                <td>[[${productDetail.color.name}]]</td>
+                <td>[[${productDetail.size.name}]]</td>
+                <td>[[${productDetail.price}]]</td>
+                <td>[[${productDetail.stock}]]</td>
+                <td>[[${productDetail.status ==1 ?'Hoạt động' : 'Không hoạt động'}]]</td>
+                <td><a>
+                    <button class="btn btn-secondary">Chỉnh sửa</button>
+                </a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </main>
 </body>
 </html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí kiểu dáng</title>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <h1>Quản lí kiểu dáng</h1>
+    <form method="post" th:object="${s}">
+        <p>Tên kiều dáng :
+            <input class="form-control" th:field="*{name}" type="text">
+        <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+        </p>
+        <p>Trạng thái :
+            <input class="form-radio" th:field="*{status}" type="radio" value="1">Hoạt động
+            <input class="form-radio" th:field="*{status}" type="radio" value="0">Không hoạt động
+        <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+        </p>
+        <button type="submit" formaction="/admin/style/add" class="btn btn-success">Create</button>
+    </form>
+    <table class="table">
+        <tr>
+            <th>STT</th>
+            <th>ID</th>
+            <th>Tên kiểu dáng</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Hành động</th>
+        </tr>
+        <tr th:each="style,stt : ${listStyle}">
+            <td>[[${stt.index + 1}]]</td>
+            <td>[[${style.id}]]</td>
+            <td>[[${style.name}]]</td>
+            <td>[[${style.status} == 1? 'Hoạt động' : 'Không hoạt động']]</td>
+            <td>[[${style.createdDate.toString().substring(0,10)}]]</td>
+            <td colspan="2">
+                <a th:href="@{/admin/style/update/{id}(id=${style.id})}">
+                    <button class="btn btn-warning">Update</button>
+                </a>
+                <a th:href="@{/admin/style/delete/{id}(id=${style.id})}">
+                    <button class="btn btn-danger" onclick="return confirm('Bạn có chắc là muốn xoá ?')">Delete</button>
+                </a>
+            </td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

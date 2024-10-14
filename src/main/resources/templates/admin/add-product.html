@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
 <head>
     <meta charset="UTF-8">
     <title>Quản lí sản phẩm</title>
@@ -7,70 +7,83 @@
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
     <h1>Quản lí sản phẩm</h1>
-    <form method="post" th:object="${p}">
+    <form method="post" th:object="${p}" enctype="multipart/form-data">
         <p th:if="${!isAdd}">ID :
-            <input class="form-control" th:field="${p.id}" type="text" disabled>
+            <input class="form-control" th:field="*{id}" type="text" disabled>
         </p>
         <p>Tên sản phẩm :
-            <input class="form-control" th:field="${p.name}" type="text">
-        </p>
-        <p>Ảnh sản phẩm :
-            <input class="form-control" th:field="${p.image}" type="text">
+            <input class="form-control" th:field="*{name}" type="text">
+        <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
         </p>
         <p>Mô tả sản phẩm :
-            <input class="form-control" th:field="${p.description}" type="text">
+            <input class="form-control" th:field="*{description}" type="text">
+        <p th:if="${#fields.hasErrors('description')}" class="text-danger" th:errors="*{description}"></p>
         </p>
         <p>Danh mục :
-            <select class="form-select" th:field="${p.category}">
+            <select class="form-select" th:field="*{category}">
                 <option value="" selected>Chọn danh mục</option>
                 <option th:each="category : ${listCategory}"
                         th:value="${category.id}"
                         th:text="${category.name}">
                 </option>
             </select>
+        <p th:if="${#fields.hasErrors('category')}" class="text-danger" th:errors="*{category}"></p>
         </p>
         <p>Chất liệu :
-            <select class="form-select" th:field="${p.material}">
-                <option value="" selected>Chọn danh mục</option>
+            <select class="form-select" th:field="*{material}">
+                <option value="" selected>Chọn chất liệu</option>
                 <option th:each="material : ${listMaterial}"
                         th:value="${material.id}"
                         th:text="${material.name}">
                 </option>
             </select>
+        <p th:if="${#fields.hasErrors('material')}" class="text-danger" th:errors="*{material}"></p>
         </p>
         <p>Vải lót :
-            <select class="form-select" th:field="${p.lining}">
-                <option value="" selected>Chọn danh mục</option>
+            <select class="form-select" th:field="*{lining}">
+                <option value="" selected>Chọn vải lót</option>
                 <option th:each="lining : ${listLining}"
                         th:value="${lining.id}"
                         th:text="${lining.name}">
                 </option>
             </select>
+        <p th:if="${#fields.hasErrors('lining')}" class="text-danger" th:errors="*{lining}"></p>
         </p>
         <p>Đai mũ :
-            <select class="form-select" th:field="${p.belt}">
-                <option value="" selected>Chọn danh mục</option>
+            <select class="form-select" th:field="*{belt}">
+                <option value="" selected>Chọn đai mũ</option>
                 <option th:each="belt : ${listBelt}"
                         th:value="${belt.id}"
                         th:text="${belt.name}">
                 </option>
             </select>
+        <p th:if="${#fields.hasErrors('belt')}" class="text-danger" th:errors="*{belt}"></p>
         </p>
         <p>Kiểu dáng :
-            <select class="form-select" th:field="${p.style}">
-                <option value="" selected>Chọn danh mục</option>
+            <select class="form-select" th:field="*{style}">
+                <option value="" selected>Chọn kiểu dáng</option>
                 <option th:each="style : ${listStyle}"
                         th:value="${style.id}"
                         th:text="${style.name}">
                 </option>
             </select>
+        <p th:if="${#fields.hasErrors('style')}" class="text-danger" th:errors="*{style}"></p>
+        </p>
+        <p>Ảnh sản phẩm :
+            <input class="form-control" type="file" id="formFile" name="images" multiple>
+        <p th:if="${#fields.hasErrors('images')}" class="text-danger" th:errors="*{images}"></p>
         </p>
         <p>Trạng thái :
-            <input type="radio" class="form-radio" th:field="${p.status}" value="1">Hoạt động
-            <input type="radio" class="form-radio" th:field="${p.status}" value="0">Không hoạt động
+            <input type="radio" class="form-radio" th:field="*{status}" value="1">Hoạt động
+            <input type="radio" class="form-radio" th:field="*{status}" value="0">Không hoạt động
+        <p th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></p>
         </p>
-        <button th:if="${isAdd}" formaction="/admin/product/add-product" type="submit" class="btn btn-success">Create</button>
-        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}" type="submit" class="btn btn-success">Update</button>
+        <button th:if="${isAdd}" th:formaction="@{/admin/product/add-product}" type="submit" class="btn btn-success">
+            Create
+        </button>
+        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}" type="submit"
+                class="btn btn-success">Update
+        </button>
     </form>
 </main>
 </body>

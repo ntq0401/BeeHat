@@ -1,43 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
 <head>
-  <meta charset="UTF-8">
-  <title>Quản lí chất liệu</title>
+    <meta charset="UTF-8">
+    <title>Quản lí chất liệu</title>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <h1>Quản lí chất liệu</h1>
-  <form method="post" th:object="${m}">
-    <p>Tên chất liệu :
-      <input type="text" class="form-control" th:field="${m.name}">
-    </p>
-    <p>Trạng thái :
-      <input type="radio" class="form-radio" value="1" th:field="${m.status}">Hoạt động
-      <input type="radio" class="form-radio" value="0" th:field="${m.status}">Không hoạt động
-    </p>
-    <button class="btn btn-success" type="submit" formaction="/admin/material/add">Create</button>
-  </form>
-  <table class="table">
-    <tr>
-      <th>STT</th>
-      <th>ID</th>
-      <th>Tên chất liệu</th>
-      <th>Trạng thái</th>
-      <th>Ngày tạo</th>
-      <th>Hành động</th>
-    </tr>
-    <tr th:each="material,stt : ${material}">
-      <td>[[${stt.index + 1}]]</td>
-      <td>[[${material.id}]]</td>
-      <td>[[${material.name}]]</td>
-      <td>[[${material.status} == 1 ? 'Hoạt động' : 'Không hoạt động']]</td>
-      <td>[[${material.createdDate.toString().substring(0,10)}]]</td>
-      <td colspan="2">
-        <a th:href="@{/admin/material/update/{id}(id=${material.id})}"><button class="btn btn-warning">Update</button></a>
-        <a th:href="@{/admin/material/delete/{id}(id=${material.id})}" onclick="return confirm('Bạn có muốn xoá ?')"><button class="btn btn-danger">Delete</button> </a>
-      </td>
-    </tr>
-  </table>
+    <h1>Quản lí chất liệu</h1>
+    <form method="post" th:object="${m}">
+        <p>Tên chất liệu :
+            <input type="text" class="form-control" th:field="*{name}">
+      <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+        </p>
+        <p>Trạng thái :
+            <input type="radio" class="form-radio" value="1" th:field="*{status}">Hoạt động
+            <input type="radio" class="form-radio" value="0" th:field="*{status}">Không hoạt động
+      <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+        </p>
+        <button class="btn btn-success" type="submit" formaction="/admin/material/add">Create</button>
+    </form>
+    <table class="table">
+        <tr>
+            <th>STT</th>
+            <th>ID</th>
+            <th>Tên chất liệu</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Hành động</th>
+        </tr>
+        <tr th:each="material,stt : ${listMaterial}">
+            <td>[[${stt.index + 1}]]</td>
+            <td>[[${material.id}]]</td>
+            <td>[[${material.name}]]</td>
+            <td>[[${material.status} == 1 ? 'Hoạt động' : 'Không hoạt động']]</td>
+            <td>[[${material.createdDate.toString().substring(0,10)}]]</td>
+            <td colspan="2">
+                <a th:href="@{/admin/material/update/{id}(id=${material.id})}">
+                    <button class="btn btn-warning">Update</button>
+                </a>
+                <a th:href="@{/admin/material/delete/{id}(id=${material.id})}"
+                   onclick="return confirm('Bạn có muốn xoá ?')">
+                    <button class="btn btn-danger">Delete</button>
+                </a>
+            </td>
+        </tr>
+    </table>
 </main>
 </body>
 </html>
