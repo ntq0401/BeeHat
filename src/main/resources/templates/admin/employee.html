@@ -31,7 +31,7 @@
         <button class="btn btn-outline-success" type="button" onclick="search()">Tìm kiếm</button>
         <button class="btn btn-outline-success ml-5" type="button"
                 onclick="window.location.href='/admin/employee/export'">Xuất file</button>
-        <form id="importForm" action="/admin/employee/import" method="POST" enctype="multipart/form-data">
+        <form id="importForm" th:action="@{/admin/employee/import}" method="POST" enctype="multipart/form-data">
             <input type="file" name="file" id="fileInput" required style="display: none;">
             <button class="btn btn-outline-success" type="button" onclick="document.getElementById('fileInput').click();">Nhập file</button>
         </form>
@@ -76,7 +76,7 @@
             <td th:text="${employee.email}"></td>
             <td th:text="${employee.phone}"></td>
             <td th:text="${#temporals.format(employee.createdDate, 'dd-MM-yyyy')}"></td>
-            <td th:text="${employee.role}"></td>
+            <td th:text="${employee.role==1?'ADMIN':'EMPLOYEE'}"></td>
             <td th:text="${employee.status==1?'Active':'Inactive'}"></td>
 
             <td>
@@ -121,14 +121,14 @@
                 <label>Role</label>
                 <select name="role" class="form-control">
                     <option value="1">Admin</option>
-                    <option value="2">Employee</option>
+                    <option value="0">Employee</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Status</label><br>
-                <input type="radio"  name="status" value="1"}>
+                <input type="radio"  name="status" value="1">
                 <label>Active</label>
-                <input class="ml-5" type="radio"  name="status" value="0" }>
+                <input class="ml-5" type="radio"  name="status" value="0" >
                 <label>Inactive</label>
             </div>
             <div class="form-group">

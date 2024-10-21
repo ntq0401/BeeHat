@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -26,26 +27,30 @@ public class AdminSecurity {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/admin/**").authenticated()
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/employee/**").hasAuthority("ROLE_EMPLOYEE")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
-                        .loginPage("/admin/login") // Đường dẫn đến trang đăng nhập tùy chỉnh
-                        .permitAll() // Cho phép tất cả người dùng truy cập trang đăng nhập
-                        .defaultSuccessUrl("/admin/index") // Đường dẫn sau khi đăng nhập thành công
-                        .failureUrl("/admin/login?error=true") // Đường dẫn nếu đăng nhập thất bại
+                        .loginPage("/admin/login")
+                        .permitAll()
+                        .successHandler(customAuthenticationSuccessHandler()) // Sử dụng handler tùy chỉnh cho điều hướng
+                        .failureUrl("/admin/login?error=true")
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/admin/logout") // URL để đăng xuất
-                        .logoutSuccessUrl("/admin/login?logout=true") // Đường dẫn sau khi đăng xuất
-                        .permitAll() // Cho phép tất cả người dùng truy cập trang đăng xuất
+                        .logoutUrl("/admin/logout")
+                        .logoutSuccessUrl("/admin/login?logout=true")
+                        .permitAll()
                 );
-
         return http.build();
     }
 
@@ -61,13 +66,11 @@ public class AdminSecurity {
     public UserDetailsService userDetailsService() {
         return username -> {
             Employee employee = employeeRepository.findByUsername(username);
-            System.out.println("user:"+username);
-            System.out.printf("em"+employee.getUsername()+"pass"+employee.getPassword());
             if (employee != null) {
                 return org.springframework.security.core.userdetails.User
                         .withUsername(employee.getUsername())
                         .password(employee.getPassword())
-                        .roles("EMPLOYEE")
+                        .roles(employee.getRole()==1?"ADMIN":"EMPLOYEE")
                         .build();
             } else {
                 throw new UsernameNotFoundException("User not found");

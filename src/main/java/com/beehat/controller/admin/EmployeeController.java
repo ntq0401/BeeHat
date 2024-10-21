@@ -97,11 +97,18 @@ public class EmployeeController {
     @GetMapping("/export")
     @ResponseBody
     public void exportToExcel(HttpServletResponse response) throws IOException {
+        // Đặt tên cho file Excel
         String fileName = "employees.xlsx";
+
+        // Đặt kiểu nội dung cho phản hồi HTTP là Excel
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+        // Khởi tạo workbook và sheet trong file Excel
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Employees");
+
+        // Tạo dòng đầu tiên cho tiêu đề của bảng
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("Username");
         headerRow.createCell(1).setCellValue("Password");
@@ -112,53 +119,82 @@ public class EmployeeController {
         headerRow.createCell(6).setCellValue("Updated Date");
         headerRow.createCell(7).setCellValue("Role");
         headerRow.createCell(8).setCellValue("Status");
+
+        // Lấy danh sách nhân viên từ cơ sở dữ liệu
         List<Employee> employees = employeeRepository.findAll();
 
-        int rowNum = 1;
+        // Duyệt qua danh sách nhân viên và tạo các dòng cho từng nhân viên
+        int rowNum = 1; // Bắt đầu từ dòng thứ hai vì dòng đầu tiên đã là tiêu đề
         for (Employee employee : employees) {
             Row row = sheet.createRow(rowNum++);
+
+            // Điền dữ liệu của từng nhân viên vào các cột tương ứng
             row.createCell(0).setCellValue(employee.getUsername());
-            row.createCell(1).setCellValue(employee.getPassword());
+            row.createCell(1).setCellValue(employee.getPassword()); // Có thể cần mã hóa hoặc ẩn dữ liệu mật khẩu
             row.createCell(2).setCellValue(employee.getFullname());
             row.createCell(3).setCellValue(employee.getEmail());
             row.createCell(4).setCellValue(employee.getPhone());
             row.createCell(5).setCellValue(employee.getCreatedDate().toString());
-            row.createCell(6).setCellValue(employee.getUpdatedDate()!=null?employee.getUpdatedDate().toString():null);
+            row.createCell(6).setCellValue(employee.getUpdatedDate() != null ? employee.getUpdatedDate().toString() : null);
             row.createCell(7).setCellValue(employee.getRole());
             row.createCell(8).setCellValue(employee.getStatus());
         }
+
+        // Ghi workbook ra output stream của phản hồi HTTP
         workbook.write(response.getOutputStream());
+
+        // Đóng workbook để giải phóng tài nguyên
         workbook.close();
     }
     @PostMapping("/import")
-    public String importExcel(@RequestParam("file")MultipartFile file){
-        if(file.isEmpty()){
+    public String importExcel(@RequestParam("file") MultipartFile file) {
+        // Kiểm tra nếu file trống thì không thực hiện gì cả
+        if (file.isEmpty()) {
+            // Bạn có thể thêm xử lý để báo lỗi cho người dùng ở đây
+            return "redirect:/admin/employee?error=file_empty";
         }
+
         List<Employee> list = new ArrayList<>();
-        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())){
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            // Lấy sheet đầu tiên trong workbook
             Sheet sheet = workbook.getSheetAt(0);
-            for (int i=1;i<sheet.getPhysicalNumberOfRows();i++){
+
+            // Duyệt qua từng hàng, bắt đầu từ hàng thứ 2 (index 1) để bỏ qua tiêu đề
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
                 Row row = sheet.getRow(i);
-                if(row!=null){
+                if (row != null) {
+                    // Đọc từng ô dữ liệu trong hàng và gán vào các thuộc tính của Employee
                     String username = row.getCell(0).getStringCellValue();
-                    String password  = row.getCell(1).getStringCellValue();
+                    String password = row.getCell(1).getStringCellValue();
                     String fullname = row.getCell(2).getStringCellValue();
                     String email = row.getCell(3).getStringCellValue();
                     String phone = row.getCell(4).getStringCellValue();
-                    Byte role = (byte) (((int) row.getCell(5).getNumericCellValue()));
-                    Byte status = (byte) (((int) row.getCell(6).getNumericCellValue()));
+                    Byte role = (byte) ((int) row.getCell(5).getNumericCellValue());
+                    Byte status = (byte) ((int) row.getCell(6).getNumericCellValue());
                     String photo = row.getCell(7).getStringCellValue();
-                    Employee employee = new Employee(username,password,fullname,email,phone,photo,role,status);
+
+                    // Tạo đối tượng Employee mới và gán giá trị
+                    Employee employee = new Employee(username, password, fullname, email, phone, photo, role, status);
                     employee.setCreatedDate(LocalDateTime.now());
+
+                    // Mã hóa mật khẩu trước khi lưu
+                    employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+
+                    // Thêm employee vào danh sách để lưu
                     list.add(employee);
                 }
             }
+
+            // Lưu tất cả các nhân viên đã tạo vào cơ sở dữ liệu
             employeeRepository.saveAll(list);
 
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
+            // Xử lý ngoại lệ có thể trả về thông báo lỗi hoặc log chi tiết hơn
+            return "redirect:/admin/employee?error=import_failed";
         }
+
+        // Chuyển hướng về trang danh sách nhân viên sau khi hoàn thành import
         return "redirect:/admin/employee";
     }
 }
