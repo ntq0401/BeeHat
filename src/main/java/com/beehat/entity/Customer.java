@@ -45,4 +45,21 @@ public class Customer {
 
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
+    public Customer( String username, String password, String fullname, String email, String address, String city, String district, String ward, String country, String photo, String phone, Byte status) {
+        this.username = username;
+        this.password = password;
+        this.fullname = fullname;
+        this.email = email;
+        this.address = address;
+        this.city = city;
+        this.district = district;
+        this.ward = ward;
+        this.country = country;
+        this.photo = photo;
+        this.phone = phone;
+        this.status = status;
+
+    }
 }
+
