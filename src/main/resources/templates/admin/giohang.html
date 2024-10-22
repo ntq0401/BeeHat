@@ -46,98 +46,82 @@
             </div>
         </div>
     </nav>
-    <div id="carouselExampleDark" class="carousel carousel-dark slide">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active"
-                    aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1"
-                    aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2"
-                    aria-label="Slide 3"></button>
-        </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active" data-bs-interval="1500">
-                <img src="../img/banner1.jpg" class="d-block w-100" alt="banner1">
-            </div>
-            <div class="carousel-item" data-bs-interval="1500">
-                <img src="../img/banner2.jpg" class="d-block w-100" alt="banner2">
-            </div>
-            <div class="carousel-item" data-bs-interval="1500">
-                <img src="../img/banner3.jpg" class="d-block w-100" alt="banner3">
-            </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-    <br>
-    <div>
-        <div class="title_module_main heading-bar e-tabs d-flex align-items-center flex-wrap heading-style1 justify-content-around">
-            <h2 class="heading-bar__title head-title-style" style="font-style: italic;">Sản phẩm nổi bật</h2>
-        </div>
-        <br>
-        <div class="container text-center relative">
-            <div class="row">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h5 class="fw-bold">Sản phẩm</h5>
+
                 <!-- Product 1 -->
-                <div class="col-md-3">
-                    <div class="card">
-                        <img src="../img/1.png" alt="Product 1">
-                        <h5>Product 1</h5>
-                        <p>Price: $10.99</p>
-                        <div class="d-flex justify-content-center mt-4">
-                            <button class="btn btn-dark px-4 py-2">MUA NGAY</button>
-                            <button class="btn btn-dark px-4 py-2">THÊM VÀO GIỎ</button>
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex">
+                        <img class="img-fluid me-3" height="100" src="../img/1.png" width="100" alt="Product 1"/>
+                        <div>
+                            <h6 class="fw-bold">Product 1</h6>
+                            <div>
+                                <span class="text-muted text-decoration-line-through">₫800.00</span>
+                                <span class="text-success fw-bold">₫500.00</span>
+                            </div>
+                            <div class="input-group mb-3" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" type="button">-</button>
+                                <input class="form-control text-center" type="text" value="1"/>
+                                <button class="btn btn-outline-secondary" type="button">+</button>
+                            </div>
+                            <a class="text-danger" href="#">Xóa sản phẩm</a>
                         </div>
                     </div>
+                    <div class="text-end">
+                        <span class="text-success fw-bold">₫500.00</span>
+                    </div>
                 </div>
+                <hr/>
+
                 <!-- Product 2 -->
-                <div class="col-md-3">
-                    <div class="card">
-                        <img src="../img/2.png" alt="Product 2">
-                        <h5>Product 2</h5>
-                        <p>Price: $9.99</p>
-                        <div class="d-flex justify-content-center mt-4">
-                            <button class="btn btn-dark px-4 py-2">MUA NGAY</button>
-                            <button class="btn btn-dark px-4 py-2">THÊM VÀO GIỎ</button>
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex">
+                        <img class="img-fluid me-3" height="100" src="../img/2.png" width="100" alt="Product 2"/>
+                        <div>
+                            <h6 class="fw-bold">Product 2</h6>
+                            <div>
+                                <span class="text-muted text-decoration-line-through">₫1,200.00</span>
+                                <span class="text-success fw-bold">₫1,000.00</span>
+                            </div>
+                            <div class="input-group mb-3" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" type="button">-</button>
+                                <input class="form-control text-center" type="text" value="1"/>
+                                <button class="btn btn-outline-secondary" type="button">+</button>
+                            </div>
+                            <a class="text-danger" href="#">Xóa sản phẩm</a>
                         </div>
                     </div>
-                </div>
-                <!-- Product 3 -->
-                <div class="col-md-3">
-                    <div class="card">
-                        <img src="../img/3.png" alt="Product 3">
-                        <h5>Product 3</h5>
-                        <p>Price: $11.99</p>
-                        <div class="d-flex justify-content-center mt-4">
-                            <button class="btn btn-dark px-4 py-2">MUA NGAY</button>
-                            <button class="btn btn-dark px-4 py-2">THÊM VÀO GIỎ</button>
-                        </div>
+                    <div class="text-end">
+                        <span class="text-success fw-bold">₫1,000.00</span>
                     </div>
                 </div>
-                <!-- Product 4 -->
-                <div class="col-md-3">
-                    <div class="card">
-                        <img src="../img/4.png" alt="Product 4">
-                        <h5>Product 4</h5>
-                        <p>Price: $8.99</p>
-                        <div class="d-flex justify-content-center mt-4">
-                            <button class="btn btn-dark px-4 py-2">MUA NGAY</button>
-                            <button class="btn btn-dark px-4 py-2">THÊM VÀO GIỎ</button>
-                        </div>
-                    </div>
+            </div>
+
+            <div class="col-md-4">
+                <h5 class="fw-bold">Cộng giỏ hàng</h5>
+                <div class="mb-3">
+                    <label class="form-label" for="discount-code">Thêm một phiếu giảm giá</label>
+                    <input class="form-control" id="discount-code" type="text"/>
                 </div>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Tạm tính</span>
+                    <span class="fw-bold">₫1,500.00</span>
+                </div>
+                <hr/>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Tổng</span>
+                    <span class="fw-bold">₫1,500.00</span>
+                </div>
+                <div class="btn btn-dark text-white mt-3" style="width: 100%;">Thanh toán</div>
             </div>
         </div>
     </div>
     <br>
     <div>
         <div class="title_module_main heading-bar e-tabs d-flex align-items-center flex-wrap heading-style1 justify-content-around">
-            <h2 class="heading-bar__title head-title-style" style="font-style: italic;">BEST SELLER
+            <h2 class="heading-bar__title head-title-style" style="font-style: italic;">Có thể bạn sẽ thích
                 <table></table>
             </h2>
         </div>
@@ -270,9 +254,8 @@
                         <a href="tel:0918434343" class="text-dark text-decoration-none">0918.43.43.43</a>
                     </p>
                     <p>Hotline CSKH: <a href="tel:18007078" class="text-dark text-decoration-none">1800 7078</a></p>
-                    <p>Email: <a href="mailto:info@nonson.vn" class="text-dark text-decoration-none">info@beehat.vn</a>
-                    </p>
-                    <p>Website: <a href="http://nonson.vn" class="text-dark text-decoration-none">beehat.vn</a></p>
+                    <p>Email: <a href="#" class="text-dark text-decoration-none">info@beehat.vn</a></p>
+                    <p>Website: <a href="#" class="text-dark text-decoration-none">beehat.vn</a></p>
                     <p>
                         Theo dõi Nón Sơn trên:
                         <a href="#" class="text-dark"><i class="fab fa-facebook-f"></i></a>

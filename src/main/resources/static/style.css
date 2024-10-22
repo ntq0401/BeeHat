@@ -33,6 +33,7 @@ body {
     background-color: #fff;
     min-width: 0;
 }
+
 .sidebar-header {
     color: #FFF;
     font-size: .75rem;
@@ -43,6 +44,7 @@ body {
     font-size: .75rem;
     padding: 1.5rem 0.6rem .375rem;
 }
+
 #sidebar {
     width: 70px;
     min-width: 70px;
@@ -130,10 +132,13 @@ a.sidebar-link:hover {
 .sidebar-item {
     position: relative;
 }
+
+
 .sidebar-link i, .sidebar-link span {
     line-height: 1; /* Đảm bảo cùng chiều cao dòng */
     vertical-align: middle; /* Đảm bảo chúng căn giữa nhau */
 }
+
 #sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
     position: absolute;
     top: 0;
@@ -144,7 +149,9 @@ a.sidebar-link:hover {
     display: none;
 }
 
-#sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
+
+#sidebar:not(.expand) .sidebar-item:hover .has-dropdown + .sidebar-dropdown {
+
     display: block;
     max-height: 20rem;
     width: 100%;
@@ -185,4 +192,6 @@ a.sidebar-link:hover {
 
 
 
-@media (min-width: 768px) {}
+
+@media (min-width: 768px) {
+}

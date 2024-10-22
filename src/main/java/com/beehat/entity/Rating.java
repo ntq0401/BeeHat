@@ -16,10 +16,12 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne @JoinColumn(name = "product_id")
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne @JoinColumn(name = "customer_id")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer; // Khóa ngoại đến bảng customer (có thể null)
 
     private Integer rating; // Đánh giá từ 1-5

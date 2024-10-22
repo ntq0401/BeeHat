@@ -16,13 +16,16 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne @JoinColumn(name = "customer_id")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne @JoinColumn(name = "employee_id")
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @ManyToOne @JoinColumn(name = "payment_method_id")
+    @ManyToOne
+    @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
     @Column(name = "deliver_date")
@@ -31,7 +34,8 @@ public class Order {
     @Column(name = "total_price")
     private Integer totalPrice;
 
-    @ManyToOne @JoinColumn(name = "voucher_id")
+    @ManyToOne
+    @JoinColumn(name = "voucher_id")
     private Voucher voucher;
 
     @Column(name = "voucher_discount")

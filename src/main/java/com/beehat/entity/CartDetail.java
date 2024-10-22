@@ -16,10 +16,12 @@ public class CartDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne @JoinColumn(name = "product_detail_id")
+    @ManyToOne
+    @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 
-    @ManyToOne @JoinColumn(name = "customer_id")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     private Integer quantity;
