@@ -16,14 +16,16 @@
                 <div class="card text-center">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <ul class="nav nav-pills card-header-pills" id="navPills">
-                            <li class="nav-item" th:each="invoice : ${listInvoice}">
+                            <li class="nav-item" th:each="invoice,stt : ${listInvoice}">
                                 <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}" class="nav-link">Hoá
-                                    đơn [[${invoice.id}]]</a>
+                                    đơn [[${stt.index+1}]]</a>
                                 <button type="button" class="btn-close" aria-label="Close"></button>
                             </li>
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
-                        <button id="addNavItemBtn" class="btn btn-success">Thêm hoá đơn</button>
+                        <form method="post" th:object="${i}">
+                            <button id="addNavItemBtn" type="submit" class="btn btn-success">Thêm hoá đơn</button>
+                        </form>
                     </div>
                     <div class="card-body">
                         <div class="mb-3 d-flex justify-content-between">
@@ -31,7 +33,95 @@
                                 <div class="d-flex align-items-center">
                                     <input type="text" class="form-control flex-grow-1"
                                            placeholder="Tìm kiếm sản phẩm">
-                                    <button type="button" class="btn btn-primary ms-2">+</button>
+                                    <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+                                            data-bs-target="#productModal">+
+                                    </button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="productModal" tabindex="-1"
+                                         aria-labelledby="productModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="productModalLabel">Danh sách sản
+                                                        phẩm</h5>
+                                                    <button type="button" class="btn-close" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Ảnh</th>
+                                                            <th>SKU</th>
+                                                            <th>Tên sản phẩm</th>
+                                                            <th>Kích cỡ</th>
+                                                            <th>Màu sắc</th>
+                                                            <th>Chất liệu</th>
+                                                            <th>Danh mục</th>
+                                                            <th>Vải lót</th>
+                                                            <th>Đai mũ</th>
+                                                            <th>Kiểu dáng</th>
+                                                            <th>Hành động</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <!-- Lặp qua danh sách productDetail -->
+                                                        <tr th:each="detail, stt : ${productDetails.content}">
+                                                            <td>[[${stt.index +1}]]</td>
+                                                            <td th:if="${detail.product.images.size() > 0}">
+                                                                <img th:src="${detail.product.images[0].imageUrl}"
+                                                                     alt="Ảnh sản phẩm"
+                                                                     style="width: 100px; height: auto;"/>
+                                                            </td>
+                                                            <td th:if="${detail.product.images.size() <= 0}">
+                                                                <img src="" alt="Ảnh mặc định"
+                                                                     style="width: 100px; height: auto;"/>
+                                                            </td>
+                                                            <td>[[${detail.product.sku}]]</td>
+                                                            <td>[[${detail.product.name}]]</td>
+                                                            <td>[[${detail.size.name}]]</td>
+                                                            <td>[[${detail.color.name}]]</td>
+                                                            <td>[[${detail.product.material.name}]]</td>
+                                                            <td>[[${detail.product.category.name}]]</td>
+                                                            <td>[[${detail.product.lining.name}]]</td>
+                                                            <td>[[${detail.product.belt.name}]]</td>
+                                                            <td>[[${detail.product.style.name}]]</td>
+                                                            <td colspan="2">
+                                                                <a th:href="@{/admin/product/add-product-detail/{id}(id=${detail.product.id})}">
+                                                                    <button class="btn btn-info">Thêm vào giỏ hàng
+                                                                    </button>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- Hiển thị nút phân trang -->
+                                                    <div class="pagination">
+                                                        <ul>
+                                                            <li th:if="${currentPage > 0}">
+                                                                <a th:href="@{/admin/store/index(page=${currentPage - 1}, size=${size})}">&laquo;
+                                                                    Trước</a>
+                                                            </li>
+                                                            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                                                th:classappend="${i == currentPage} ? 'active'">
+                                                                <a th:href="@{/admin/store/index(page=${i}, size=${size})}">[[${i
+                                                                    + 1}]]</a>
+                                                            </li>
+                                                            <li th:if="${currentPage < totalPages - 1}">
+                                                                <a th:href="@{/admin/store/index(page=${currentPage + 1}, size=${size})}">Sau
+                                                                    &raquo;</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Đóng
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div>
@@ -44,6 +134,7 @@
                         <table class="table" style="margin-bottom: 0px">
                             <thead>
                             <tr>
+                                <th>STT</th>
                                 <th>Ảnh</th>
                                 <th>Tên sản phẩm</th>
                                 <th>Số lượng</th>
@@ -51,22 +142,27 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>
+                            <tr th:each="invoiceDetail,stt : ${invoiceDetail}">
+                                <td>[[${stt.index+1}]]</td>
+                                <td th:if="${invoiceDetail.productDetail.product.images.size() > 0}">
                                     <div class="flex-shrink-0">
-                                        <img src="https://www.bootdey.com/image/280x280/87CEFA/000000" alt=""
-                                             width="35" class="img-fluid">
+                                        <img th:src="${invoiceDetail.productDetail.product.images[0].imageUrl}" alt="Ảnh sản phẩm" width="35"
+                                             class="img-fluid"/>
+                                    </div>
+                                </td>
+                                <td th:if="${invoiceDetail.productDetail.product.images.size() <= 0}">
+                                    <div class="flex-shrink-0">
+                                        <img src="" alt="Ảnh mặc định" width="35" class="img-fluid"/>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="flex-lg-grow-1 ms-3">
-                                        <h6 class="small mb-0"><a href="#" class="text-reset">Wireless Headphones
-                                            with Noise Cancellation Tru Bass Bluetooth HiFi</a></h6>
-                                        <span class="small">Color: Black</span>
+                                        <h6 class="small mb-0"><a href="#" class="text-reset">[[${invoiceDetail.productDetail.product.name}]]</a></h6>
+                                        <span class="small">Color: [[${invoiceDetail.productDetail.color.name}]]</span>
                                     </div>
                                 </td>
-                                <td>1</td>
-                                <td class="text-end">$79.99</td>
+                                <td>[[${invoiceDetail.quantity}]]</td>
+                                <td class="text-end">[[${invoiceDetail.productDetail.price}]]</td>
                             </tr>
 
                             </tbody>

@@ -3,6 +3,7 @@ package com.beehat.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 
 @Entity
@@ -68,6 +69,7 @@ public class Invoice {
     @Column(name = "invoice_status")
     private Byte invoiceStatus; // Trạng thái đơn hàng
 
+    @Column(name = "status",insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)
