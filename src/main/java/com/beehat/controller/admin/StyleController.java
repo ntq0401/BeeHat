@@ -29,7 +29,7 @@ public class StyleController {
         return "admin/style/index";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/index")
     public String add(@Valid @ModelAttribute("s") Style style, BindingResult result) {
         if (result.hasErrors()) {
             return "admin/style/index";

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -28,14 +29,16 @@ public class BeltController {
         return "admin/belt";
     }
 
-    @PostMapping("/add")
-    public String create(@Valid @ModelAttribute("b") Belt belt, BindingResult rs) {
+    @PostMapping("/index")
+    public String create(@Valid @ModelAttribute("b") Belt belt, BindingResult rs, RedirectAttributes redirectAttributes) {
         if (rs.hasErrors()) {
             return "admin/belt";
         }
         beltRepo.save(belt);
+        redirectAttributes.addFlashAttribute("message", "Thêm mới thành công!");
         return "redirect:/admin/belt/index";
     }
+
 
     @GetMapping("/update/{id}")
     public String update(@PathVariable("id") Integer id, Model model) {

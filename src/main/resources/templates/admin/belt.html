@@ -6,19 +6,37 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Quản lí đai mũ</h1>
-    <form th:object="${b}" method="post">
-        <p>Tên đai nón :
-            <input type="text" class="form-control" th:field="*{name}">
-            <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
-        </p>
-        <p>Trạng thái :
-            <input class="form-radio" type="radio" value="1" th:field="*{status}">Hoạt động
-            <input class="form-radio" type="radio" value="0" th:field="*{status}">Không hoạt động
-            <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
-        </p>
-        <button type="submit" formaction="/admin/belt/add" class="btn btn-success">Create</button>
-    </form>
+    <h1>Danh sách đai mũ</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBeltModal">
+        Thêm mới
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addBeltModal" tabindex="-1" aria-labelledby="addBeltModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBeltModalLabel">Thêm mới đai mũ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form thêm mới đai nón -->
+                    <form th:object="${b}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Tên đai mũ</label>
+                            <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên đai mũ">
+                            <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success" formaction="/admin/belt/index">Tạo mới
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table">
         <tr>
             <th>STT</th>
@@ -39,8 +57,8 @@
                     <button class="btn btn-warning">Update</button>
                 </a>
                 <a th:href="@{/admin/belt/delete/{id}(id=${belt.id})}"
-                   onclick="return confirm('Bạn có chắc là muốn xoá ?')">
-                    <button class="btn btn-danger">Delete</button>
+                   onclick="return confirm('Bạn có muốn xoá ?')">
+                    <button class="btn btn-danger" id="deleteButton">Delete</button>
                 </a>
             </td>
         </tr>

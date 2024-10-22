@@ -28,7 +28,7 @@ public class LiningController {
         return "admin/lining";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/index")
     public String add(@Valid @ModelAttribute("l") Lining lining, BindingResult rs) {
         if (rs.hasErrors()) {
             return "admin/lining";

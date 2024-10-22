@@ -8,8 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "product")
@@ -24,6 +26,9 @@ public class Product {
 
     @NotBlank(message = "Tên sản phẩm không được bỏ trống !")
     private String name;
+
+    @Column(name = "sku", unique = true)
+    private String sku;
 
     @NotBlank(message = "Không được bỏ trống mô tả !")
     private String description;
@@ -73,6 +78,29 @@ public class Product {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
+    @PrePersist
+    public void prePersist() {
+        // Nếu SKU chưa có, tự động tạo mới SKU
+        if (this.sku == null || this.sku.isEmpty()) {
+            this.sku = generateSKU();
+        }
+    }
+
+    // Phương thức sinh SKU
+    private String generateSKU() {
+        // Sử dụng 3 ký tự đầu tiên của tên sản phẩm (đã bỏ khoảng trắng)
+        String productCode = this.name.replaceAll("\\s+", "").substring(0, 3).toUpperCase();
+
+        // Thời gian hiện tại dưới dạng yyyyMMddHHmmss
+        String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+
+        // Sinh chuỗi ngẫu nhiên 5 ký tự
+        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+
+        // Tạo SKU bằng cách kết hợp productCode, timeStamp, và randomUUID
+        return productCode + "-" + timeStamp + "-" + randomUUID;
+    }
 
     @PreUpdate
     public void preUpdate() {

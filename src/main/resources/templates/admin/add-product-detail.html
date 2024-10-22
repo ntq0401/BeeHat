@@ -12,13 +12,13 @@
         </p>
         <p>Màu sắc :</p>
         <div th:each="color : ${listColor}">
-            <input class="form-color" type="checkbox" th:field="*{color.id}" th:value="${color.id}" name="colors">
+            <input class="form-color" type="checkbox" th:value="${color.id}" th:name="colors">
             [[${color.name}]]
         </div>
 
         <p>Kích cỡ :</p>
         <div th:each="size : ${listSize}">
-            <input type="checkbox" th:field="*{size.id}" th:value="${size.id}" name="sizes"> [[${size.name}]]
+            <input type="checkbox" th:value="${size.id}" name="sizes"> [[${size.name}]]
         </div>
         <p>Giá :
             <input class="form-control" type="number" th:field="*{price}">

@@ -10,8 +10,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +44,8 @@ public class ProductController {
     SizeRepo sizeRepo;
     @Autowired
     ProductService productService;
+    @Autowired
+    private ProductImageRepo productImageRepo;
 
     @ModelAttribute("listCategory")
     List<Category> listCategory() {
@@ -78,6 +84,8 @@ public class ProductController {
 
     @GetMapping("/index")
     public String product(Model model) {
+        model.addAttribute("p", new Product());
+        model.addAttribute("isAdd", true);
         model.addAttribute("product", productRepo.findAll());
         return "admin/product";
     }
@@ -96,12 +104,57 @@ public class ProductController {
     }
 
     @PostMapping("/add-product")
-    public String addProduct(@Valid @ModelAttribute("p") ProductDTO p, BindingResult rs, Model model) throws IOException {
+    public String addProduct(@Valid @ModelAttribute("p") Product p, BindingResult rs,
+                             Model model, @RequestParam(value = "file") MultipartFile[] files) {
         if (rs.hasErrors()) {
+            if (files[0].getOriginalFilename().equals("")) {
+                model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
+                model.addAttribute("isAdd", true);
+                return "admin/add-product";
+            }
             model.addAttribute("isAdd", true);
             return "admin/add-product";
         }
-        productService.saveProduct(p);
+        // Kiểm tra kỹ hơn đối với files
+        if (files[0].getOriginalFilename().equals("")) {
+            model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
+            model.addAttribute("isAdd", true);
+            return "admin/add-product";
+        }
+        String debug = files[0].getOriginalFilename();
+        System.out.println(debug);
+        // Kiểm tra nếu có file ảnh
+        if (files != null && files.length > 0) {
+            List<ProductImage> productImages = new ArrayList<>();
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    // Lưu file ảnh vào thư mục trên server
+                    String fileName = file.getOriginalFilename();
+                    try {
+                        // Định nghĩa đường dẫn lưu ảnh
+                        String filePath = "src/main/resources/static/product-img/" + fileName;
+                        Path path = Paths.get(filePath);
+                        Files.write(path, file.getBytes());
+
+                        // Tạo đối tượng ProductImage
+                        ProductImage img = new ProductImage();
+                        img.setImageUrl("/product-img/" + fileName);  // Đường dẫn truy cập ảnh
+                        img.setProduct(p);  // Liên kết ảnh với sản phẩm
+                        productImages.add(img);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // Xử lý lỗi khi lưu ảnh
+                        model.addAttribute("error", "Error uploading image: " + fileName);
+                        return "admin/add-product";
+                    }
+                }
+            }
+            // Gán danh sách ảnh vào sản phẩm
+            p.setImages(productImages);
+        }
+
+        // Lưu sản phẩm vào database (giả định bạn có một service để lưu sản phẩm)
+        productRepo.save(p);
         return "redirect:/admin/product/index";
     }
 
@@ -117,7 +170,6 @@ public class ProductController {
         Map<Color, List<ProductDetail>> groupedByColor = productDetails.stream()
                 .collect(Collectors.groupingBy(ProductDetail::getColor));
         model.addAttribute("groupedByColor", groupedByColor);
-
         model.addAttribute("colors", new ArrayList<>()); // Danh sách màu sẽ được chọn
         return "admin/add-product-detail";
     }
@@ -154,8 +206,48 @@ public class ProductController {
     }
 
     @PostMapping("/update-product/{id}")
-    public String updateProduct(@PathVariable("id") int id, @ModelAttribute("p") Product p) {
+    public String updateProduct(@PathVariable("id") int id, @Valid @ModelAttribute("p") Product p, BindingResult rs,
+                                @RequestParam("file") MultipartFile[] files, Model model) {
+        if (rs.hasErrors()) {
+            model.addAttribute("isAdd", false);
+            return "admin/add-product";
+        }
         p.setId(id);
+        p.setSku(productRepo.findById(id).get().getSku());
+
+        // Kiểm tra nếu có file ảnh
+        if (!files[0].getOriginalFilename().equals("")) {
+            List<ProductImage> productImages = new ArrayList<>();
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    // Lưu file ảnh vào thư mục trên server
+                    String fileName = file.getOriginalFilename();
+                    try {
+                        // Định nghĩa đường dẫn lưu ảnh
+                        String filePath = "src/main/resources/static/product-img/" + fileName;
+                        Path path = Paths.get(filePath);
+                        Files.write(path, file.getBytes());
+
+                        // Tạo đối tượng ProductImage
+                        ProductImage img = new ProductImage();
+                        img.setImageUrl("/product-img/" + fileName);  // Đường dẫn truy cập ảnh
+                        img.setProduct(p);  // Liên kết ảnh với sản phẩm
+                        productImages.add(img);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // Xử lý lỗi khi lưu ảnh
+                        model.addAttribute("error", "Error uploading image: " + fileName);
+                        return "admin/add-product";
+                    }
+                }
+            }
+            // Gán danh sách ảnh vào sản phẩm
+            productImageRepo.deleteByProductId(id);
+            p.setImages(productImages);
+        } else {
+            List<ProductImage> productImages = productImageRepo.findByProductId(id);
+            p.setImages(productImages);
+        }
         productRepo.save(p);
         return "redirect:/admin/product/index";
     }

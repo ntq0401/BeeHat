@@ -6,39 +6,47 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
+
     <h1>Quản lí sản phẩm</h1>
     <form class="d-flex" th:action="@{/admin/product/search}">
         <input class="form-control me-2" type="search" name="keyword" placeholder="Nhập tên sản phẩm"
                aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Search</button>
     </form>
-    <a href="/admin/product/add-product">
-        <button style="margin-top: 10px" class="btn btn-primary">Thêm mới</button>
-    </a>
+
     <a href="/admin/product/index">
         <button style="margin-top: 10px" class="btn btn-success">Làm mới</button>
+    </a>
+    <a href="/admin/product/add-product">
+        <button style="margin-top: 10px" class="btn btn-primary">Thêm mới</button>
     </a>
 
     <table class="table">
         <tr>
             <th>STT</th>
-            <th>ID</th>
-            <th>Tên sản phẩm</th>
             <th>Ảnh</th>
-            <th>Trạng thái</th>
+            <th>SKU</th>
+            <th>Tên sản phẩm</th>
+            <th>Danh mục</th>
+            <th>Số lượng</th>
             <th>Ngày tạo</th>
+            <th>Trạng thái</th>
             <th>Hành động</th>
         </tr>
         <tr th:each="p,stt : ${product}">
             <td>[[${stt.index +1}]]</td>
-            <td>[[${p.id}]]</td>
+            <td th:if="${p.images.size() > 0}">
+                <img th:src="${p.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 100px; height: auto;"/>
+            </td>
+            <td th:if="${p.images.size() <= 0}">
+                <img src="" alt="Ảnh mặc định" style="width: 100px; height: auto;"/>
+            </td>
+            <td>[[${p.sku}]]</td>
             <td>[[${p.name}]]</td>
-            <td><img
-                    th:src="@{/product-img/{img}(img=${p.images[0].imageUrl})}"
-                    alt="Ảnh sản phẩm"
-                    style="width: 100px; height: auto;"/></td>
-            <td>[[${p.status}== 1 ? 'Đang bán' : 'Không hoạt động']]</td>
+            <td>[[${p.category.name}]]</td>
+            <td>[[${p.productDetail.size()}]]</td>
             <td>[[${p.createdDate.toString().substring(0,10)}]]</td>
+            <td>[[${p.status}== 1 ? 'Đang bán' : 'Không hoạt động']]</td>
             <td colspan="2">
                 <a th:href="@{/admin/product/add-product-detail/{id}(id=${p.id})}">
                     <button class="btn btn-info">Chi tiết</button>

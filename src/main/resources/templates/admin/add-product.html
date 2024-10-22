@@ -3,88 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lí sản phẩm</title>
+    <script>
+        function previewImages() {
+            var preview = document.querySelector('#preview');
+            preview.innerHTML = "";  // Xóa nội dung trước đó
+
+            var files = document.querySelector('input[type=file]').files;
+            if (files.length === 0) {
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+
+                // Kiểm tra định dạng ảnh
+                if (!file.type.startsWith('image/')) {
+                    alert('File không phải là ảnh.');
+                    continue;
+                }
+
+                // Kiểm tra kích thước ảnh (giới hạn ví dụ là 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước ảnh không được vượt quá 5MB.');
+                    continue;
+                }
+
+                let reader = new FileReader();
+
+                reader.onload = function (event) {
+                    let img = document.createElement("img");
+                    img.src = event.target.result;
+                    img.style.maxWidth = "200px";
+                    img.style.margin = "10px";
+                    preview.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Quản lí sản phẩm</h1>
-    <form method="post" th:object="${p}" enctype="multipart/form-data">
-        <p th:if="${!isAdd}">ID :
-            <input class="form-control" th:field="*{id}" type="text" disabled>
-        </p>
-        <p>Tên sản phẩm :
-            <input class="form-control" th:field="*{name}" type="text">
-        <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
-        </p>
-        <p>Mô tả sản phẩm :
-            <input class="form-control" th:field="*{description}" type="text">
-        <p th:if="${#fields.hasErrors('description')}" class="text-danger" th:errors="*{description}"></p>
-        </p>
-        <p>Danh mục :
-            <select class="form-select" th:field="*{category}">
-                <option value="" selected>Chọn danh mục</option>
-                <option th:each="category : ${listCategory}"
-                        th:value="${category.id}"
-                        th:text="${category.name}">
-                </option>
-            </select>
-        <p th:if="${#fields.hasErrors('category')}" class="text-danger" th:errors="*{category}"></p>
-        </p>
-        <p>Chất liệu :
-            <select class="form-select" th:field="*{material}">
-                <option value="" selected>Chọn chất liệu</option>
-                <option th:each="material : ${listMaterial}"
-                        th:value="${material.id}"
-                        th:text="${material.name}">
-                </option>
-            </select>
-        <p th:if="${#fields.hasErrors('material')}" class="text-danger" th:errors="*{material}"></p>
-        </p>
-        <p>Vải lót :
-            <select class="form-select" th:field="*{lining}">
-                <option value="" selected>Chọn vải lót</option>
-                <option th:each="lining : ${listLining}"
-                        th:value="${lining.id}"
-                        th:text="${lining.name}">
-                </option>
-            </select>
-        <p th:if="${#fields.hasErrors('lining')}" class="text-danger" th:errors="*{lining}"></p>
-        </p>
-        <p>Đai mũ :
-            <select class="form-select" th:field="*{belt}">
-                <option value="" selected>Chọn đai mũ</option>
-                <option th:each="belt : ${listBelt}"
-                        th:value="${belt.id}"
-                        th:text="${belt.name}">
-                </option>
-            </select>
-        <p th:if="${#fields.hasErrors('belt')}" class="text-danger" th:errors="*{belt}"></p>
-        </p>
-        <p>Kiểu dáng :
-            <select class="form-select" th:field="*{style}">
-                <option value="" selected>Chọn kiểu dáng</option>
-                <option th:each="style : ${listStyle}"
-                        th:value="${style.id}"
-                        th:text="${style.name}">
-                </option>
-            </select>
-        <p th:if="${#fields.hasErrors('style')}" class="text-danger" th:errors="*{style}"></p>
-        </p>
-        <p>Ảnh sản phẩm :
-            <input class="form-control" type="file" id="formFile" name="images" multiple>
-        <p th:if="${#fields.hasErrors('images')}" class="text-danger" th:errors="*{images}"></p>
-        </p>
-        <p>Trạng thái :
-            <input type="radio" class="form-radio" th:field="*{status}" value="1">Hoạt động
-            <input type="radio" class="form-radio" th:field="*{status}" value="0">Không hoạt động
-        <p th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></p>
-        </p>
-        <button th:if="${isAdd}" th:formaction="@{/admin/product/add-product}" type="submit" class="btn btn-success">
-            Create
-        </button>
-        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}" type="submit"
-                class="btn btn-success">Update
-        </button>
-    </form>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Thêm mới sản phẩm</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" th:object="${p}" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Tên sản phẩm -->
+                    <div class="col-md-12 mb-3">
+                        <label for="name" class="form-label">Tên sản phẩm</label>
+                        <input class="form-control" th:field="*{name}" type="text" id="name">
+                        <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+                    </div>
+
+                    <!-- Mô tả sản phẩm -->
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Mô tả sản phẩm</label>
+                        <textarea class="form-control" th:field="*{description}" id="description"></textarea>
+                        <p th:if="${#fields.hasErrors('description')}" class="text-danger"
+                           th:errors="*{description}"></p>
+                    </div>
+
+                    <!-- Danh mục -->
+                    <div class="col-md-6 mb-3 d-flex">
+                        <div class="flex-grow-1">
+                            <label for="category" class="form-label">Danh mục</label>
+                            <select class="form-select" th:field="*{category}" id="category">
+                                <option value="" selected>Chọn danh mục</option>
+                                <option th:each="category : ${listCategory}" th:value="${category.id}"
+                                        th:text="${category.name}"></option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('category')}" class="text-danger"
+                               th:errors="*{category}" style="min-height: 20px;"></p>
+                        </div>
+                        <div class="ms-2 align-self-end">
+                            <button type="button" class="btn btn-outline-primary" title="Thêm danh mục"
+                                    data-bs-toggle="modal" data-bs-target="#addCategoryModal">+
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Chất liệu -->
+                    <div class="col-md-6 mb-3 d-flex">
+                        <div class="flex-grow-1">
+                            <label for="material" class="form-label">Chất liệu</label>
+                            <select class="form-select" th:field="*{material}" id="material">
+                                <option value="" selected>Chọn chất liệu</option>
+                                <option th:each="material : ${listMaterial}" th:value="${material.id}"
+                                        th:text="${material.name}"></option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('material')}" class="text-danger"
+                               th:errors="*{material}"></p>
+                        </div>
+                        <div class="ms-2 align-self-end">
+                            <button type="button" class="btn btn-outline-primary" title="Thêm chất liệu"
+                                    data-bs-toggle="modal" data-bs-target="#addMaterialModal">+
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Vải lót -->
+                    <div class="col-md-6 mb-3 d-flex">
+                        <div class="flex-grow-1">
+                            <label for="lining" class="form-label">Vải lót</label>
+                            <select class="form-select" th:field="*{lining}" id="lining">
+                                <option value="" selected>Chọn vải lót</option>
+                                <option th:each="lining : ${listLining}" th:value="${lining.id}"
+                                        th:text="${lining.name}"></option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('lining')}" class="text-danger"
+                               th:errors="*{lining}"></p>
+                        </div>
+                        <div class="ms-2 align-self-end">
+                            <button type="button" class="btn btn-outline-primary" title="Thêm vải lót"
+                                    data-bs-toggle="modal" data-bs-target="#addLiningModal">+
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Đai mũ -->
+                    <div class="col-md-6 mb-3 d-flex">
+                        <div class="flex-grow-1">
+                            <label for="belt" class="form-label">Đai mũ</label>
+                            <select class="form-select" th:field="*{belt}" id="belt">
+                                <option value="" selected>Chọn đai mũ</option>
+                                <option th:each="belt : ${listBelt}" th:value="${belt.id}"
+                                        th:text="${belt.name}"></option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('belt')}" class="text-danger" th:errors="*{belt}"></p>
+                        </div>
+                        <div class="ms-2 align-self-end">
+                            <button type="button" class="btn btn-outline-primary" title="Thêm đai mũ"
+                                    data-bs-toggle="modal" data-bs-target="#addBeltModal">+
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kiểu dáng -->
+                    <div class="col-md-6 mb-3 d-flex">
+                        <div class="flex-grow-1">
+                            <label for="style" class="form-label">Kiểu dáng</label>
+                            <select class="form-select" th:field="*{style}" id="style">
+                                <option value="" selected>Chọn kiểu dáng</option>
+                                <option th:each="style : ${listStyle}" th:value="${style.id}"
+                                        th:text="${style.name}"></option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('style')}" class="text-danger"
+                               th:errors="*{style}"></p>
+                        </div>
+                        <div class="ms-2 align-self-end">
+                            <button type="button" class="btn btn-outline-primary" title="Thêm kiểu dáng"
+                                    data-bs-toggle="modal" data-bs-target="#addStyleModal">+
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Trạng thái -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" th:field="*{status}" id="status">
+                            <option th:value="1">Hoạt động</option>
+                            <option th:value="0">Không hoạt động</option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></p>
+                    </div>
+
+                    <!-- Ảnh sản phẩm -->
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Ảnh sản phẩm</label>
+                        <input class="form-control" type="file" name="file" multiple
+                               onchange="previewImages()">
+                        <!-- Khu vực hiển thị ảnh xem trước -->
+                        <div id="preview" style="display: flex; flex-wrap: wrap; margin-top: 20px;"></div>
+                        <p class="text-danger" th:text="${errorMessage}"></p>
+                    </div>
+
+                </div>
+
+                <!-- Buttons -->
+                <div class="card-footer">
+                    <center>
+                        <button th:if="${isAdd}" th:formaction="@{/admin/product/add-product}" type="submit"
+                                class="btn btn-success">Create
+                        </button>
+                        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}"
+                                type="submit" class="btn btn-success">Update
+                        </button>
+                    </center>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </main>
+
 </body>
 </html>

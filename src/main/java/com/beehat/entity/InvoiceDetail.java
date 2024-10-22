@@ -6,20 +6,22 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "order_detail")
+@Table(name = "invoice_detail")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderDetail {
+public class InvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne @JoinColumn(name = "order_id")
-    private Order order;
+    @ManyToOne
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoice;
 
-    @ManyToOne @JoinColumn(name = "product_detail_id")
+    @ManyToOne
+    @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 
     private Integer quantity;
@@ -42,6 +44,7 @@ public class OrderDetail {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();

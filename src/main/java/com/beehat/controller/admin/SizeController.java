@@ -28,7 +28,7 @@ public class SizeController {
         return "admin/size";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/index")
     public String add(@Valid @ModelAttribute("s") Size size, BindingResult rs) {
         if (rs.hasErrors()) {
             return "admin/size";

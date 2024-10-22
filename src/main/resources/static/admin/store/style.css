@@ -1,0 +1,18 @@
+
+.nav-item {
+    position: relative; /* Định vị tương đối để chứa nút X */
+}
+
+.nav-link {
+    padding-right: 40px; /* Tăng khoảng cách giữa văn bản và nút X */
+}
+
+.btn-close {
+    position: absolute;
+    top: 50%;
+    right: 10px; /* Đặt nút X bên phải nhưng bên trong liên kết */
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    outline: none;
+}

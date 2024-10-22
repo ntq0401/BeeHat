@@ -28,7 +28,7 @@ public class MaterialController {
         return "admin/material";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/index")
     public String add(@Valid @ModelAttribute("m") Material material, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "admin/material";

@@ -1,100 +1,108 @@
 package com.beehat.DTO;
 
-import org.springframework.web.multipart.MultipartFile;
+import com.beehat.entity.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class ProductDTO {
+
     private Integer id;
+
+    @NotBlank(message = "Tên sản phẩm không được bỏ trống !")
     private String name;
+
+    @NotBlank(message = "Không được bỏ trống mô tả !")
     private String description;
-    private Integer category;
-    private Integer material;
-    private Integer lining;
-    private Integer belt;
-    private Integer style;
+
+    @NotNull(message = "Không được bỏ trống ảnh !")
+    private List<ProductImage> images = new ArrayList<>();
+
+    @NotNull(message = "Không được bỏ trống danh mục !")
+    private Integer categoryId;
+
+    @NotNull(message = "Không được bỏ trống chất liệu !")
+    private Integer materialId;
+
+    @NotNull(message = "Không được bỏ trống vải lót !")
+    private Integer liningId;
+
+    @NotNull(message = "Không được bỏ trống đai mũ!")
+    private Integer beltId;
+
+    @NotNull(message = "Không được bỏ trống kiểu dáng !")
+    private Integer styleId;
+
+    @NotNull(message = "Không được bỏ trống trạng thái !")
+    @Min(value = 0, message = "Status must be at least 0")
+    @Max(value = 1, message = "Status can only be 0 or 1")
     private Byte status;
 
-    private List<MultipartFile> images;
+    public Product toEntity() {
+        Product product = new Product();
 
-    // Getters và Setters
-    public Integer getId() {
-        return id;
-    }
+        product.setId(id);
+        product.setName(name);
+        product.setDescription(description);
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+        // Set danh mục sản phẩm
+        if (categoryId != null) {
+            Category category = new Category();
+            category.setId(categoryId);
+            product.setCategory(category);
+        }
 
-    public String getName() {
-        return name;
-    }
+        // Set chất liệu sản phẩm
+        if (materialId != null) {
+            Material material = new Material();
+            material.setId(materialId);
+            product.setMaterial(material);
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        // Set vải lót
+        if (liningId != null) {
+            Lining lining = new Lining();
+            lining.setId(liningId);
+            product.setLining(lining);
+        }
 
-    public String getDescription() {
-        return description;
-    }
+        // Set đai mũ
+        if (beltId != null) {
+            Belt belt = new Belt();
+            belt.setId(beltId);
+            product.setBelt(belt);
+        }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+        // Set kiểu dáng
+        if (styleId != null) {
+            Style style = new Style();
+            style.setId(styleId);
+            product.setStyle(style);
+        }
 
-    public Integer getCategory() {
-        return category;
-    }
+        // Set trạng thái
+        product.setStatus(status);
 
-    public void setCategory(Integer category) {
-        this.category = category;
-    }
+        // Thêm danh sách ảnh
+        if (images != null && !images.isEmpty()) {
+            List<ProductImage> productImages = new ArrayList<>();
+            for (ProductImage image : images) {
+                ProductImage imgEntity = new ProductImage();
+                imgEntity.setImageUrl(image.getImageUrl());  // Assuming ProductImage has 'url' field
+                imgEntity.setProduct(product); // Set sản phẩm cho từng ảnh
+                productImages.add(imgEntity);
+            }
+            product.setImages(productImages); // Gán danh sách ảnh cho sản phẩm
+        }
 
-    public Integer getMaterial() {
-        return material;
-    }
+        return product;
 
-    public void setMaterial(Integer material) {
-        this.material = material;
-    }
-
-    public Integer getLining() {
-        return lining;
-    }
-
-    public void setLining(Integer lining) {
-        this.lining = lining;
-    }
-
-    public Integer getBelt() {
-        return belt;
-    }
-
-    public void setBelt(Integer belt) {
-        this.belt = belt;
-    }
-
-    public Integer getStyle() {
-        return style;
-    }
-
-    public void setStyle(Integer style) {
-        this.style = style;
-    }
-
-    public Byte getStatus() {
-        return status;
-    }
-
-    public void setStatus(Byte status) {
-        this.status = status;
-    }
-
-    public List<MultipartFile> getImages() {
-        return images;
-    }
-
-    public void setImages(List<MultipartFile> images) {
-        this.images = images;
     }
 }

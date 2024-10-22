@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Bán hàng tại quầy</title>
+    <link rel="stylesheet" href="/admin/store/style.css">
+</head>
+
+<body>
+
+<main class="content px-3 py-4" layout:fragment="main">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Nội dung trang chính ở bên trái (nếu có) -->
+            <div class="col-md-9">
+                <div class="card text-center">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <ul class="nav nav-pills card-header-pills" id="navPills">
+                            <li class="nav-item" th:each="invoice : ${listInvoice}">
+                                <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}" class="nav-link">Hoá
+                                    đơn [[${invoice.id}]]</a>
+                                <button type="button" class="btn-close" aria-label="Close"></button>
+                            </li>
+                        </ul>
+                        <!-- Button to add new Nav item inside nav -->
+                        <button id="addNavItemBtn" class="btn btn-success">Thêm hoá đơn</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 d-flex justify-content-between">
+                            <div class="d-flex">
+                                <div class="d-flex align-items-center">
+                                    <input type="text" class="form-control flex-grow-1"
+                                           placeholder="Tìm kiếm sản phẩm">
+                                    <button type="button" class="btn btn-primary ms-2">+</button>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="me-3">16-10-2024</span>
+                                <span class="me-3">#1</span>
+                                <span class="me-3">ED21-BHDOL</span>
+                                <span class="badge rounded-pill bg-info">Chưa thanh toán</span>
+                            </div>
+                        </div>
+                        <table class="table" style="margin-bottom: 0px">
+                            <thead>
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Giá</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://www.bootdey.com/image/280x280/87CEFA/000000" alt=""
+                                             width="35" class="img-fluid">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex-lg-grow-1 ms-3">
+                                        <h6 class="small mb-0"><a href="#" class="text-reset">Wireless Headphones
+                                            with Noise Cancellation Tru Bass Bluetooth HiFi</a></h6>
+                                        <span class="small">Color: Black</span>
+                                    </div>
+                                </td>
+                                <td>1</td>
+                                <td class="text-end">$79.99</td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card thông tin khách hàng ở bên phải -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        Thông tin hoá đơn
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label me-2">Khách Hàng</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="text" class="form-control flex-grow-1" id="customerName"
+                                           placeholder="Nhập tên khách hàng">
+                                    <button type="button" class="btn btn-primary ms-2">+</button>
+                                </div>
+                            </div>
+                            <!-- Nhập voucher -->
+                            <div class="mb-3 row">
+                                <label for="voucherCode" class="form-label">Mã Voucher</label>
+                                <div class="col-7">
+                                    <input type="text" class="form-control" id="voucherCode"
+                                           placeholder="Nhập voucher">
+                                </div>
+                                <div class="col-5">
+                                    <button type="button" class="btn btn-primary w-100" id="applyVoucherBtn">Áp dụng
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label me-2">Phương thức thanh toán</label>
+                                <div class="d-flex align-items-center">
+                                    <select class="form-control flex-grow-1" id="">
+                                        <option>Chọn phương thức thanh toán</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table mb-5 mt-3">
+                                    <tbody>
+                                    <tr>
+                                        <td>Tổng tiền :</td>
+                                        <td class="text-end">$ 780</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Giảm giá :</td>
+                                        <td class="text-end">- $ 78</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phí ship :</td>
+                                        <td class="text-end">$ 25</td>
+                                    </tr>
+                                    <tr class="bg-light">
+                                        <th>Thực thu :</th>
+                                        <td class="text-end">
+                                            <span class="fw-bold">
+                                                $ 745.2
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Lưu Thông Tin</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/admin/store/script.js"></script>
+    <script>
+        const navPills = document.getElementById('navPills');
+
+        // Lắng nghe sự kiện click trên tất cả các nút X
+        navPills.addEventListener('click', function (e) {
+            if (e.target.classList.contains('btn-close')) {
+                // Xóa thẻ li chứa nút X khi bấm vào
+                e.target.closest('li').remove();
+            }
+        });
+    </script>
+</main>
+</body>
+
+
+</html>

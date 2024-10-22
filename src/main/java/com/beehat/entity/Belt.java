@@ -25,11 +25,8 @@ public class Belt {
     @NotBlank(message = "Tên không được bỏ trống !")
     @Column(name = "name", nullable = false)
     private String name;
-
-    @NotNull(message = "Trạng thái không được bỏ trống !")
-    @Min(value = 0, message = "Status can only be 0 or 1")
-    @Max(value = 1, message = "Status can only be 0 or 1")
-    @Column(name = "status", nullable = false)
+    
+    @Column(name = "status", insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)

@@ -28,7 +28,7 @@ public class ColorController {
         return "admin/color/index";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/index")
     public String add(@Valid @ModelAttribute("c") Color color, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "admin/color/index";
