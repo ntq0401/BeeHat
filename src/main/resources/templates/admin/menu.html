@@ -1,0 +1,154 @@
+<aside id="sidebar" th:fragment="sidebar">
+    <div class="d-flex">
+        <button class="toggle-btn" type="button">
+            <i class="icon ph-bold ph-squares-four"></i>
+        </button>
+        <div class="sidebar-logo">
+            <a href="/admin/index">BeeHat</a>
+        </div>
+    </div>
+    <ul class="sidebar-nav">
+        <li class="sidebar-header">
+            Main
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/index" class="sidebar-link">
+                <i class="ph-bold ph-house-simple"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/store" class="sidebar-link">
+                <i class="ph-bold ph ph-basket"></i>
+                <span>Bán hàng</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/product" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+               data-bs-target="#product" aria-expanded="false" aria-controls="product">
+                <i class="ph-bold ph ph-baseball-cap"></i>
+                <span>Quản lí sản phẩm</span>
+            </a>
+            <ul id="product" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <li class="sidebar-item">
+                    <a href="/admin/product" class="sidebar-link">Sản phẩm</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Màu sắc</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Kích cỡ</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Kiểu dáng</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Chất liệu</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Vải lót</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">Đai mũ</a>
+                </li>
+            </ul>
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/order" class="sidebar-link">
+                <i class="ph-bold ph-file-text"></i>
+                <span>Hoá đơn</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/customer" class="sidebar-link">
+                <i class="ph-bold ph ph-user"></i>
+                <span>Khách hàng</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="/admin/employee" class="sidebar-link">
+                <i class="ph-bold ph ph-user-list"></i>
+                <span>Nhân viên</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+               data-bs-target="#sale" aria-expanded="false" aria-controls="sale">
+                <i class="ph-bold ph ph-tag"></i>
+                <span>Sale</span>
+            </a>
+            <ul id="sale" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <li class="sidebar-item">
+                    <a href="/admin/voucher" class="sidebar-link">Phiếu giảm giá</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/admin/promotion" class="sidebar-link">Chương trình giảm giá</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <li class="sidebar-header1">
+        Account
+    </li>
+    <div class="sidebar-footer">
+        <a href="#" class="sidebar-link">
+            <i class="ph-bold ph-sign-out"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+<nav th:fragment="navbar" style="background: lightgray" class="navbar navbar-expand px-4 py-3">
+    <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+    <div class="navbar-collapse collapse">
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
+                    <img src="/account.png" class="avatar img-fluid" alt="">
+                </a>
+                <div class="dropdown-menu dropdown-menu-end rounded">
+                    <a href="#" class="dropdown-item">
+                        <i class="ph ph-info"></i>
+                        <span>Thông tin cá nhân</span>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="ph ph-password"></i>
+                        <span>Đổi mật khẩu</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ph-bold ph-sign-out"></i>
+                        <span>Đăng xuất</span>
+                    </a>
+
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+<footer class="footer" th:fragment="footer">
+    <div class="container-fluid">
+        <div class="row text-body-secondary">
+            <div class="col-6 text-start ">
+                <a class="text-body-secondary" href="#">
+                    <strong>BeeHat</strong>
+                </a>
+            </div>
+            <div class="col-6 text-end text-body-secondary d-none d-md-block">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item">
+                        <a class="text-body-secondary" href="#">Contact</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="text-body-secondary" href="#">About Us</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="text-body-secondary" href="#">Terms & Conditions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
