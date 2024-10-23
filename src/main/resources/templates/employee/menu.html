@@ -1,0 +1,99 @@
+<aside id="sidebar" th:fragment="sidebar">
+  <div class="d-flex">
+    <button class="toggle-btn" type="button">
+      <i class="icon ph-bold ph-squares-four"></i>
+    </button>
+    <div class="sidebar-logo">
+      <a href="/employee/dashboard">BeeHat</a>
+    </div>
+  </div>
+  <ul class="sidebar-nav">
+    <li class="sidebar-header">
+      Main
+    </li>
+    <li class="sidebar-item">
+      <a href="/employee/dashboard" class="sidebar-link">
+        <i class="ph-bold ph-house-simple"></i>
+        <span>Trang chủ</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/employee/store" class="sidebar-link">
+        <i class="ph-bold ph ph-basket"></i>
+        <span>Bán hàng</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/employee/orderconfirm" class="sidebar-link">
+        <i class="ph-bold ph-package"></i>
+        <span>Xác nhận đơn hàng</span>
+      </a>
+    </li>
+
+  </ul>
+  <li class="sidebar-header1">
+    Hello <span th:text="${username}"></span> !
+  </li>
+  <div class="sidebar-footer">
+    <a href="#" class="sidebar-link">
+      <i class="ph-bold ph-sign-out"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+<nav th:fragment="navbar" style="background: lightgray" class="navbar navbar-expand px-4 py-3">
+  <form class="d-flex" role="search">
+    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+  </form>
+  <div class="navbar-collapse collapse">
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item dropdown">
+        <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
+          <img id="user-avatar" class="avatar img-fluid" th:src="${userImageURL}" alt="User Avatar">
+        </a>
+        <div class="dropdown-menu dropdown-menu-end rounded">
+          <a href="/employee/profile" class="dropdown-item">
+            <i class="ph ph-info"></i>
+            <span>Thông tin cá nhân</span>
+          </a>
+          <a href="/employee/change-password" class="dropdown-item">
+            <i class="ph ph-password"></i>
+            <span>Đổi mật khẩu</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="dropdown-item">
+              <i class="ph-bold ph-sign-out"></i>
+              <span>Đăng xuất</span>
+            </button>
+          </form>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<footer class="footer" th:fragment="footer">
+  <div class="container-fluid">
+    <div class="row text-body-secondary">
+      <div class="col-6 text-start ">
+        <a class="text-body-secondary" href="#">
+          <strong>BeeHat</strong>
+        </a>
+      </div>
+      <div class="col-6 text-end text-body-secondary d-none d-md-block">
+        <ul class="list-inline mb-0">
+          <li class="list-inline-item">
+            <a class="text-body-secondary" href="#">Contact</a>
+          </li>
+          <li class="list-inline-item">
+            <a class="text-body-secondary" href="#">About Us</a>
+          </li>
+          <li class="list-inline-item">
+            <a class="text-body-secondary" href="#">Terms & Conditions</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>

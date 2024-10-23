@@ -1,4 +1,5 @@
 <aside id="sidebar" th:fragment="sidebar">
+<<<<<<< HEAD
     <div class="d-flex">
         <button class="toggle-btn" type="button">
             <i class="icon ph-bold ph-list"></i>
@@ -112,7 +113,7 @@
         <ul class="navbar-nav ms-auto">
             <li class="nav-item dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
-                    <img src="/admin/account.png" class="avatar img-fluid" alt="">
+                    <img id="user-avatar" class="avatar img-fluid" th:src="${userImageURL}" alt="User Avatar">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end rounded">
                     <a href="#" class="dropdown-item">
@@ -124,11 +125,12 @@
                         <span>Đổi mật khẩu</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
-                        <i class="ph-bold ph-sign-out"></i>
-                        <span>Đăng xuất</span>
-                    </a>
-
+                    <form th:action="@{/admin/logout}" method="post">
+                        <button type="submit" class="dropdown-item">
+                            <i class="ph-bold ph-sign-out"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
                 </div>
             </li>
         </ul>
