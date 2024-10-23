@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/home")
 public class HomePageController {
     @Autowired
     ProductRepo productRepo;
@@ -20,7 +19,7 @@ public class HomePageController {
     @Autowired
     ProductImageRepo productImageRepo;
 
-    @GetMapping("")
+    @GetMapping("/home")
     public String home(Model model) {
         model.addAttribute("products", productRepo.findAll());
         return "customer/index";
@@ -32,5 +31,9 @@ public class HomePageController {
         model.addAttribute("listImg", productImageRepo.findByProductId(id));
         model.addAttribute("productDetail", productDetailRepo.findByProductId(id));
         return "customer/product-detail/index";
+    }
+    @GetMapping("/cart")
+    public String cart(Model model) {
+        return "customer/cart";
     }
 }
