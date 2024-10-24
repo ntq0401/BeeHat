@@ -65,4 +65,20 @@ public class StoreController {
         invoiceRepo.save(invoice);
         return "redirect:/admin/store/index";
     }
+    @PostMapping("/invoice-detail/{id}")
+    public String addProductToInvoiceDetail(@PathVariable("id") int id, @RequestParam("productDetailId") int productId,
+                                            @RequestParam("invoiceId")int invoiceId) {
+        ProductDetail productDetail = productDetailRepo.findById(productId).orElse(null);
+        Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
+        InvoiceDetail invoiceDetail = new InvoiceDetail();
+        invoiceDetail.setInvoice(invoice);
+        invoiceDetail.setProductDetail(productDetail);
+        invoiceDetailRepo.save(invoiceDetail);
+        return "redirect:/admin/store/invoice-detail/" + invoiceId;
+    }
+    @GetMapping("/index/{id}")
+    public String deleteInvoice(@PathVariable("id") int id) {
+        invoiceRepo.deleteById(id);
+        return "redirect:/admin/store/index";
+    }
 }
