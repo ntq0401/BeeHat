@@ -63,7 +63,7 @@ public class StoreController {
 
     @GetMapping("/invoice-detail/{id}")
     public String invoiceDetail(@PathVariable int id, Model model) {
-        model.addAttribute("infoInvoice", invoiceRepo.findById(id).orElse(null));
+        model.addAttribute("infoInvoice", invoiceRepo.findById(id).orElseThrow(() -> new NullPointerException("Invoice not found")));
         LocalDateTime createdDate =invoiceRepo.findById(id).get().getCreatedDate(); // Lấy giá trị LocalDateTime
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         String formattedDate = createdDate.format(formatter); // Format thành chuỗi
@@ -84,6 +84,12 @@ public class StoreController {
                 invoiceDetail.setQuantity(invoiceDetail.getQuantity() + 1);
                 invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
                 invoiceDetailRepo.save(invoiceDetail);
+                invoice.setId(idInvoice);
+                invoice.setTotalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
+                invoice.setFinalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
+                invoiceRepo.save(invoice);
+                productDetail.setStock(productDetail.getStock() -1);
+                productDetailRepo.save(productDetail);
                 return "redirect:/admin/store/invoice-detail/" + idInvoice;
             }
         }
@@ -94,6 +100,17 @@ public class StoreController {
         invoiceDetail.setUnitPrice(productDetail.getPrice());
         invoiceDetail.setFinalPrice(productDetail.getPrice());
         invoiceDetailRepo.save(invoiceDetail);
+        productDetail.setStock(productDetail.getStock() -1);
+        productDetailRepo.save(productDetail);
+        invoice.setId(idInvoice);
+        invoice.setTotalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
+        invoice.setFinalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
+        invoiceRepo.save(invoice);
         return "redirect:/admin/store/invoice-detail/" + idInvoice;
+    }
+    @GetMapping("/delete-invoice/{id}")
+    public String deleteInvoice(@PathVariable int id) {
+        invoiceRepo.deleteById(id);
+        return "redirect:/admin/store/index";
     }
 }

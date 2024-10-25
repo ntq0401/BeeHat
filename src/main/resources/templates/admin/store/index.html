@@ -22,12 +22,12 @@
                             <li class="hoa-don nav-item" th:each="invoice,stt : ${listInvoice}">
                                 <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}" class="hoa-don-link nav-link">Hoá
                                     đơn [[${stt.index+1}]]</a>
-                                <button type="button" class="nut-close btn-close" aria-label="Close"></button>
+                                <a th:href="@{/admin/store/delete-invoice/{id}(id=${invoice.id})}"><button type="button" class="nut-close btn-close" aria-label="Close"></button></a>
                             </li>
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
-                        <form method="post" th:object="${i}">
-                            <button th:formaction="@{/admin/store/add-invoice}" id="addNavItemBtn" type="submit" class="btn btn-success">Thêm hoá đơn</button>
+                        <form id="invoiceForm" th:action="@{/admin/store/add-invoice}" method="post" th:object="${i}">
+                            <button  id="showToastButton" type="button" class="btn btn-success">Thêm hoá đơn</button>
                         </form>
                     </div>
                     <div class="card-body">
@@ -47,7 +47,7 @@
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="productModalLabel">Danh sách sản
                                                         phẩm</h5>
-                                                    <button type="button" class="btn-close" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <table class="table">
@@ -104,11 +104,11 @@
                                                     <!-- Hiển thị nút phân trang -->
                                                     <nav aria-label="Page navigation example">
                                                         <ul class="pagination">
-                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/index(page=${currentPage - 1}, size=${size})}">Previous</a></li>
+                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/invoice-detail/{id}(id=${invoiceId},page=${currentPage - 1}, size=${size})}">Previous</a></li>
                                                             <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                                                                th:classappend="${i == currentPage} ? 'active'"><a class="page-link" th:href="@{/admin/store/index(page=${i}, size=${size})}">[[${i
+                                                                th:classappend="${i == currentPage} ? 'active'"><a class="page-link" th:href="@{/admin/store/invoice-detail/{id}(id=${invoiceId},page=${i}, size=${size})}">[[${i
                                                                 + 1}]]</a></li>
-                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/index(page=${currentPage + 1}, size=${size})}">Next</a></li>
+                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/invoice-detail/{id}(id=${invoiceId},page=${currentPage + 1}, size=${size})}">Next</a></li>
                                                         </ul>
                                                     </nav>
                                                 </div>
@@ -140,7 +140,7 @@
                                 <th>Thành tiền</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody >
                             <tr th:each="invoiceDetail,stt : ${listInvoiceDetail}">
                                 <td>[[${stt.index+1}]]</td>
                                 <td th:if="${invoiceDetail.productDetail.product.images.size() > 0}">
@@ -244,13 +244,14 @@
                             <div class="table-responsive">
                                 <table class="table mb-5 mt-3">
                                     <tbody>
+                                    <form th:object="${infoInvoice}">
                                     <tr>
                                         <td>Tổng tiền :</td>
-                                        <td class="text-end">$ 780</td>
+                                        <td class="text-end" th:field="*{totalPrice}" th:text="*{totalPrice}"></td>
                                     </tr>
                                     <tr>
                                         <td>Giảm giá :</td>
-                                        <td class="text-end">- $ 78</td>
+                                        <td class="text-end" th:field="*{voucherDiscount}" th:text="*{voucherDiscount}"></td>
                                     </tr>
                                     <tr>
                                         <td>Phí ship :</td>
@@ -259,12 +260,11 @@
                                     <tr class="bg-light">
                                         <th>Thực thu :</th>
                                         <td class="text-end">
-                                            <span class="fw-bold">
-                                                $ 745.2
+                                            <span class="fw-bold" th:field="*{finalPrice}" th:text="*{finalPrice}">
                                             </span>
                                         </td>
                                     </tr>
-                                    </tbody>
+                                    </form>
                                 </table>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Lưu Thông Tin</button>
@@ -276,35 +276,64 @@
     </div>
     <script src="/admin/store/script.js"></script>
     <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-            }
-        });
-        // Thêm sự kiện click vào nút để hiển thị toast
-        document.getElementById('showToastButton').addEventListener('click', function () {
-            Toast.fire({
-                icon: "success",
-                title: "Signed in successfully"
+        document.getElementById('showToastButton').addEventListener('click', function (event) {
+            // Hiển thị hộp thoại xác nhận
+            Swal.fire({
+                title: 'Bạn có chắc chắn muốn thêm hóa đơn?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Nếu đồng ý, hiển thị thông báo Toast
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "Thêm thành công"
+                    });
+
+                    // Chờ toast hoàn thành rồi submit form
+                    setTimeout(() => {
+                        document.getElementById('invoiceForm').submit();
+                    }, 3000);
+                }
             });
         });
     </script>
     <script>
-        const navPills = document.getElementById('navPills');
+        $(document).on('click', '.pagination-link', function (event) {
+            event.preventDefault(); // Ngăn chặn tải lại trang
 
-        // Lắng nghe sự kiện click trên tất cả các nút X
-        navPills.addEventListener('click', function (e) {
-            if (e.target.classList.contains('btn-close')) {
-                // Xóa thẻ li chứa nút X khi bấm vào
-                e.target.closest('li').remove();
-            }
+            const page = $(this).data('page'); // Lấy số trang từ data-page
+            const size = 10; // Bạn có thể tùy chỉnh kích thước trang nếu cần
+
+            $.ajax({
+                url: '/admin/store/index', // Đường dẫn đến controller lấy dữ liệu
+                type: 'GET',
+                data: { page: page, size: size },
+                success: function (response) {
+                    // Chỉ cập nhật nội dung của bảng và pagination
+                    $('#productTable').html($(response).find('#productTable').html());
+                    $('.pagination').html($(response).find('.pagination').html());
+                },
+                error: function () {
+                    alert("Không thể tải danh sách sản phẩm.");
+                }
+            });
         });
+
     </script>
 </main>
 </body>
