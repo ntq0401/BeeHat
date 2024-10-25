@@ -5,6 +5,7 @@ import com.beehat.repo.CustomerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,15 +26,16 @@ public class CustomerSecurity {
         return new BCryptPasswordEncoder();
     }
     @Bean
+    @Order(2)
     public SecurityFilterChain customerSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/customer/login").authenticated() // Chỉ yêu cầu xác thực
+                        .requestMatchers("/customer/login").permitAll() // Chỉ yêu cầu xác thực
                         .anyRequest().permitAll()
                 )
                 .formLogin((form) -> form
                         .loginPage("/customer/login")
-                        .defaultSuccessUrl("/customer/index", true)
+                        .successHandler(new CustomAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout((logout) -> logout

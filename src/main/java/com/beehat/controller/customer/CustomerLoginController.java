@@ -17,6 +17,8 @@ public class CustomerLoginController {
             // Lấy thông tin người dùng từ SecurityContext
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String username = userDetails.getUsername();
+            System.out.println("customer login:"+username);
+            System.out.printf("xxx:"+userDetails.toString());
             model.addAttribute("username", username); // Thêm tên người dùng vào mô hình
         }
         return "customer/index";
