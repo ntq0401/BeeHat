@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 import java.util.Random;
@@ -62,7 +63,7 @@ public class PasswordController {
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String email, @RequestParam String newPassword,
-                                @RequestParam String confirmPassword, Model model) {
+                                @RequestParam String confirmPassword, Model model, RedirectAttributes redirectAttributes) {
         System.out.println("email reset:"+email);
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "Mật khẩu xác nhận không trùng khớp.");
@@ -76,9 +77,10 @@ public class PasswordController {
             Employee employee = employee1.get();
             employee.setPassword(passwordEncoder.encode(newPassword));  // Cập nhật mật khẩu mới (có thể thêm mã hóa)
             employeeRepo.save(employee);
-            model.addAttribute("message", "Password has been reset successfully.");
-            return "/admin/loginadmin";
-        } else {
+            redirectAttributes.addFlashAttribute("successMessage", "Khôi phuc mật khẩu thành công! Vui lòng đăng nhập.");
+            return "redirect:/admin/login";
+        }
+        else {
             model.addAttribute("error", "User not found.");
             return "/admin/reset-password";
         }

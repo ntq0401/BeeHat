@@ -10,6 +10,9 @@
 <body>
 <div class="container mt-5">
   <h2 class="text-center">Đăng nhập</h2>
+  <div th:if="${successMessage}" class="alert alert-success" role="alert">
+    <p th:text="${successMessage}"></p>
+  </div>
 
   <div th:if="${param.error}" class="alert alert-danger">
     Đăng nhập không thành công! Vui lòng kiểm tra lại Username hoặc Mật khẩu.
@@ -25,7 +28,7 @@
       <input type="password" class="form-control" id="password" name="password"  placeholder="Nhập Mật khẩu">
     </div>
     <div class="form-check mb-3">
-      <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" th:checked="${rememberMe}">
+      <input type="checkbox" class="form-check-input" id="rememberMe" name="remember-me">
       <label class="form-check-label" for="rememberMe">Ghi nhớ</label>
     </div>
     <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>

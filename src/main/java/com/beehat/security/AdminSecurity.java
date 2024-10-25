@@ -5,6 +5,7 @@ import com.beehat.repository.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
 
 @Configuration
 @EnableWebSecurity
@@ -36,9 +38,11 @@ public class AdminSecurity {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/employee/**").hasAuthority("ROLE_EMPLOYEE")
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("ROLE_ADMIN") // Quyền truy cập cho POST
+                        .requestMatchers(HttpMethod.PUT, "/admin/**").hasAuthority("ROLE_ADMIN")  // Quyền truy cập cho PUT
+                        .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ROLE_ADMIN") // Quyền truy cập cho DELETE, nếu cần
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Cho phép tất cả yêu cầu GET cho ROLE_ADMIN
+                        .anyRequest().permitAll() // Các yêu cầu khác không cần xác thực
                 )
                 .formLogin(form -> form
                         .loginPage("/admin/login")
@@ -46,6 +50,7 @@ public class AdminSecurity {
                         .successHandler(customAuthenticationSuccessHandler()) // Sử dụng handler tùy chỉnh cho điều hướng
                         .failureUrl("/admin/login?error=true")
                 )
+
                 .logout(logout -> logout
                         .logoutUrl("/admin/logout")
                         .logoutSuccessUrl("/admin/login?logout=true")
@@ -67,14 +72,17 @@ public class AdminSecurity {
         return username -> {
             Employee employee = employeeRepository.findByUsername(username);
             if (employee != null) {
+                String role = employee.getRole() == 1 ? "ROLE_ADMIN" : "ROLE_EMPLOYEE";
                 return org.springframework.security.core.userdetails.User
                         .withUsername(employee.getUsername())
                         .password(employee.getPassword())
-                        .roles(employee.getRole()==1?"ADMIN":"EMPLOYEE")
+                        .authorities(role)
                         .build();
             } else {
                 throw new UsernameNotFoundException("User not found");
             }
         };
     }
+
+
 }
