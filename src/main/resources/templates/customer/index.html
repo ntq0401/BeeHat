@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+
+</head>
+<body>
+<div th:if="${username != null}">
+    <p>Hello, <span th:text="${username}"></span>!</p>
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+<div th:if="${username == null}">
+    <p>You are not logged in.</p>
+    <a th:href="@{/customer/login}">Login</a>
+</div>
+</body>
+</html>
