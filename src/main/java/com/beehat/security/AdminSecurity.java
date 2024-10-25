@@ -38,11 +38,9 @@ public class AdminSecurity {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("ROLE_ADMIN") // Quyền truy cập cho POST
-                        .requestMatchers(HttpMethod.PUT, "/admin/**").hasAuthority("ROLE_ADMIN")  // Quyền truy cập cho PUT
-                        .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAuthority("ROLE_ADMIN") // Quyền truy cập cho DELETE, nếu cần
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Cho phép tất cả yêu cầu GET cho ROLE_ADMIN
-                        .anyRequest().permitAll() // Các yêu cầu khác không cần xác thực
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/employee/**").hasAuthority("ROLE_EMPLOYEE")
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/admin/login")
