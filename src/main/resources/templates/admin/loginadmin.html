@@ -10,7 +10,9 @@
 <body>
 <div class="container mt-5">
   <h2 class="text-center">Đăng nhập</h2>
-
+  <div th:if="${successMessage}" class="alert alert-success" role="alert">
+    <p th:text="${successMessage}"></p>
+  </div>
   <div th:if="${param.error}" class="alert alert-danger">
     Đăng nhập không thành công! Vui lòng kiểm tra lại Username hoặc Mật khẩu.
   </div>
