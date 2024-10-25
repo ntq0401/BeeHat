@@ -29,7 +29,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mã màu</label>
-                            <input type="color" class="form-color" th:field="*{code}" placeholder="Nhập mã màu">
+                            <input type="color" class="form-control-color" th:field="*{code}" placeholder="Nhập mã màu">
                             <p th:if="${#fields.hasErrors('code')}" class="text-danger" th:errors="*{code}"></p>
                         </div>
                         <div class="modal-footer">

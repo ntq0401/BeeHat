@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Entity
 @Table(name = "invoice")
@@ -77,6 +79,25 @@ public class Invoice {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    @PrePersist
+    public void prePersist() {
+        // Nếu SKU chưa có, tự động tạo mới SKU
+        if (this.invoiceTrackingNumber == null || this.invoiceTrackingNumber.isEmpty()) {
+            this.invoiceTrackingNumber = generateInvoiceTrackingNumber();
+        }
+    }
+
+    // Phương thức sinh mã theo dõi hoá đơn
+    private String generateInvoiceTrackingNumber() {
+        // Sinh chuỗi ngẫu nhiên 5 ký tự
+        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+
+        // Thời gian hiện tại dưới dạng yyyyMMddHHmmss
+        String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+
+        // Tạo SKU bằng cách kết hợp productCode, timeStamp, và randomUUID
+        return randomUUID + "-" + timeStamp;
+    }
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();

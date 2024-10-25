@@ -10,21 +10,24 @@
 
 <main class="content px-3 py-4" layout:fragment="main">
     <div class="container-fluid">
+        <div class="container mt-5">
+
+        </div>
         <div class="row">
             <!-- Nội dung trang chính ở bên trái (nếu có) -->
             <div class="col-md-9">
                 <div class="card text-center">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <ul class="nav nav-pills card-header-pills" id="navPills">
-                            <li class="nav-item" th:each="invoice,stt : ${listInvoice}">
-                                <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}" class="nav-link">Hoá
+                            <li class="hoa-don nav-item" th:each="invoice,stt : ${listInvoice}">
+                                <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}" class="hoa-don-link nav-link">Hoá
                                     đơn [[${stt.index+1}]]</a>
-                                <button type="button" class="btn-close" aria-label="Close"></button>
+                                <button type="button" class="nut-close btn-close" aria-label="Close"></button>
                             </li>
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
                         <form method="post" th:object="${i}">
-                            <button id="addNavItemBtn" type="submit" class="btn btn-success">Thêm hoá đơn</button>
+                            <button th:formaction="@{/admin/store/add-invoice}" id="addNavItemBtn" type="submit" class="btn btn-success">Thêm hoá đơn</button>
                         </form>
                     </div>
                     <div class="card-body">
@@ -61,6 +64,7 @@
                                                             <th>Vải lót</th>
                                                             <th>Đai mũ</th>
                                                             <th>Kiểu dáng</th>
+                                                            <th>Số lượng</th>
                                                             <th>Hành động</th>
                                                         </tr>
                                                         </thead>
@@ -86,33 +90,27 @@
                                                             <td>[[${detail.product.lining.name}]]</td>
                                                             <td>[[${detail.product.belt.name}]]</td>
                                                             <td>[[${detail.product.style.name}]]</td>
+                                                            <td>[[${detail.stock}]]</td>
                                                             <td colspan="2">
-                                                                <a th:href="@{/admin/product/add-product-detail/{id}(id=${detail.product.id})}">
-                                                                    <button class="btn btn-info">Thêm vào giỏ hàng
-                                                                    </button>
-                                                                </a>
+                                                                    <form method="post">
+                                                                        <input th:value="${invoiceId}" name="invoiceId" hidden="hidden">
+                                                                        <input th:value="${detail.id}" name="productDetailId" hidden="hidden">
+                                                                        <button th:formaction="@{/admin/store/add-product-detail-to-invoice}" class="btn btn-primary" type="submit">Thêm vào giỏ</button>
+                                                                    </form>
                                                             </td>
                                                         </tr>
                                                         </tbody>
                                                     </table>
                                                     <!-- Hiển thị nút phân trang -->
-                                                    <div class="pagination">
-                                                        <ul>
-                                                            <li th:if="${currentPage > 0}">
-                                                                <a th:href="@{/admin/store/index(page=${currentPage - 1}, size=${size})}">&laquo;
-                                                                    Trước</a>
-                                                            </li>
-                                                            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                                                                th:classappend="${i == currentPage} ? 'active'">
-                                                                <a th:href="@{/admin/store/index(page=${i}, size=${size})}">[[${i
-                                                                    + 1}]]</a>
-                                                            </li>
-                                                            <li th:if="${currentPage < totalPages - 1}">
-                                                                <a th:href="@{/admin/store/index(page=${currentPage + 1}, size=${size})}">Sau
-                                                                    &raquo;</a>
-                                                            </li>
+                                                    <nav aria-label="Page navigation example">
+                                                        <ul class="pagination">
+                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/index(page=${currentPage - 1}, size=${size})}">Previous</a></li>
+                                                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                                                th:classappend="${i == currentPage} ? 'active'"><a class="page-link" th:href="@{/admin/store/index(page=${i}, size=${size})}">[[${i
+                                                                + 1}]]</a></li>
+                                                            <li class="page-item"><a class="page-link" th:href="@{/admin/store/index(page=${currentPage + 1}, size=${size})}">Next</a></li>
                                                         </ul>
-                                                    </div>
+                                                    </nav>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary"
@@ -125,10 +123,10 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="me-3">16-10-2024</span>
-                                <span class="me-3">#1</span>
-                                <span class="me-3">ED21-BHDOL</span>
-                                <span class="badge rounded-pill bg-info">Chưa thanh toán</span>
+                                <span class="me-3" th:text="${formattedDate}"></span>
+                                <span class="me-3" th:text="${infoInvoice.id}"></span>
+                                <span class="me-3" th:text="${infoInvoice.invoiceTrackingNumber}"></span>
+                                <span class="badge rounded-pill bg-info">[[${infoInvoice.status} == 0 ? 'Chưa thanh toán':'Đã thanh toán']]</span>
                             </div>
                         </div>
                         <table class="table" style="margin-bottom: 0px">
@@ -138,11 +136,12 @@
                                 <th>Ảnh</th>
                                 <th>Tên sản phẩm</th>
                                 <th>Số lượng</th>
-                                <th>Giá</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="invoiceDetail,stt : ${invoiceDetail}">
+                            <tr th:each="invoiceDetail,stt : ${listInvoiceDetail}">
                                 <td>[[${stt.index+1}]]</td>
                                 <td th:if="${invoiceDetail.productDetail.product.images.size() > 0}">
                                     <div class="flex-shrink-0">
@@ -158,11 +157,15 @@
                                 <td>
                                     <div class="flex-lg-grow-1 ms-3">
                                         <h6 class="small mb-0"><a href="#" class="text-reset">[[${invoiceDetail.productDetail.product.name}]]</a></h6>
-                                        <span class="small">Color: [[${invoiceDetail.productDetail.color.name}]]</span>
+                                        <span class="small">Màu sắc: [[${invoiceDetail.productDetail.color.name}]],</span>
+                                        <span class="small">Kích cỡ: [[${invoiceDetail.productDetail.size.name}]]</span>
                                     </div>
                                 </td>
-                                <td>[[${invoiceDetail.quantity}]]</td>
-                                <td class="text-end">[[${invoiceDetail.productDetail.price}]]</td>
+                                <td>
+                                    [[${invoiceDetail.quantity}]]
+                                </td>
+                                <td>[[${invoiceDetail.productDetail.price}]]</td>
+                                <td>[[${invoiceDetail.finalPrice}]]</td>
                             </tr>
 
                             </tbody>
@@ -180,11 +183,39 @@
                     <div class="card-body">
                         <form>
                             <div class="mb-3">
-                                <label for="customerName" class="form-label me-2">Khách Hàng</label>
+                                <label  class="form-label me-2">Khách Hàng</label>
                                 <div class="d-flex align-items-center">
-                                    <input type="text" class="form-control flex-grow-1" id="customerName"
-                                           placeholder="Nhập tên khách hàng">
-                                    <button type="button" class="btn btn-primary ms-2">+</button>
+                                    <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nhập tên khách hàng">
+                                    <datalist id="datalistOptions">
+                                        <option th:each="customer : ${listCustomer}" th:value="${customer.id}" th:text="${customer.fullname}">
+                                    </datalist>
+                                    <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addCustomerModal">+</button>
+                                    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form  method="post" >
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="addCustomerModalLabel">Thêm Khách Hàng Mới</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="name" class="form-label">Tên Khách Hàng</label>
+                                                            <input type="text" class="form-control" id="name" placeholder="Nhập tên khách hàng" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="phone" class="form-label">Số Điện Thoại</label>
+                                                            <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                        <button type="submit" class="btn btn-primary">Lưu</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Nhập voucher -->
@@ -200,10 +231,13 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="customerName" class="form-label me-2">Phương thức thanh toán</label>
+                                <label class="form-label me-2">Phương thức thanh toán</label>
                                 <div class="d-flex align-items-center">
-                                    <select class="form-control flex-grow-1" id="">
-                                        <option>Chọn phương thức thanh toán</option>
+                                    <select class="form-control flex-grow-1" >
+                                        <option value="" hidden="hidden">Chọn phương thức thanh toán</option>
+                                        <option th:each="payment : ${listPayment}"
+                                                th:text="${payment.name}"
+                                                th:value="${payment.id}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -241,6 +275,26 @@
         </div>
     </div>
     <script src="/admin/store/script.js"></script>
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+        // Thêm sự kiện click vào nút để hiển thị toast
+        document.getElementById('showToastButton').addEventListener('click', function () {
+            Toast.fire({
+                icon: "success",
+                title: "Signed in successfully"
+            });
+        });
+    </script>
     <script>
         const navPills = document.getElementById('navPills');
 

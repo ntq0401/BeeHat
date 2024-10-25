@@ -38,6 +38,7 @@ public class InvoiceDetail {
     @Column(name = "final_price")
     private Integer finalPrice; // Giá sau khi giảm giá
 
+    @Column(insertable = false)
     private Byte status; // Trạng thái (TINYINT)
 
     @Column(name = "created_date", insertable = false, updatable = false)
