@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class UsernameControllerAdvice {
     @Autowired
     EmployeeRepo employeeRepo;
-    @ModelAttribute("username")
-    public String getUserName(){
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
-    }
+//    @ModelAttribute("username")
+//    public String getUserName(){
+//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        if (principal instanceof UserDetails) {
+//            return ((UserDetails) principal).getUsername();
+//        } else {
+//            return principal.toString();
+//        }
+//    }
     @ModelAttribute("userImageURL")
     public String addUserImageURLToModel() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

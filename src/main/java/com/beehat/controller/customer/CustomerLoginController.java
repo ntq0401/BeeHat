@@ -19,7 +19,7 @@ public class CustomerLoginController {
             String username = userDetails.getUsername();
             System.out.println("customer login:"+username);
             System.out.printf("xxx:"+userDetails.toString());
-            model.addAttribute("username", username); // Thêm tên người dùng vào mô hình
+            model.addAttribute("username1", username); // Thêm tên người dùng vào mô hình
         }
         return "customer/index";
     }

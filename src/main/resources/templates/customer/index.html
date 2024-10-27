@@ -7,13 +7,13 @@
 
 </head>
 <body>
-<div th:if="${username != null}">
-    <p>Hello, <span th:text="${username}"></span>!</p>
-    <form th:action="@{/logout}" method="post" style="display: inline;">
+<div th:if="${username1 != null}">
+    <p>Hello, <span th:text="${username1}"></span>!</p>
+    <form th:action="@{/customer/logout}" method="post" style="display: inline;">
         <button type="submit">Logout</button>
     </form>
 </div>
-<div th:if="${username == null}">
+<div th:if="${username1 == null}">
     <p>You are not logged in.</p>
     <a th:href="@{/customer/login}">Login</a>
 </div>
