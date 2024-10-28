@@ -1,4 +1,7 @@
 package com.beehat.repository;
 
-public interface VoucherRepo {
+import com.beehat.entity.Voucher;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface VoucherRepo extends JpaRepository<Voucher, Integer> {
 }

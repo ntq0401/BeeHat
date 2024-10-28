@@ -1,6 +1,7 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class Customer {
     private String photo;
 
     private String phone;
-
+    @Column(insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)

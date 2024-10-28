@@ -123,10 +123,10 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="me-3" th:text="${formattedDate}"></span>
-                                <span class="me-3" th:text="${infoInvoice.id}"></span>
-                                <span class="me-3" th:text="${infoInvoice.invoiceTrackingNumber}"></span>
-                                <span class="badge rounded-pill bg-info">[[${infoInvoice.status} == 0 ? 'Chưa thanh toán':'Đã thanh toán']]</span>
+                                <span class="me-3" th:text="${formattedDate != null ? formattedDate : ''}"></span>
+                                <span class="me-3" th:text="${infoInvoice != null ? infoInvoice.id : ''}"></span>
+                                <span class="me-3" th:text="${infoInvoice != null ? infoInvoice.invoiceTrackingNumber : ''}"></span>
+                                <span class="badge rounded-pill bg-info" th:if="${infoInvoice != null}">[[${infoInvoice.status} == 0 ? 'Chưa thanh toán':'Đã thanh toán']]</span>
                             </div>
                         </div>
                         <table class="table" style="margin-bottom: 0px">
@@ -185,37 +185,11 @@
                             <div class="mb-3">
                                 <label  class="form-label me-2">Khách Hàng</label>
                                 <div class="d-flex align-items-center">
-                                    <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nhập tên khách hàng">
-                                    <datalist id="datalistOptions">
-                                        <option th:each="customer : ${listCustomer}" th:value="${customer.id}" th:text="${customer.fullname}">
-                                    </datalist>
+                                    <select id="customerSelect" class="form-select">
+                                        <option value="">Chọn khách hàng</option>
+                                        <option th:each="customer : ${listCustomer}" th:value="${customer.id}" th:text="${customer.fullname}+' - '+${customer.phone}"></option>
+                                    </select>
                                     <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addCustomerModal">+</button>
-                                    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form  method="post" >
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="addCustomerModalLabel">Thêm Khách Hàng Mới</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label for="name" class="form-label">Tên Khách Hàng</label>
-                                                            <input type="text" class="form-control" id="name" placeholder="Nhập tên khách hàng" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="phone" class="form-label">Số Điện Thoại</label>
-                                                            <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                        <button type="submit" class="btn btn-primary">Lưu</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <!-- Nhập voucher -->
@@ -247,11 +221,11 @@
                                     <form th:object="${infoInvoice}">
                                     <tr>
                                         <td>Tổng tiền :</td>
-                                        <td class="text-end" th:field="*{totalPrice}" th:text="*{totalPrice}"></td>
+                                        <td th:if="${infoInvoice != null}" class="text-end" th:field="*{totalPrice}" th:text="*{totalPrice}"></td>
                                     </tr>
                                     <tr>
                                         <td>Giảm giá :</td>
-                                        <td class="text-end" th:field="*{voucherDiscount}" th:text="*{voucherDiscount}"></td>
+                                        <td th:if="${infoInvoice != null}" class="text-end" th:field="*{voucherDiscount}" th:text="*{voucherDiscount}"></td>
                                     </tr>
                                     <tr>
                                         <td>Phí ship :</td>
@@ -260,7 +234,7 @@
                                     <tr class="bg-light">
                                         <th>Thực thu :</th>
                                         <td class="text-end">
-                                            <span class="fw-bold" th:field="*{finalPrice}" th:text="*{finalPrice}">
+                                            <span th:if="${infoInvoice != null}" class="fw-bold" th:field="*{finalPrice}" th:text="*{finalPrice}">
                                             </span>
                                         </td>
                                     </tr>
@@ -274,6 +248,44 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" th:object="${kh}" th:action="@{/admin/store/add-new-customer}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCustomerModalLabel">Thêm Khách Hàng Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Khách Hàng</label>
+                            <input type="text" hidden="hidden" th:value="${invoiceId}" name="invoiceId">
+                            <input type="text" class="form-control" th:field="*{fullname}" placeholder="Nhập tên khách hàng" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số Điện Thoại</label>
+                            <input type="tel" class="form-control"  th:field="*{phone}" placeholder="Nhập số điện thoại" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <label for="customerSelect">Chọn khách hàng:</label>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#customerSelect').select2({
+                placeholder: "Tìm kiếm khách hàng",
+                allowClear: true
+            });
+        });
+    </script>
     <script src="/admin/store/script.js"></script>
     <script>
         document.getElementById('showToastButton').addEventListener('click', function (event) {

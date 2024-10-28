@@ -17,13 +17,18 @@ import java.time.LocalDateTime;
 public class Voucher {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String name;
     private String code;
+    private Integer quantity;
     private String description;
     @Column(name = "discount_percentage")
     private Byte discountPercentage;
 
     @Column(name = "discount_amount")
     private Integer discountAmount;
+
+    @Column(name = "discount_max")
+    private Integer discountMax;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -34,6 +39,7 @@ public class Voucher {
     @Column(name = "min_order_value")
     private Integer minOrderValue;
 
+    @Column(insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)

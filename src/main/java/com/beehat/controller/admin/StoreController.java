@@ -49,10 +49,11 @@ public class StoreController {
     @ModelAttribute("listPayment")
     List<PaymentMethod> listPayment() { return paymentMethodRepo.findAll(); }
     @ModelAttribute("listCustomer")
-    List<Customer> listCustomer() { return customerRepo.findAll(); }
+    List<Customer> listCustomer() { return customerRepo.findAll();}
     @GetMapping("/index")
     public String store(Model model) {
         model.addAttribute("i",new Invoice());
+        model.addAttribute("kh",new Customer());
         return "admin/store/index";
     }
     @PostMapping("/add-invoice")
@@ -65,6 +66,7 @@ public class StoreController {
     public String invoiceDetail(@PathVariable int id, Model model) {
         model.addAttribute("infoInvoice", invoiceRepo.findById(id).orElseThrow(() -> new NullPointerException("Invoice not found")));
         LocalDateTime createdDate =invoiceRepo.findById(id).get().getCreatedDate(); // Lấy giá trị LocalDateTime
+        model.addAttribute("kh",new Customer());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         String formattedDate = createdDate.format(formatter); // Format thành chuỗi
         model.addAttribute("formattedDate", formattedDate); // Truyền vào model
@@ -78,39 +80,61 @@ public class StoreController {
                              @RequestParam("productDetailId") int idProductDetail) {
         ProductDetail productDetail = productDetailRepo.findById(idProductDetail).orElse(null);
         Invoice invoice = invoiceRepo.findById(idInvoice).orElse(null);
+        if (productDetail == null || invoice == null) {
+            return "redirect:/admin/store/invoice-detail/" + idInvoice; // xử lý lỗi nếu không tìm thấy
+        }
+
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(idInvoice);
+
+        boolean isExistingProduct = false;
         for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
-            if (invoiceDetail.getProductDetail().getId() == idProductDetail) {;
+            if (invoiceDetail.getProductDetail().getId() == idProductDetail) {
+                isExistingProduct = true;
+                // Cập nhật số lượng và giá tiền cuối cùng của sản phẩm trong hóa đơn
                 invoiceDetail.setQuantity(invoiceDetail.getQuantity() + 1);
                 invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
                 invoiceDetailRepo.save(invoiceDetail);
-                invoice.setId(idInvoice);
-                invoice.setTotalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
-                invoice.setFinalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
-                invoiceRepo.save(invoice);
-                productDetail.setStock(productDetail.getStock() -1);
+
+                // Giảm số lượng tồn kho của sản phẩm
+                productDetail.setStock(productDetail.getStock() - 1);
                 productDetailRepo.save(productDetail);
-                return "redirect:/admin/store/invoice-detail/" + idInvoice;
+                break;
             }
         }
-        InvoiceDetail invoiceDetail = new InvoiceDetail();
-        invoiceDetail.setInvoice(invoice);
-        invoiceDetail.setProductDetail(productDetail);
-        invoiceDetail.setQuantity(1);
-        invoiceDetail.setUnitPrice(productDetail.getPrice());
-        invoiceDetail.setFinalPrice(productDetail.getPrice());
-        invoiceDetailRepo.save(invoiceDetail);
-        productDetail.setStock(productDetail.getStock() -1);
-        productDetailRepo.save(productDetail);
-        invoice.setId(idInvoice);
-        invoice.setTotalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
-        invoice.setFinalPrice(listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum());
+
+        if (!isExistingProduct) {
+            // Thêm sản phẩm chi tiết mới vào hóa đơn nếu chưa có trong danh sách
+            InvoiceDetail invoiceDetail = new InvoiceDetail();
+            invoiceDetail.setInvoice(invoice);
+            invoiceDetail.setProductDetail(productDetail);
+            invoiceDetail.setQuantity(1);
+            invoiceDetail.setUnitPrice(productDetail.getPrice());
+            invoiceDetail.setFinalPrice(productDetail.getPrice());
+            invoiceDetailRepo.save(invoiceDetail);
+
+            // Giảm số lượng tồn kho của sản phẩm
+            productDetail.setStock(productDetail.getStock() - 1);
+            productDetailRepo.save(productDetail);
+            listInvoiceDetail.add(invoiceDetail);
+        }
+
+        // Cập nhật tổng tiền của hóa đơn sau khi đã thêm sản phẩm chi tiết
+        int totalInvoicePrice = listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
+        invoice.setTotalPrice(totalInvoicePrice);
+        invoice.setFinalPrice(totalInvoicePrice); // Nếu có giảm giá hoặc phí thêm, xử lý tại đây
         invoiceRepo.save(invoice);
+
         return "redirect:/admin/store/invoice-detail/" + idInvoice;
     }
     @GetMapping("/delete-invoice/{id}")
     public String deleteInvoice(@PathVariable int id) {
         invoiceRepo.deleteById(id);
         return "redirect:/admin/store/index";
+    }
+    @PostMapping("/add-new-customer")
+    public String addCustomer(@ModelAttribute("kh") Customer customer,
+                              @RequestParam("invoiceId") int invoiceId) {
+        customerRepo.save(customer);
+        return "redirect:/admin/store/invoice-detail/"+invoiceId;
     }
 }
