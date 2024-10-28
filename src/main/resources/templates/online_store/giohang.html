@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >-->
+<meta charset="UTF-8">
+<head>
+    <title>Bán hàng tại quầy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-2 px-3">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="/online_store/imgkh/Beehat.png" alt="Logo" class="me-3" style="width: 70px; height: auto;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="d-flex align-items-center w-100">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active text-dark fw-bold fs-5" href="#">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-bold fs-5" href="#">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-bold fs-5" href="#">Khuyến Mãi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-bold fs-5" href="#">Tra cứu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-bold fs-5" href="#">Tin tức</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-bold fs-5" href="#">Liên hệ</a>
+                    </li>
+                </ul>
+                <form class="d-flex align-items-center flex-grow-1" style="max-width: 300px; margin: 10px;">
+                    <input class="form-control me-2 border-0 border-bottom" type="search" placeholder="Bạn cần tìm gì ?" aria-label="Search">
+                    <button class="btn btn-outline-none" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                <div class="d-flex align-items-center gap-3 ms-3">
+                    <a href="#" class="nav-link"><i class="fas fa-user"></i></a>
+                    <a href="#" class="nav-link position-relative">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                    <a href="#" class="nav-link position-relative">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">0</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h5 class="fw-bold">Sản phẩm</h5>
+
+                <!-- Product 1 -->
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex">
+                        <img class="img-fluid me-3" height="100" src="/online_store/imgkh/1.png" width="100" alt="Product 1"/>
+                        <div>
+                            <h6 class="fw-bold">Product 1</h6>
+                            <div>
+                                <span class="text-muted text-decoration-line-through">₫800.00</span>
+                                <span class="text-success fw-bold">₫500.00</span>
+                            </div>
+                            <div class="input-group mb-3" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" type="button">-</button>
+                                <input class="form-control text-center" type="text" value="1"/>
+                                <button class="btn btn-outline-secondary" type="button">+</button>
+                            </div>
+                            <a class="text-danger" href="#">Xóa sản phẩm</a>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-success fw-bold">₫500.00</span>
+                    </div>
+                </div>
+                <hr/>
+
+                <!-- Product 2 -->
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex">
+                        <img class="img-fluid me-3" height="100" src="/online_store/imgkh/2.png" width="100" alt="Product 2"/>
+                        <div>
+                            <h6 class="fw-bold">Product 2</h6>
+                            <div>
+                                <span class="text-muted text-decoration-line-through">₫1,200.00</span>
+                                <span class="text-success fw-bold">₫1,000.00</span>
+                            </div>
+                            <div class="input-group mb-3" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" type="button">-</button>
+                                <input class="form-control text-center" type="text" value="1"/>
+                                <button class="btn btn-outline-secondary" type="button">+</button>
+                            </div>
+                            <a class="text-danger" href="#">Xóa sản phẩm</a>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-success fw-bold">₫1,000.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <h5 class="fw-bold">Cộng giỏ hàng</h5>
+                <div class="mb-3">
+                    <label class="form-label" for="discount-code">Thêm một phiếu giảm giá</label>
+                    <input class="form-control" id="discount-code" type="text"/>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Tạm tính</span>
+                    <span class="fw-bold">₫1,500.00</span>
+                </div>
+                <hr/>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Tổng</span>
+                    <span class="fw-bold">₫1,500.00</span>
+                </div>
+                <div class="btn btn-dark text-white mt-3" style="width: 100%;">Thanh toán</div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div>
+        <div class="title_module_main heading-bar e-tabs d-flex align-items-center flex-wrap heading-style1 justify-content-around">
+            <h2 class="heading-bar__title head-title-style" style="font-style: italic;">Có thể bạn sẽ thích
+                <table></table>
+            </h2>
+        </div>
+        <br>
+        <div class="container text-center relative">
+            <div class="row">
+                <!-- Product 1 -->
+                <div class="col-md-3">
+                    <div class="border rounded p-3 mb-3 position-relative">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">-11%</span>
+                        <i class="far fa-heart position-absolute top-0 end-0 m-2 text-muted fs-5"></i>
+                        <img src="/online_store/imgkh/1.png" alt="White low-top Converse shoes" class="img-fluid">
+                        <div class="fw-bold mt-2">Converse Chuck Taylor All Star</div>
+                        <div class="text-danger fw-bold fs-5">1.900.000₫</div>
+                        <div class="text-muted text-decoration-line-through">2.139.000₫</div>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product 2 -->
+                <div class="col-md-3">
+                    <div class="border rounded p-3 mb-3 position-relative">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">-11%</span>
+                        <i class="far fa-heart position-absolute top-0 end-0 m-2 text-muted fs-5"></i>
+                        <img src="/online_store/imgkh/1.png" alt="White low-top Converse shoes" class="img-fluid">
+                        <div class="fw-bold mt-2">Converse Chuck Taylor All Star</div>
+                        <div class="text-danger fw-bold fs-5">1.900.000₫</div>
+                        <div class="text-muted text-decoration-line-through">2.139.000₫</div>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product 3 -->
+                <div class="col-md-3">
+                    <div class="border rounded p-3 mb-3 position-relative">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">-11%</span>
+                        <i class="far fa-heart position-absolute top-0 end-0 m-2 text-muted fs-5"></i>
+                        <img src="/online_store/imgkh/1.png" alt="White low-top Converse shoes" class="img-fluid">
+                        <div class="fw-bold mt-2">Converse Chuck Taylor All Star</div>
+                        <div class="text-danger fw-bold fs-5">1.900.000₫</div>
+                        <div class="text-muted text-decoration-line-through">2.139.000₫</div>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product 4 -->
+                <div class="col-md-3">
+                    <div class="border rounded p-3 mb-3 position-relative">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">-11%</span>
+                        <i class="far fa-heart position-absolute top-0 end-0 m-2 text-muted fs-5"></i>
+                        <img src="/online_store/imgkh/1.png" alt="White low-top Converse shoes" class="img-fluid">
+                        <div class="fw-bold mt-2">Converse Chuck Taylor All Star</div>
+                        <div class="text-danger fw-bold fs-5">1.900.000₫</div>
+                        <div class="text-muted text-decoration-line-through">2.139.000₫</div>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="footer-section bg-light py-4">
+        <div class="container">
+            <div class="email-subscription d-flex align-items-center justify-content-between mb-4">
+                <h5 class="mb-0">NHẬN THÔNG TIN KHUYẾN MÃI MỚI NHẤT TỪ BEE HAT</h5>
+                <div class="input-group">
+                    <input type="email" class="form-control" placeholder="Email của bạn">
+                    <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <h5>TẤT CẢ SẢN PHẨM BEE HAT</h5>
+                    <p><a href="#" class="text-dark text-decoration-none">TÌM CỬA HÀNG</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">QUY TRÌNH SẢN XUẤT</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">THƯ VIỆN VIDEO - HÌNH ẢNH</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">TUYỂN DỤNG</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">THEO DÕI ĐƠN HÀNG</a></p>
+                </div>
+                <div class="col-md-2">
+                    <h5>SẢN PHẨM</h5>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón da</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón Snapback</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón kết</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón phớt</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón đan tay</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Nón vành</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Phụ kiện</a></p>
+                </div>
+                <div class="col-md-2">
+                    <h5>HỖ TRỢ KHÁCH HÀNG</h5>
+                    <p><a href="#" class="text-dark text-decoration-none">Quy định chung</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Bảo mật thông tin</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Hướng dẫn tạo tài khoản</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Hướng dẫn mua hàng</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Chính sách đổi sản phẩm</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán, giao nhận</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Các câu hỏi thường gặp</a></p>
+                </div>
+                <div class="col-md-2">
+                    <h5>PHƯƠNG THỨC THANH TOÁN</h5>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán khi giao hàng (COD)</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán chuyển khoản ngân hàng</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán thẻ ATM nội địa</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán thẻ Visa/Master/JCB</a></p>
+                    <p><a href="#" class="text-dark text-decoration-none">Thanh toán qua ví điện tử VNPAY/Mobile
+                        Banking</a></p>
+                </div>
+                <div class="col-md-4">
+                    <h5>THÔNG TIN LIÊN HỆ</h5>
+                    <p>199 Cầu Diễn, Phường Phúc Diễn, Quận Nam Từ Liêm, Tp.Hà Nội</p>
+                    <p>
+                        Hotline Mua Hàng:
+                        <a href="tel:18007179" class="text-dark text-decoration-none">1800 7179</a> -
+                        <a href="tel:0918434343" class="text-dark text-decoration-none">0918.43.43.43</a>
+                    </p>
+                    <p>Hotline CSKH: <a href="tel:18007078" class="text-dark text-decoration-none">1800 7078</a></p>
+                    <p>Email: <a href="#" class="text-dark text-decoration-none">info@beehat.vn</a></p>
+                    <p>Website: <a href="#" class="text-dark text-decoration-none">beehat.vn</a></p>
+                    <p>
+                        Theo dõi BeeHat trên:
+                        <a href="#" class="text-dark"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-dark"><i class="fab fa-youtube"></i></a>
+                    </p>
+                    <p><i class="fas fa-check-circle"></i> 100% hàng chính hãng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

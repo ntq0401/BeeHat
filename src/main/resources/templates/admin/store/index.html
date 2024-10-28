@@ -93,6 +93,7 @@
                                                             <td>[[${detail.stock}]]</td>
                                                             <td colspan="2">
                                                                     <form method="post">
+                                                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                                                         <input th:value="${invoiceId}" name="invoiceId" hidden="hidden">
                                                                         <input th:value="${detail.id}" name="productDetailId" hidden="hidden">
                                                                         <button th:formaction="@{/admin/store/add-product-detail-to-invoice}" class="btn btn-primary" type="submit">Thêm vào giỏ</button>
@@ -252,6 +253,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <form method="post" th:object="${kh}" th:action="@{/admin/store/add-new-customer}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <div class="modal-header">
                         <h5 class="modal-title" id="addCustomerModalLabel">Thêm Khách Hàng Mới</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
