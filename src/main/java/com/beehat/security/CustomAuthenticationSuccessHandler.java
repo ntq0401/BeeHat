@@ -21,7 +21,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if(role.equals("ROLE_EMPLOYEE")){
             response.sendRedirect("/employee/dashboard");
         } else {
-            response.sendRedirect("/customer/index");
+            response.sendRedirect("/admin/login?error=true");
         }
     }
 }
