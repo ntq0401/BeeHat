@@ -1,7 +1,7 @@
 package com.beehat.controller.admin;
 
 import com.beehat.entity.Customer;
-import com.beehat.repo.CustomerRepo;
+import com.beehat.repository.CustomerRepo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;

@@ -1,7 +1,7 @@
 package com.beehat.controller.customer;
 
 import com.beehat.entity.Customer;
-import com.beehat.repo.CustomerRepo;
+import com.beehat.repository.CustomerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;

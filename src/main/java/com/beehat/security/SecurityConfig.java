@@ -2,7 +2,7 @@ package com.beehat.security;
 
 import com.beehat.entity.Customer;
 import com.beehat.entity.Employee;
-import com.beehat.repo.CustomerRepo;
+import com.beehat.repository.CustomerRepo;
 import com.beehat.repository.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
