@@ -1,11 +1,14 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,6 +33,9 @@ public class Invoice {
     @ManyToOne
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    private List<InvoiceDetail> invoiceDetails = new ArrayList<>();
 
     @Column(name = "deliver_date")
     private LocalDateTime deliverDate;
@@ -71,7 +77,7 @@ public class Invoice {
     @Column(name = "invoice_status")
     private Byte invoiceStatus; // Trạng thái đơn hàng
 
-    @Column(name = "status",insertable = false)
+    @Column(name = "status", insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)
@@ -98,6 +104,7 @@ public class Invoice {
         // Tạo SKU bằng cách kết hợp productCode, timeStamp, và randomUUID
         return randomUUID + "-" + timeStamp;
     }
+
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();

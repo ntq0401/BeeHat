@@ -27,6 +27,7 @@ public class VoucherController {
     }
     @PostMapping("/add-voucher")
     public String add(@ModelAttribute("voucher") Voucher voucher) {
+        voucher.setDiscountAmount(0);
         voucherRepo.save(voucher);
         return "redirect:/admin/voucher/index";
     }
