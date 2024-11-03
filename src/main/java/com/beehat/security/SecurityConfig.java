@@ -65,7 +65,7 @@ public  class SecurityConfig {
             http
                     .securityMatcher("/customer/**") // Áp dụng cho các URL bắt đầu với /customer/
                     .authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers("/customer/login").permitAll() // Trang login của customer không yêu cầu xác thực
+                            .requestMatchers("/customer/login","/customer/register").permitAll() // Trang login của customer không yêu cầu xác thực
                             .anyRequest().hasAuthority("ROLE_CUSTOMER") // Các trang khác yêu cầu xác thực
                     )
                     .formLogin(form -> form

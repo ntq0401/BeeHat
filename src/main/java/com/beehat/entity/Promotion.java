@@ -38,4 +38,5 @@ public class Promotion {
     public void preUpdate() {
         updatedDate = LocalDateTime.now();
     }
+
 }

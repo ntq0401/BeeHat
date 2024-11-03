@@ -3,6 +3,8 @@ package com.beehat.controller.customer;
 import com.beehat.entity.Customer;
 import com.beehat.repository.CustomerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,22 +18,43 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 
 @Controller
-@RequestMapping("/customer/register")
+@RequestMapping("/customer")
 public class CustomerRegisterController {
     @Autowired
     CustomerRepo customerRepo;
     @Autowired
     PasswordEncoder passwordEncoder;
-    @GetMapping
-    public String register(Model model){
-        model.addAttribute("customer", new Customer());
-        return "/customer/register";
+
+    @GetMapping("/index")
+    public String index(Authentication authentication, Model model){
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Lấy thông tin người dùng từ SecurityContext
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+            model.addAttribute("username1", username); // Thêm tên người dùng vào mô hình
+        }
+        return "customer/index";
     }
-    @PostMapping("/add")
-    public String registerCustomer(@ModelAttribute("customer") Customer customer, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    @GetMapping("/login")
+    public String showLoginPage(Authentication authentication,Model model) {
+        model.addAttribute("customer", new Customer());
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Nếu đã đăng nhập, chuyển hướng về trang index của khách hàng
+            return "redirect:/customer/index";
+        }
+        // Nếu chưa đăng nhập, hiển thị trang đăng nhập
+        return "customer/customerLogin"; // Trả về tên template đăng nhập
+    }
+
+    @PostMapping("/register")
+    public String registerCustomer(@ModelAttribute("customer") Customer customer,
+                                   BindingResult result,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
         boolean usernameExists = customerRepo.existsByUsername(customer.getUsername());
         boolean emailExists = customerRepo.existsByEmail(customer.getEmail());
-        boolean phoneExists = customerRepo.existsByPhone(customer.getPhone());
 
         if (usernameExists) {
             result.rejectValue("username", "error.customer", "Username đã tồn tại");
@@ -41,21 +64,15 @@ public class CustomerRegisterController {
             result.rejectValue("email", "error.customer", "Email đã tồn tại");
         }
 
-        if (phoneExists) {
-            result.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
-        }
-
         if (result.hasErrors()) {
-            return "customer/register"; // Trả về trang đăng ký với thông báo lỗi
+            return "customer/customerLogin";
         }
 
         customer.setCreatedDate(LocalDateTime.now());
         customer.setStatus(Byte.valueOf("1"));
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customerRepo.save(customer);
-        // Thêm thông báo thành công
         redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
-
 
         return "redirect:/customer/login";
     }

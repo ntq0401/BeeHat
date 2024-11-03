@@ -3,10 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lí chương trình khuyến mãi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
     <h1>Quản lí chương trình khuyến mãi</h1>
+    <div>
+        <h3>Bộ lọc</h3>
+        <div class="row mt-2 d-flex justify-content-center align-items-center">
+            <div class="col-10">
+                <form th:action="@{/admin/promotion/search}" method="get">
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="search">Tìm kiếm:</label>
+                            <input placeholder="Nhập tên" type="text" class="form-control" id="search" name="search">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Từ ngày:</label>
+                            <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label>Tới ngày:</label>
+                            <input type="datetime-local" class="form-control" id="toDate" name="toDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label>Trạng thái:</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="" th:selected="${status == null}">Tất cả</option>
+                                <option value="0" th:selected="${status == 0}">Sắp bắt đầu</option>
+                                <option value="1" th:selected="${status == 1}">Đang diễn ra</option>
+                                <option value="2" th:selected="${status == 2}">Đã kết thúc</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Loại giảm</label>
+                            <select class="form-control" id="provalue" name="provalue">
+                                <option value="percent" th:selected="${provalue == percent}">Phần trăm</option>
+                                <option value="amount" th:selected="${provalue == amount}">Giá tiền</option>
+                                <option value="" th:selected="${provalue == null}">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-auto d-flex align-items-center">
+                            <button class="btn btn-info" type="submit">
+                                <i class="bi bi-funnel-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center">
+                <a th:href="@{/admin/promotion/add}" class="btn btn-primary mx-auto">Thêm mới</a>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">Tên</th>
+                <th scope="col percent-column">Phần trăm giảm</th>
+                <th scope="col amount-column">Giá trị giảm</th>
+                <th scope="col">Ngày bắt đầu</th>
+                <th scope="col">Ngày kết thúc</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="promotion, iterStat : ${listPromotion}">
+                <td th:text="${iterStat.index + 1}"></td>
+                <td th:text="${promotion.name}">Tên chương trình</td>
+                <td th:text="${promotion.discountPercentage}" class="percent-column">Phần trăm giảm</td>
+                <td th:text="${promotion.discountAmount}" class="amount-column">Giá trị giảm</td>
+                <td th:text="${#temporals.format(promotion.startDate, 'dd-MM-yyyy HH:mm:ss')}">Ngày bắt đầu</td>
+                <td th:text="${#temporals.format(promotion.endDate, 'dd-MM-yyyy HH:mm:ss')}">Ngày kết thúc</td>
+
+                <td>
+                    <span class="badge rounded-pill bg-warning text-dark" th:if="${promotion.startDate.isAfter(#temporals.createNow())}">Sắp băt đầu</span>
+                    <span class="badge rounded-pill bg-primary" th:if="${promotion.startDate.isBefore(#temporals.createNow()) && promotion.endDate.isAfter(#temporals.createNow())}">Đang diễn ra</span>
+                    <span class="badge rounded-pill bg-danger" th:if="${promotion.endDate.isBefore(#temporals.createNow())}">Đã kết thúc</span>
+                </td>
+                <td>
+                    <button class="btn btn-outline-info btn-sm">
+                        <a th:href="@{/admin/promotion/detail/{id}(id=${promotion.id})}"><i class="bi bi-info-circle"></i></a> <!-- Biểu tượng chi tiết -->
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm">
+                        <a th:href="@{/admin/promotion/update(id=${promotion.id})}"><i class="bi bi-pencil"></i></a> <!-- Biểu tượng sửa -->
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </main>
 </body>
 </html>
