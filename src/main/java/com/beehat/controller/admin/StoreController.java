@@ -8,14 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/store")
@@ -53,7 +57,7 @@ public class StoreController {
 
     @ModelAttribute("listInvoice")
     List<Invoice> listOrder() {
-        return invoiceRepo.findAll();
+        return invoiceRepo.findByStatus(Byte.valueOf("0"));
     }
 
     @ModelAttribute("invoiceDetail")
@@ -79,13 +83,16 @@ public class StoreController {
     @GetMapping("/index")
     public String store(Model model) {
         model.addAttribute("i", new Invoice());
+        model.addAttribute("pay",new Invoice());
         model.addAttribute("kh", new Customer());
         return "admin/store/index";
     }
 
     @PostMapping("/add-invoice")
     public String addInvoice(@ModelAttribute("i") Invoice invoice) {
-        Employee employee = employeeRepo.findById(53).get();
+//        ,@RequestParam(name = "username") String username
+//        Employee employee = employeeRepo.findByUsername(username);
+        Employee employee = employeeRepo.findByUsername("user");
         invoice.setEmployee(employee);
         invoiceRepo.save(invoice);
         return "redirect:/admin/store/invoice-detail/" + invoice.getId();
@@ -104,8 +111,8 @@ public class StoreController {
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
         model.addAttribute("listInvoiceDetail", listInvoiceDetail);
         model.addAttribute("invoiceId", id);
-        String qrUrl = "https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=" + invoiceRepo.findById(id).get().getTotalPrice() + "&addInfo=Thanh toan hoa don : " + invoiceRepo.findById(id).get().getInvoiceTrackingNumber() + "&accountName=NGUYEN THE QUANG";
-        model.addAttribute("qrUrl", qrUrl);
+//        String qrUrl = "https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=" + invoiceRepo.findById(id).get().getTotalPrice() + "&addInfo=Thanh toan hoa don : " + invoiceRepo.findById(id).get().getInvoiceTrackingNumber() + "&accountName=NGUYEN THE QUANG";
+//        model.addAttribute("qrUrl", qrUrl);
         return "admin/store/index";
     }
 
@@ -164,9 +171,18 @@ public class StoreController {
 
     @GetMapping("/delete-invoice/{id}")
     public String deleteInvoice(@PathVariable int id, Model model) {
-        invoiceRepo.deleteById(id);
-        model.addAttribute("message", "Hoá đơn đã được xoá thành công!");
-        model.addAttribute("messageType", "success"); // success, error, warning, info
+        // Tìm và cộng lại số lượng sản phẩm trong kho
+        List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByInvoiceId(id);
+        for (InvoiceDetail invoiceDetail : invoiceDetails) {
+            ProductDetail productDetail = invoiceDetail.getProductDetail();
+            int updatedStock = productDetail.getStock() + invoiceDetail.getQuantity();
+            productDetail.setStock(updatedStock);
+        }
+        productDetailRepo.saveAll(invoiceDetails.stream().map(InvoiceDetail::getProductDetail).collect(Collectors.toList()));
+
+        Invoice invoice = invoiceRepo.findById(id).orElseThrow(() -> new NullPointerException("Invoice not found"));
+        invoice.setStatus(Byte.valueOf("1"));
+        invoiceRepo.save(invoice);
         return "redirect:/admin/store/index";
     }
 
@@ -221,10 +237,13 @@ public class StoreController {
         int sl = 0;
         for (int i = 0; i < ids.size(); i++) {
             int id = ids.get(i);
+            //số lượng sản phẩm khi thay đổi trên form
             int quantity = quantities.get(i);
             InvoiceDetail invoiceDetail = invoiceDetailRepo.findById(id).orElse(null);
-            ProductDetail productDetail = productDetailRepo.findById(invoiceDetail.getProductDetail().getId()).orElse(null);
+            ProductDetail productDetail = invoiceDetail.getProductDetail();
             if (id == invoiceDetail.getId()) {
+                //kiểm tra xem số lượng trên form bị trừ hay cộng
+                //trừ
                 if (invoiceDetail.getQuantity() > quantity) {
                     sl = invoiceDetail.getQuantity() - quantity;
                     invoiceDetail.setQuantity(quantity);
@@ -239,6 +258,7 @@ public class StoreController {
                     invoiceRepo.save(invoice);
                     return "redirect:/admin/store/invoice-detail/" + invoiceDetail.getInvoice().getId();
                 }
+                //cộng
                 if (invoiceDetail.getQuantity() < quantity) {
                     sl = quantity - invoiceDetail.getQuantity();
                     invoiceDetail.setQuantity(quantity);
@@ -255,6 +275,54 @@ public class StoreController {
                 }
             }
         }
+        return "redirect:/admin/store/index";
+    }
+    @PostMapping("/add-customer-to-invoice")
+    public String addCustomerToInvoice(@RequestParam("customerId") int customerId, @RequestParam("invoiceId") int invoiceId) {
+        Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
+        Customer customer = customerRepo.findById(customerId).orElse(null);
+
+        if (invoice != null && customer != null) {
+            invoice.setCustomer(customer);
+            invoiceRepo.save(invoice);
+        }
+
+        return "redirect:/admin/store/invoice-detail/" + invoiceId;
+    }
+    @PostMapping("/updateCustomer")
+    public ResponseEntity<String> updateCustomer(
+            @RequestParam("invoiceId") Integer invoiceId,
+            @RequestParam("customerId") Integer customerId) {
+        try {
+            Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
+            Customer customer = customerRepo.findById(customerId).orElse(null);
+
+            if (invoice != null && customer != null) {
+                invoice.setCustomer(customer);
+                invoiceRepo.save(invoice);
+                return ResponseEntity.ok("Cập nhật thành công");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy hóa đơn hoặc khách hàng");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
+        }
+    }
+    @PostMapping("/pay")
+    public String pay(@RequestParam(name = "idPayment") int id,
+                      @RequestParam(name = "totalPayment") int totalPayment,
+                      @RequestParam(name = "voucherPayment",defaultValue = "") Voucher voucherPayment,
+                      @RequestParam(name = "methodPayment") PaymentMethod paymentMethod) {
+        Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        if (voucherPayment != null) {
+            Voucher voucher = voucherRepo.findById(voucherPayment.getId()).orElse(null);
+            invoice.setVoucher(voucher);
+        }
+        PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod.getId()).orElse(null);
+        invoice.setFinalPrice(totalPayment);
+        invoice.setPaymentMethod(paymentMethod1);
+        invoice.setStatus(Byte.valueOf("2"));
+        invoiceRepo.save(invoice);
         return "redirect:/admin/store/index";
     }
 }

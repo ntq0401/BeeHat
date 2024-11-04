@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeeRepo extends JpaRepository<Employee,Integer> {
+
     @Query("SELECT e FROM Employee e WHERE e.id = :id1")
     Employee findeById(@Param("id1") Integer id);
     @Transactional

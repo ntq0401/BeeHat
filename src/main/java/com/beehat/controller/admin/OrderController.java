@@ -19,6 +19,7 @@ public class OrderController {
     List<Invoice> listInvoice() { return invoiceRepo.findAll(); }
     @GetMapping("/index")
     public String order() {
+
         return "admin/order";
     }
 }

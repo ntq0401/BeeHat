@@ -1,36 +1,86 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
 <head>
     <meta charset="UTF-8">
     <title>Quản lí hoá đơn</title>
+    <style>
+        th, td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+        }
+    </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
     <h1>Quản lí hoá đơn</h1>
-    <table class="table">
-        <tr>
-            <th>STT</th>
-            <th>Hoá đơn</th>
-            <th>Khách hàng</th>
-            <th>Mã theo dõi đơn hàng</th>
-            <th>Hình thức thanh toán</th>
-            <th>Tổng tiền</th>
-            <th>Người tạo</th>
-            <th>Thời gian</th>
-            <th>Hành động</th>
-        </tr>
-        <tr th:each="hd, stt : ${listInvoice}">
-            <td th:text="${stt.index + 1}"></td>
-            <td th:text="${hd.id}"></td>
-            <td th:text="${hd.customer != null ? hd.customer.fullname : 'N/A'}"></td>
-            <td th:text="${hd.invoiceTrackingNumber != null ? hd.invoiceTrackingNumber : 'N/A'}"></td>
-            <td th:text="${hd.paymentMethod != null ? hd.paymentMethod.name : 'N/A'}"></td>
-            <td th:text="${hd.finalPrice != null ? hd.finalPrice : 0}"></td>
-            <td th:text="${hd.employee != null ? hd.employee.fullname : 'N/A'}"></td>
-            <td th:text="${hd.createdDate != null ? hd.createdDate : 'N/A'} + ' - ' + ${hd.updatedDate != null ? hd.updatedDate : 'N/A'}"></td>
-            <td>?</td>
-        </tr>
-    </table>
+
+    <!-- Card tìm kiếm hóa đơn -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Tìm kiếm hóa đơn
+        </div>
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <label for="invoiceCode" class="form-label">Mã hóa đơn</label>
+                    <input type="text" class="form-control" id="invoiceCode" placeholder="Nhập mã hóa đơn">
+                </div>
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label">Từ ngày</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label">Đến ngày</label>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary mt-3">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Card hiển thị danh sách hóa đơn -->
+    <div class="card">
+        <div class="card-header">
+            Danh sách hóa đơn
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Hoá đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Mã theo dõi đơn hàng</th>
+                    <th>Hình thức thanh toán</th>
+                    <th>Tổng tiền</th>
+                    <th>Người tạo</th>
+                    <th>Thời gian tạo</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hd, stt : ${listInvoice}">
+                    <td th:text="${stt.index + 1}"></td>
+                    <td th:text="${hd.id}"></td>
+                    <td th:text="${hd.customer != null ? hd.customer.fullname : 'N/A'}"></td>
+                    <td th:text="${hd.invoiceTrackingNumber != null ? hd.invoiceTrackingNumber : 'N/A'}"></td>
+                    <td th:text="${hd.paymentMethod != null ? hd.paymentMethod.name : 'N/A'}"></td>
+                    <td th:text="${hd.finalPrice != null ? T(com.beehat.service.CurrencyUtil).formatCurrency(hd.finalPrice) : null}">0 VND</td>
+                    <td th:text="${hd.employee != null ? hd.employee.fullname : 'N/A'}"></td>
+                    <td th:text="${hd.createdDate != null ? #temporals.format(hd.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                    <td>
+                        <span th:if="${hd.status == 0}" class="badge rounded-pill bg-info">Chưa thanh toán</span>
+                        <span th:if="${hd.status == 1}" class="badge bg-danger">Bị huỷ</span>
+                        <span th:if="${hd.status == 2}" class="badge bg-success">Đã thanh toán</span>
+                    </td>
+                    <td>?</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
 </body>
 </html>
