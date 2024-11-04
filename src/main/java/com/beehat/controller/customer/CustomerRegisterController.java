@@ -1,7 +1,9 @@
 package com.beehat.controller.customer;
 
 import com.beehat.entity.Customer;
+import com.beehat.entity.Product;
 import com.beehat.repository.CustomerRepo;
+import com.beehat.repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/customer")
@@ -24,9 +27,12 @@ public class CustomerRegisterController {
     CustomerRepo customerRepo;
     @Autowired
     PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private ProductRepo productRepo;
     @GetMapping("/index")
     public String index(Authentication authentication, Model model){
+        List<Product> products = productRepo.findAll();
+        model.addAttribute("products",products);
         // Kiểm tra xem người dùng đã đăng nhập hay chưa
         if (authentication != null && authentication.isAuthenticated()) {
             // Lấy thông tin người dùng từ SecurityContext
