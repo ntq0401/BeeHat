@@ -1,5 +1,6 @@
 package com.beehat.controller.admin;
 
+import com.beehat.entity.Customer;
 import com.beehat.entity.Employee;
 import com.beehat.repository.EmployeeRepo;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,16 +12,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -35,7 +43,7 @@ public class EmployeeController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "page", defaultValue = "0") int page,
             Model model) {
-
+        model.addAttribute("employee", new Employee());
         Pageable pageable = PageRequest.of(page, size);
         List<Employee> employees = employeeRepository.findAll(pageable).getContent();
 
@@ -47,7 +55,19 @@ public class EmployeeController {
         return "admin/employee";
     }
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id){
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes){
+        // Lấy thông tin người dùng hiện tại
+        UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUsername = currentUser.getUsername();
+
+        // Giả sử bạn có phương thức tìm Employee theo username
+        Employee currentEmployee = employeeRepository.findByUsername(currentUsername);
+
+        // Kiểm tra nếu ID cần xóa là của người dùng hiện tại
+        if (currentEmployee.getId().equals(id)) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản của chính mình.");
+            return "redirect:/admin/employee";  // Điều hướng về trang danh sách hoặc trang khác phù hợp
+        }
         employeeRepository.deleteById(id);
         return "redirect:/admin/employee";
     }
@@ -62,36 +82,83 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public String updateEmployee(@ModelAttribute Employee employee) {
+    public String updateEmployee(@ModelAttribute Employee employee,BindingResult bindingResult) {
+        if (employeeRepository.existsByPhone(employee.getPhone())) {
+            bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
+        }
+
+        if (employeeRepository.existsByEmail(employee.getEmail())) {
+            bindingResult.rejectValue("email", "error.employee", "Email đã tồn tại");
+        }
+
+        // Kiểm tra có lỗi không
+        if (bindingResult.hasErrors()) {
+            return "admin/employee_detail"; // Trả về trang cập nhật nếu có lỗi
+        }
         employee.setUpdatedDate(LocalDateTime.now());
         employeeRepository.save(employee);
         return "redirect:/admin/employee";
     }
     @PostMapping("/add")
-    public String add(@ModelAttribute("employee") Employee employee){
+    public ModelAndView add(@ModelAttribute("employee") Employee employee, BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView("admin/employee"); // Trả về trang admin/employee nếu có lỗi
+
+        // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult
+        if (employeeRepository.existsByUsername(employee.getUsername())) {
+            bindingResult.rejectValue("username", "error.employee", "Username đã tồn tại");
+        }
+        if (employeeRepository.existsByEmail(employee.getEmail())) {
+            bindingResult.rejectValue("email", "error.employee", "Email đã tồn tại");
+        }
+        if (employeeRepository.existsByPhone(employee.getPhone())) {
+            bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
+        }
+
+        // Kiểm tra nếu có lỗi, trả về trang với modal mở kèm thông báo lỗi
+        if (bindingResult.hasErrors()) {
+            modelAndView.addObject("employee", employee);
+            modelAndView.addObject("showModal", true); // Thêm flag để JavaScript nhận biết cần hiển thị modal
+            return modelAndView;
+        }
+
+        // Nếu không có lỗi, lưu employee và chuyển hướng về trang admin/employee
         employee.setCreatedDate(LocalDateTime.now());
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         employeeRepository.save(employee);
-        return "redirect:/admin/employee";
+        return new ModelAndView("redirect:/admin/employee");
     }
-    @GetMapping("/search")
-    public String search(@RequestParam("searchValue") String searchValue,
-                         Model model){
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            model.addAttribute("employees", employeeRepository.findAll());
-            return "/admin/employee";
-        }
-//        List<Employee> list = employeeRepository.findAll().stream()
-//                .filter(e -> e.getFullname().contains(searchValue) || e.getUsername().contains(searchValue))
-//                .collect(Collectors.toList());
 
-        List<Employee> list = new ArrayList<>();
-        for (Employee e:employeeRepository.findAll()){
-            if (e.getUsername().contains(searchValue)|| e.getFullname().contains(searchValue)){
-                list.add(e);
+    @GetMapping("/search")
+    public String searchEmployees(@RequestParam(value = "searchValue", required = false) String searchValue,
+                                  @RequestParam(value = "status", required = false) String status,
+                                  @RequestParam(value = "role", required = false) String role,
+                                  Model model) {
+        List<Employee> employees;
+        Byte statusValue = null;
+        Byte roleValue = null;
+        model.addAttribute("employee", new Employee());
+        // Chuyển đổi status nếu không null hoặc rỗng
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusValue = Byte.parseByte(status);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
         }
-        model.addAttribute("employees", list);
+        // Xử lý vai trò
+        if (role != null && !role.isEmpty()) {
+            roleValue = Byte.valueOf((byte) (role.equals("admin")?1:0));
+        }
+        // Nếu searchValue không được điền, tìm tất cả nhân viên
+        if (searchValue == null || searchValue.isEmpty()) {
+            employees = employeeRepository.findAllEmployees(statusValue, roleValue);
+        } else {
+            // Nếu có searchValue, tìm theo tên, username hoặc SĐT
+            employees = employeeRepository.findEmployeesBySearchValue(searchValue, statusValue, roleValue);
+        }
+
+        // Gán danh sách nhân viên vào model
+        model.addAttribute("employees", employees);
         return "/admin/employee";
     }
     @GetMapping("/export")

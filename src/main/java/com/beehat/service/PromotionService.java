@@ -25,7 +25,7 @@ public class PromotionService {
     @Autowired
     private ProductRepo productRepo;
     @Transactional
-    @Scheduled(cron = "0 * * * * ?") // Chạy hàng ngày vào lúc nửa đêm
+    @Scheduled(cron = "0 * * * * ?")
     public void updatePromotionStatus() {
         System.out.println("Updating promotion statuses...");
         LocalDateTime today = LocalDateTime.now();
@@ -36,13 +36,11 @@ public class PromotionService {
                 promotion.setStatus((byte) 0); // Chưa bắt đầu
             } else if (promotion.getEndDate().isBefore(today)) {
                 promotion.setStatus((byte) 2); // Đã kết thúc
-                // Xóa quan hệ với sản phẩm trong PromotionProduct nếu đã kết thúc
-                productPromotionRepo.updateStatusByPromotionId(promotion.getId(),(byte)0);
                 productRepo.clearPromotionByPromotionId(promotion.getId());
             } else {
                 promotion.setStatus((byte) 1); // Đang diễn ra
                 // Thêm hoặc cập nhật các sản phẩm liên kết với promotion trong PromotionProduct
-                List<ProductPromotion> promotionProducts = productPromotionRepo.findAllByPromotion(promotion);
+                List<ProductPromotion> promotionProducts = productPromotionRepo.findAllByPromotionAndStatus(promotion,(byte)1);
 
                 for (ProductPromotion promotionProduct : promotionProducts) {
                     Product product = promotionProduct.getProduct();

@@ -42,10 +42,14 @@
     <div class="form-group">
       <label>Email</label>
       <input type="email" name="email" th:value="${employee.email}" class="form-control" required/>
+      <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+
     </div>
     <div class="form-group">
       <label>Phone</label>
-      <input type="text" name="phone" th:value="${employee.phone}" class="form-control" required/>
+      <input type="text" name="phone" th:value="${employee.phone}" class="form-control" maxlength="10" pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0"  required/>
+      <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
+
     </div>
     <div class="form-group">
       <label>Role</label>

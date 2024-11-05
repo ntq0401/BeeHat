@@ -12,16 +12,61 @@
         checkbox.checked = selectAllCheckbox.checked;
       });
     }
-    function toggleDiscountInput() {
-      const discountPercentageInput = document.getElementById("discountPercentageInput");
-      const discountValueInput = document.getElementById("discountValueInput");
+    function validateForm(event) {
+      // Kiểm tra ít nhất một sản phẩm được chọn
+      const checkboxes = document.querySelectorAll('.productCheckbox');
+      const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+      if (!isChecked) {
+        alert("Vui lòng chọn ít nhất một sản phẩm.");
+        event.preventDefault(); // Ngăn chặn gửi form nếu không có sản phẩm nào được chọn
+        return;
+      }
 
-      if (document.getElementById("discountPercentage").checked) {
-        discountPercentageInput.style.display = "block";
-        discountValueInput.style.display = "none";
-      } else if (document.getElementById("discountValue").checked) {
-        discountPercentageInput.style.display = "none";
-        discountValueInput.style.display = "block";
+      // Kiểm tra ngày kết thúc phải lớn hơn ngày bắt đầu
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+        alert("Ngày kết thúc phải lớn hơn ngày bắt đầu.");
+        event.preventDefault(); // Ngăn chặn gửi form nếu ngày kết thúc không hợp lệ
+      }
+
+
+      // Kiểm tra yêu cầu nhập cho loại giảm giá
+      const discountType = document.querySelector('input[name="discountType"]:checked');
+      if (discountType) {
+        if (discountType.value === 'percentage') {
+          const percentageInput = document.getElementById('percentage').value;
+          if (!percentageInput) {
+            alert("Vui lòng nhập phần trăm giảm.");
+            event.preventDefault();
+            return;
+          }
+        } else if (discountType.value === 'value') {
+          const valueInput = document.getElementById('value').value;
+          if (!valueInput) {
+            alert("Vui lòng nhập giá trị giảm.");
+            event.preventDefault();
+            return;
+          }
+        }
+      }
+    }
+    function toggleDiscountInput() {
+      const discountPercentageRadio = document.getElementById('discountPercentage');
+      const discountValueRadio = document.getElementById('discountValue');
+      const discountPercentageInput = document.getElementById('percentage');
+      const discountValueInput = document.getElementById('value');
+
+      if (discountPercentageRadio.checked) {
+        // Hiển thị ô nhập % và đặt giá trị giảm giá về 0
+        document.getElementById('discountPercentageInput').style.display = 'block';
+        document.getElementById('discountValueInput').style.display = 'none';
+        discountValueInput.value = 0;
+      } else if (discountValueRadio.checked) {
+        // Hiển thị ô nhập giá trị và đặt phần trăm giảm giá về 0
+        document.getElementById('discountPercentageInput').style.display = 'none';
+        document.getElementById('discountValueInput').style.display = 'block';
+        discountPercentageInput.value = 0;
       }
     }
 
@@ -41,7 +86,7 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <form th:action="@{/admin/promotion/update}" method="post">
+  <form th:action="@{/admin/promotion/update}" method="post" onsubmit="validateForm(event)">
     <input type="text" name="id" th:value="${promotion.id}" hidden>
     <div class="row">
       <div class=" form123 col-4 ">
@@ -55,7 +100,7 @@
         <div class="form-group">
           <label>Loại giảm giá:</label><br>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" >
+            <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" required>
             <label class="form-check-label" for="discountPercentage">Phần trăm (%)</label>
           </div>
           <div class="form-check form-check-inline">
@@ -73,7 +118,7 @@
         <!-- Ô nhập giá trị -->
         <div class="form-group" style="display: none;" id="discountValueInput" >
           <label for="value">Nhập giá trị giảm:</label>
-          <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="0" >
+          <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="0" max="100000" >
         </div>
         <!-- Ngày bắt đầu -->
         <div class="form-group">

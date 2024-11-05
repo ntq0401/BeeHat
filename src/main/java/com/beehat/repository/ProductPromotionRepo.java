@@ -15,7 +15,7 @@ public interface ProductPromotionRepo extends JpaRepository<ProductPromotion,Int
     @Transactional
     @Query("UPDATE ProductPromotion pp SET pp.status = :status WHERE pp.promotion.id = :promotionId")
     void updateStatusByPromotionId(@Param("promotionId") Integer promotionId, @Param("status") Byte status);
-    List<ProductPromotion> findAllByPromotion(Promotion promotion);
+    List<ProductPromotion> findAllByPromotionAndStatus(Promotion promotion, byte status);
     List<ProductPromotion> findByPromotionId(Integer promotionId);
     void deleteByPromotionId(Integer promotionId);
 }

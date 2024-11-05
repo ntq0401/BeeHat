@@ -48,11 +48,11 @@
                 <div class="form-group">
                     <label>Loại giảm giá:</label><br>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" readonly>
+                        <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" disabled>
                         <label class="form-check-label" for="discountPercentage">Phần trăm (%)</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="discountValue" name="discountType" value="value" th:checked="${promotion.discountAmount > 0}" onclick="toggleDiscountInput()" readonly>
+                        <input class="form-check-input" type="radio" id="discountValue" name="discountType" value="value" th:checked="${promotion.discountAmount > 0}" onclick="toggleDiscountInput()" disabled>
                         <label class="form-check-label" for="discountValue">Giá trị</label>
                     </div>
                 </div>

@@ -189,7 +189,6 @@ public class PromotionController {
         if (selectedProducts != null) {
             selectedSet.addAll(selectedProducts);
         }
-
         // Lấy ID sản phẩm từ ProductPromotion liên quan và thêm vào selectedSet
         productPromotions.forEach(pp -> selectedSet.add(pp.getProduct().getId()));
 
@@ -228,11 +227,11 @@ public class PromotionController {
 
         // Kiểm tra và thiết lập giá trị khuyến mãi
         if (percentage > 0) {
-            promotion.setDiscountAmount(value); // Giá trị được chọn
+            promotion.setDiscountAmount(0);
             promotion.setDiscountPercentage(percentage); // Giá trị phần trăm
         } else if (value > 0) {
             promotion.setDiscountAmount(value); // Giá trị
-            promotion.setDiscountPercentage(percentage); // Giá trị phần trăm
+            promotion.setDiscountPercentage((byte) 0);
         }
 
         // Thiết lập ngày bắt đầu và kết thúc
@@ -260,23 +259,42 @@ public class PromotionController {
 
         // Xóa promotionId cho các sản phẩm hiện tại
         for (Product product : existingProducts) {
-            Promotion promotion1 = product.getPromotion(); // Lấy đối tượng Promotion
-
-            if (promotion1 != null) { // Kiểm tra xem promotion có phải là null không
-                promotion.setId(null); // Giả sử có thuộc tính promotionId trong Promotion
-            }
-
+            product.setPromotion(null);
             productRepo.save(product); // Lưu lại cập nhật cho sản phẩm
         }
 
-        // Xóa các ProductPromotion hiện có liên quan đến promotionId
-        productPromotionRepo.deleteByPromotionId(id);
+        // Lấy danh sách ProductPromotion hiện tại
+        Set<Integer> existingProductIds = existingProductPromotions.stream()
+                .map(pp -> pp.getProduct().getId())
+                .collect(Collectors.toSet());
 
-        // Thêm lại ProductPromotion mới nếu có sản phẩm được chọn
-        if (selectedProducts != null) {
-            for (Integer productId : selectedProducts) {
-                Product product = productRepo.findById(productId).orElse(null);
-                if (product != null) { // Kiểm tra xem sản phẩm có tồn tại không
+        // Cập nhật trạng thái cho các ProductPromotion không còn được chọn
+        for (ProductPromotion pp : existingProductPromotions) {
+            if (!selectedProducts.contains(pp.getProduct().getId())) {
+                // Chỉ cập nhật trạng thái
+                pp.setStatus((byte) 0); // Đặt trạng thái thành 0
+                productPromotionRepo.save(pp); // Lưu thay đổi vào cơ sở dữ liệu
+            }
+        }
+
+        // Thêm hoặc cập nhật ProductPromotion cho các sản phẩm được chọn
+        for (Integer productId : selectedProducts) {
+            Product product = productRepo.findById(productId).orElse(null);
+            if (product != null) {
+                // Kiểm tra nếu ProductPromotion đã tồn tại
+                Optional<ProductPromotion> existingPP = existingProductPromotions.stream()
+                        .filter(pp -> pp.getProduct().getId().equals(productId))
+                        .findFirst();
+
+                if (existingPP.isPresent()) {
+                    // Cập nhật các thuộc tính của ProductPromotion
+                    ProductPromotion promotionProduct = existingPP.get();
+                    promotionProduct.setStartDate(startDate);
+                    promotionProduct.setEndDate(endDate);
+                    promotionProduct.setStatus((byte) 1); // Đang hoạt động
+                    productPromotionRepo.save(promotionProduct); // Cập nhật vào cơ sở dữ liệu
+                } else {
+                    // Thêm mới ProductPromotion
                     ProductPromotion promotionProduct = new ProductPromotion();
                     promotionProduct.setPromotion(promotion);
                     promotionProduct.setProduct(product);
