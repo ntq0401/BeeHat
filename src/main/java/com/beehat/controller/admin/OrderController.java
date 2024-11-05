@@ -5,6 +5,7 @@ import com.beehat.entity.InvoiceDetail;
 import com.beehat.repository.InvoiceDetailRepo;
 import com.beehat.repository.InvoiceRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,9 @@ public class OrderController {
     @Autowired
     InvoiceDetailRepo invoiceDetailRepo;
     @ModelAttribute("listInvoice")
-    List<Invoice> listInvoice() { return invoiceRepo.findAll(); }
+    List<Invoice> listInvoice() {
+        return invoiceRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedDate"));
+    }
     @GetMapping("/index")
     public String order() {
 
