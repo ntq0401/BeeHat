@@ -25,4 +25,12 @@ public class HomePageController {
     public String productDetail(Model model) {
        return "online_store/productdetail";
    }
+   @GetMapping("/lien-he")
+    public String lienHe(Model model) {
+       return "online_store/lienhe";
+   }
+   @GetMapping("/tin-tuc")
+    public String tinTuc(Model model) {
+       return "online_store/tintuc";
+   }
 }
