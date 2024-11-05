@@ -83,15 +83,21 @@ public class EmployeeController {
 
     @PostMapping("/update")
     public String updateEmployee(@ModelAttribute Employee employee,BindingResult bindingResult) {
-        if (employeeRepository.existsByPhone(employee.getPhone())) {
-            bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
+        Employee existingEmployee = employeeRepository.findById(employee.getId()).orElse(null);
+
+        if (existingEmployee != null) {
+            // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingEmployee.getPhone().equals(employee.getPhone()) && employeeRepository.existsByPhone(employee.getPhone())) {
+                bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
+            }
+
+            // Kiểm tra email đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingEmployee.getEmail().equals(employee.getEmail()) && employeeRepository.existsByEmail(employee.getEmail())) {
+                bindingResult.rejectValue("email", "error.employee", "Email đã tồn tại");
+            }
         }
 
-        if (employeeRepository.existsByEmail(employee.getEmail())) {
-            bindingResult.rejectValue("email", "error.employee", "Email đã tồn tại");
-        }
-
-        // Kiểm tra có lỗi không
+            // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
             return "admin/employee_detail"; // Trả về trang cập nhật nếu có lỗi
         }

@@ -17,22 +17,16 @@
         });
 
     </script>
-    <style>
-        /* Custom border and padding for the form container */
-        .form123 {
-            border: 1px solid #ced4da;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #f8f9fa;
-        }
-    </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Quản lí nhân viên</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin/index">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Employee</li>
+        </ol>
+    </nav>
     <div class="d-flex justify-content-end mt-3">
-<!--        <button class="btn btn-outline-success" type="button" onclick="search()">Tìm kiếm</button>-->
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
             Thêm mới
         </button>
@@ -43,8 +37,12 @@
             <button class="btn btn-outline-success" type="button" onclick="document.getElementById('fileInput').click();">Nhập file</button>
         </form>
     </div>
-    <div class="form123 mt-3">
-        <div class="row d-flex justify-content-center align-items-center">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="card-title">Tìm kiếm</h5>
+        </div>
+        <div class="card-body">
+            <div class="row d-flex justify-content-center align-items-center">
                 <form th:action="@{/admin/employee/search}" method="get">
                     <div class="row">
                         <div class="form-group col-md-4">
@@ -71,66 +69,81 @@
                     <div class="row mt-3">
                         <div class="col-auto d-flex align-items-center">
                             <button class="btn btn-info" type="submit">
-                                <i class="bi bi-funnel-fill"></i> Tìm kiếm
+                                <i class="ph ph-magnifying-glass"></i>
                             </button>
                         </div>
                     </div>
                 </form>
+            </div>
         </div>
     </div>
 
-<!--    <div th:if="${error}" class="alert alert-danger">-->
-<!--        <p th:text="${error}"></p>-->
-<!--    </div>-->
     <script th:if="${error}" th:inline="javascript">
         alert([[${error}]]);
     </script>
-    <table class="table mt-5">
-        <thead>
-        <tr>
-            <th scope="col">STT</th>
-            <th scope="col">Username</th>
-            <th scope="col">Fullname</th>
-            <th scope="col">Email</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Created Date</th>
-            <th scope="col">Role</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="employee,stat : ${employees}" >
-            <td th:text="${stat.index+1}"></td>
-            <td th:text="${employee.username}"></td>
-            <td th:text="${employee.fullname}"></td>
-            <td th:text="${employee.email}"></td>
-            <td th:text="${employee.phone}"></td>
-            <td th:text="${#temporals.format(employee.createdDate, 'dd-MM-yyyy')}"></td>
-            <td  th:text="${employee.role==1?'ADMIN':'EMPLOYEE'}"></td>
-            <td>
-                <span th:class="${employee.status == 1 ? 'badge bg-success' : 'badge bg-danger'}"
-                th:text="${employee.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></span>
-            </td>
-            <td>
-                <a th:href="@{/admin/employee/detail/{id}(id=${employee.id})}" class="btn btn-primary" ><i class="ph ph-info" style="font-size: 1.5rem;"></i></a>
-                <a th:href="@{/admin/employee/delete/{id}(id=${employee.id})}" class="btn btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa')" ><i class="ph ph-trash" style="font-size: 1.5rem;"></i></a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <form class="mt-2" id="dataTableForm" method="get" th:action="@{/admin/employee}">
-        <div class="dataTables_length" id="DataTables_Table_0_length">
-            <label>Show
-                <select name="size" onchange="this.form.submit()" class="custom-select custom-select-sm ">
-                    <option value="10" th:selected="${size == 10}">10</option>
-                    <option value="25" th:selected="${size == 25}">25</option>
-                    <option value="50" th:selected="${size == 50}">50</option>
-                    <option value="100" th:selected="${size == 100}">100</option>
-                </select> entries
-            </label>
+    <div class="card mt-5">
+        <div class="card-header">
+            <h5 class="card-title">Danh sách nhân viên</h5>
         </div>
-    </form>
+
+        <div class="card-body">
+            <!-- Bảng Danh sách Nhân viên -->
+            <table class="table ">
+                <thead>
+                <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Fullname</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Created Date</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee, stat : ${employees}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${employee.username}"></td>
+                    <td th:text="${employee.fullname}"></td>
+                    <td th:text="${employee.email}"></td>
+                    <td th:text="${employee.phone}"></td>
+                    <td th:text="${#temporals.format(employee.createdDate, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${employee.role == 1 ? 'ADMIN' : 'EMPLOYEE'}"></td>
+                    <td>
+                        <span th:class="${employee.status == 1 ? 'badge bg-success' : 'badge bg-danger'}"
+                              th:text="${employee.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></span>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/employee/detail/{id}(id=${employee.id})}" class="btn btn-primary">
+                            <i class="ph ph-info" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <a th:href="@{/admin/employee/delete/{id}(id=${employee.id})}" class="btn btn-outline-danger"
+                           onclick="return confirm('Bạn có chắc muốn xóa')">
+                            <i class="ph ph-trash" style="font-size: 1.2rem;"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Form chọn số lượng hiển thị -->
+            <form class="mt-2" id="dataTableForm" method="get" th:action="@{/admin/employee}">
+                <div class="dataTables_length">
+                    <label>Show
+                        <select name="size" onchange="this.form.submit()" class="custom-select custom-select-sm">
+                            <option value="10" th:selected="${size == 10}">10</option>
+                            <option value="25" th:selected="${size == 25}">25</option>
+                            <option value="50" th:selected="${size == 50}">50</option>
+                            <option value="100" th:selected="${size == 100}">100</option>
+                        </select> entries
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!--    <div class="pagination d-flex justify-content-center">-->
     <!--        <li class="paginate_button page-item previous" th:class="${currentPage == 0} ? 'disabled'">-->
     <!--            <a th:href="@{/admin/employee(page=${currentPage - 1}, size=${size})}" class="page-link">Previous</a>-->
@@ -141,7 +154,7 @@
     <!--    </div>-->
 
 <!--     Modal Thêm Nhân Viên -->
-    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true" >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

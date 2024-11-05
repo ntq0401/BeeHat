@@ -22,72 +22,80 @@
         // Gọi hàm khi trang load để hiển thị đúng input
         document.addEventListener("DOMContentLoaded", toggleDiscountInput);
     </script>
-    <style>
-        /* Custom border and padding for the form container */
-        .form123 {
-            border: 1px solid #ced4da;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #f8f9fa;
-        }
-    </style>
+
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <form action="#" method="post">
-        <div class="row">
-            <div class=" form123  align-items-center">
-                <h5 class="text-center mb-4">Chi tiết trình giảm giá</h5>
-                <div class="form-group">
-                    <label for="name">Tên chương trình khuyến mãi:</label>
-                    <input type="text" id="name" name="name" th:value="${promotion.name}" class="form-control" readonly>
-                </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin/index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/admin/promotion">Promotion</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Detail</li>
+        </ol>
+    </nav>
+    <div class="card mt-5">
+        <div class="card-header">
+            <h5 class="card-title">Chi tiết promotion</h5>
+        </div>
 
-                <!-- Loại giảm giá -->
-                <div class="form-group">
-                    <label>Loại giảm giá:</label><br>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" disabled>
-                        <label class="form-check-label" for="discountPercentage">Phần trăm (%)</label>
+        <div class="card-body">
+            <div class="row">
+                <div class="align-items-center">
+                    <div class="form-group">
+                        <label for="name">Tên chương trình khuyến mãi:</label>
+                        <input type="text" id="name" name="name" th:value="${promotion.name}" class="form-control" readonly>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" id="discountValue" name="discountType" value="value" th:checked="${promotion.discountAmount > 0}" onclick="toggleDiscountInput()" disabled>
-                        <label class="form-check-label" for="discountValue">Giá trị</label>
+
+                    <!-- Loại giảm giá -->
+                    <div class="form-group">
+                        <label>Loại giảm giá:</label><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="discountPercentage" name="discountType" value="percentage" th:checked="${promotion.discountPercentage > 0}" onclick="toggleDiscountInput()" disabled>
+                            <label class="form-check-label" for="discountPercentage">Phần trăm (%)</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="discountValue" name="discountType" value="value" th:checked="${promotion.discountAmount > 0}" onclick="toggleDiscountInput()" disabled>
+                            <label class="form-check-label" for="discountValue">Giá trị</label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Ô nhập % -->
-                <div class="form-group" style="display: none;" id="discountPercentageInput" >
-                    <label for="percentage">Nhập phần trăm giảm:</label>
-                    <input type="number" id="percentage" name="percentage" th:value="${promotion.discountPercentage}"  class="form-control" placeholder="% giảm" min="1" max="100" readonly>
-                </div>
+                    <!-- Ô nhập % -->
+                    <div class="form-group" style="display: none;" id="discountPercentageInput" >
+                        <label for="percentage">Nhập phần trăm giảm:</label>
+                        <input type="number" id="percentage" name="percentage" th:value="${promotion.discountPercentage}"  class="form-control" placeholder="% giảm" min="1" max="100" readonly>
+                    </div>
 
-                <!-- Ô nhập giá trị -->
-                <div class="form-group" style="display: none;" id="discountValueInput" >
-                    <label for="value">Nhập giá trị giảm:</label>
-                    <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="1" readonly>
-                </div>
+                    <!-- Ô nhập giá trị -->
+                    <div class="form-group" style="display: none;" id="discountValueInput" >
+                        <label for="value">Nhập giá trị giảm:</label>
+                        <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="1" readonly>
+                    </div>
 
-                <!-- Ngày bắt đầu -->
-                <div class="form-group">
-                    <label for="startDate">Ngày bắt đầu:</label>
-                    <input type="datetime-local" id="startDate" th:value="${promotion.startDate}" name="startDate" class="form-control"  readonly>
-                </div>
+                    <!-- Ngày bắt đầu -->
+                    <div class="form-group">
+                        <label for="startDate">Ngày bắt đầu:</label>
+                        <input type="datetime-local" id="startDate" th:value="${promotion.startDate}" name="startDate" class="form-control"  readonly>
+                    </div>
 
-                <!-- Ngày kết thúc -->
-                <div class="form-group mt-3">
-                    <label for="endDate">Ngày kết thúc:</label>
-                    <input type="datetime-local" id="endDate" th:value="${promotion.endDate}" name="endDate" class="form-control" readonly>
-                </div>
-                <!-- Nút Thêm và Quay lại -->
-                <div class="form-group mt-3 text-center">
-                    <a class="btn btn-secondary" th:href="@{/admin/promotion}">Quay lại</a>
+                    <!-- Ngày kết thúc -->
+                    <div class="form-group mt-3">
+                        <label for="endDate">Ngày kết thúc:</label>
+                        <input type="datetime-local" id="endDate" th:value="${promotion.endDate}" name="endDate" class="form-control" readonly>
+                    </div>
+                    <!-- Nút Thêm và Quay lại -->
+                    <div class="form-group mt-3 text-center">
+                        <a class="btn btn-secondary" th:href="@{/admin/promotion}">Quay lại</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
-    <div class="table-responsive row">
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <h5 class="card-title">Danh sách sản phẩm chi tiết</h5>
+        </div>
+
+        <div class="card-body">
             <table class="table table-bordered table-hover">
                 <thead class="thead-light">
                 <tr>
@@ -115,6 +123,7 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
     </div>
 </main>
 </body>

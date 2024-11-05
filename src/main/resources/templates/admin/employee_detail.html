@@ -19,7 +19,13 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <h1>Chi tiết Nhân viên</h1>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin/index">Trang chủ</a></li>
+      <li class="breadcrumb-item"><a href="/admin/employee">Employee</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Detail</li>
+    </ol>
+  </nav>
   <form th:action="@{/admin/employee/update}" th:object="${employee}" method="post">
     <div class="form-group mb-4" style="display: flex; justify-content: center;">
       <img id="employeePhoto" th:src="@{'/images/employees/' + ${employee.photo}}" alt="Employee Photo" width="150" height="150" class="img-thumbnail" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
