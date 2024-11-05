@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.OutputStream;
@@ -94,6 +93,7 @@ public class StoreController {
 //        Employee employee = employeeRepo.findByUsername(username);
         Employee employee = employeeRepo.findByUsername("user");
         invoice.setEmployee(employee);
+        invoice.setInvoiceStatus(Byte.valueOf("0"));
         invoiceRepo.save(invoice);
         return "redirect:/admin/store/invoice-detail/" + invoice.getId();
     }

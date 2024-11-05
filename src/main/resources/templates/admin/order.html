@@ -7,11 +7,32 @@
         th, td {
             text-align: center; /* Căn giữa theo chiều ngang */
         }
+        /* CSS */
+        .status-badge {
+            min-width: 120px; /* Đặt độ rộng tối thiểu */
+            text-align: center; /* Căn giữa nội dung */
+            display: inline-block; /* Đảm bảo chiều rộng áp dụng */
+        }
+        .icon-large {
+            font-size: 1.5rem; /* Tăng kích thước biểu tượng */
+            margin-right: 7px; /* Khoảng cách giữa các biểu tượng */
+            margin-left: 7px;
+            text-align: center;
+        }
+        .text-no-decoration {
+            text-decoration: none;
+            vertical-align: middle; /* Hoặc thử giá trị khác như 'top', 'bottom' */
+        }
     </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Quản lí hoá đơn</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Hoá đơn</li>
+        </ol>
+    </nav>
 
     <!-- Card tìm kiếm hóa đơn -->
     <div class="card mb-4">
@@ -52,9 +73,9 @@
                     <th>Hoá đơn</th>
                     <th>Khách hàng</th>
                     <th>Mã theo dõi đơn hàng</th>
-                    <th>Hình thức thanh toán</th>
                     <th>Tổng tiền</th>
                     <th>Người tạo</th>
+                    <th>Hình thức</th>
                     <th>Thời gian tạo</th>
                     <th>Trạng thái</th>
                     <th>Hành động</th>
@@ -66,16 +87,24 @@
                     <td th:text="${hd.id}"></td>
                     <td th:text="${hd.customer != null ? hd.customer.fullname : 'N/A'}"></td>
                     <td th:text="${hd.invoiceTrackingNumber != null ? hd.invoiceTrackingNumber : 'N/A'}"></td>
-                    <td th:text="${hd.paymentMethod != null ? hd.paymentMethod.name : 'N/A'}"></td>
                     <td th:text="${hd.finalPrice != null ? T(com.beehat.service.CurrencyUtil).formatCurrency(hd.finalPrice) : null}">0 VND</td>
                     <td th:text="${hd.employee != null ? hd.employee.fullname : 'N/A'}"></td>
-                    <td th:text="${hd.createdDate != null ? #temporals.format(hd.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                     <td>
-                        <span th:if="${hd.status == 0}" class="badge rounded-pill bg-info">Chưa thanh toán</span>
-                        <span th:if="${hd.status == 1}" class="badge bg-danger">Bị huỷ</span>
-                        <span th:if="${hd.status == 2}" class="badge bg-success">Đã thanh toán</span>
+                        <span th:if="${hd.invoiceStatus == 0}" class="badge text-bg-secondary">Tại quầy</span>
+                        <span th:if="${hd.invoiceStatus == 1}" class="badge bg-danger">Bán online</span>
                     </td>
-                    <td>?</td>
+                    <td th:text="${hd.createdDate != null ? #temporals.format(hd.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+
+                    <td>
+                        <span th:if="${hd.status == 0}" class="badge rounded-pill bg-info status-badge">Chưa thanh toán</span>
+                        <span th:if="${hd.status == 1}" class="badge rounded-pill bg-danger status-badge">Bị huỷ</span>
+                        <span th:if="${hd.status == 2}" class="badge rounded-pill bg-success status-badge">Đã thanh toán</span>
+                    </td>
+                    <td colspan="2" style="display: flex; align-items: center; justify-content: center;">
+                        <a class="text-no-decoration" th:href="@{/admin/order/view-invoice/{id}(id=${hd.id})}"><i class="ph ph-info icon-large text-primary"></i></a>
+                        <a class="text-no-decoration" href="#"><i class="ph ph-note-pencil icon-large text-success"></i></a>
+                    </td>
+
                 </tr>
                 </tbody>
             </table>

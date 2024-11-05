@@ -35,7 +35,7 @@
                             </button>
                         </form>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="min-height: 370.4px">
                         <div class="mb-3 d-flex justify-content-between">
                             <div class="d-flex">
                                 <div class="d-flex align-items-center">
@@ -211,33 +211,9 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr th:if="${infoInvoice == null}" th:each="i : ${#numbers.sequence(1, 6)}">
-                                <!-- Thêm 5 dòng trống nếu danh sách rỗng -->
-
-                                <td style="text-align: center;height: 40.8px"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-
-                            </tr>
-                            <!-- Thêm 5 dòng trống nếu danh sách rỗng -->
-                            <tr th:if="${infoInvoice != null && listInvoiceDetail.size() == 0}" th:each="i : ${#numbers.sequence(1, 5)}">
-                                <td style="text-align: center;height: 40.8px"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                                <td style="text-align: center;"></td>
-                            </tr>
                             </tbody>
                         </table>
 
-                        <span class="me-3"
-                              th:text="${infoInvoice != null ? 'Người tạo : ' + infoInvoice.employee.fullname : ''}"></span>
                     </div>
 
                 </div>
@@ -246,9 +222,10 @@
             <!-- Card thông tin khách hàng ở bên phải -->
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-header text-center">
+                    <div class="card-header" style="min-height: 56.8px; display: grid; place-items: center;font-size: 19px">
                         Thông tin hoá đơn
                     </div>
+
                     <div class="card-body">
                         <form method="post" th:object="${pay}" th:action="@{/admin/store/pay}">
                             <div class="mb-3">
@@ -270,7 +247,7 @@
                                 </div>
                             </div>
                             <!-- Nhập voucher -->
-                            <div class="mb-3 row">
+                            <div class="row">
                                 <label class="form-label">Mã Voucher</label>
                                 <div class="col-7 d-flex align-items-center">
                                     <select id="voucherSelect" class="form-select" onchange="updateVoucherPreview()">
@@ -327,34 +304,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
 
-
-                                <!-- Modal hiển thị mã QR và đếm ngược -->
-                                <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel"
-                                     aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="qrModalLabel">Quét mã thanh toán</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body text-center">
-                                                <img style="width: 400px" id="qrImage"
-                                                     alt="Mã QR VietQR thanh toán">
-                                                <p id="countdownText" class="mt-3">Thời gian còn lại: <span
-                                                        id="countdown"></span> giây</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                    Đóng
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="table-responsive">
                                 <table class="table mb-5 mt-3">
                                     <tbody>
@@ -387,6 +337,32 @@
                                     th:data-invoice-details-count="${listInvoiceDetail != null ? listInvoiceDetail.size() : ''}">Thanh toán
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <!-- Modal hiển thị mã QR và đếm ngược -->
+        <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="qrModalLabel">Quét mã thanh toán</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img style="width: 400px" id="qrImage"
+                             alt="Mã QR VietQR thanh toán">
+                        <p id="countdownText" class="mt-3">Thời gian còn lại: <span
+                                id="countdown"></span> giây</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Đóng
+                        </button>
                     </div>
                 </div>
             </div>

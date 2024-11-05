@@ -110,6 +110,17 @@
 
     <div class="navbar-collapse collapse">
         <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+                <button type="button" class="btn position-relative border-0 bg-transparent" style="margin-right: 10px">
+                <div class="position-relative">
+                    <i class="ph ph-bell fs-3"></i> <!-- Biểu tượng chuông từ Phosphor Icons -->
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.75rem; padding: 0.2em 0.4em; transform: translate(-50%, -25%);">
+                            10
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
+                </div>
+            </button>
+            </li>
             <li class="nav-item dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
                     <img th:src="${userImageURL}" class="avatar img-fluid" alt="">
