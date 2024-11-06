@@ -61,7 +61,7 @@
 <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-right">
         <div class="modal-content">
-            <div class="modal-header bg-warning">
+            <div class="modal-header ">
                 <h5 class="modal-title" id="cartModalLabel">
                     <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn
                 </h5>
@@ -78,11 +78,8 @@
                     <span class="fw-bold text-danger" id="total-amount">0₫</span>
                 </div>
                 <div class="w-100">
-                    <button class="btn btn-warning w-100 mb-2" id="checkout-button">
-                        Thanh toán ngay
-                    </button>
-                    <button class="btn btn-outline-secondary w-100" id="continue-shopping" data-bs-dismiss="modal">
-                        Tiếp tục mua sắm
+                    <button class="btn btn-outline-danger w-100 mb-2" id="checkout-button" style="font-size: 24px; font-weight: bolder; font-family: sans-serif" ; >
+                        Thanh toán
                     </button>
                 </div>
             </div>
@@ -176,6 +173,10 @@
         text-align: center;
         padding: 20px;
         color: #6c757d;
+    }
+    .btn btn-outline-danger{
+        background: #f30;
+        font-weight: bold;
     }
 </style>
 <div id="carouselExampleDark" class="carousel carousel-dark slide banner p-4">
