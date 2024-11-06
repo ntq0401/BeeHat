@@ -13,8 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,11 +32,13 @@ public class CustomerController {
     private PasswordEncoder passwordEncoder;
 
 
+
     @GetMapping
     public String customers(
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "page", defaultValue = "0") int page,
             Model model) {
+        model.addAttribute("customer",new Customer() );
         Pageable pageable = PageRequest.of(page, size);
         List<Customer> customers = customerRepo.findAll(pageable).getContent();
 
@@ -53,11 +57,30 @@ public class CustomerController {
     }
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("customer") Customer customer){
+    public ModelAndView add(@ModelAttribute("customer") Customer customer, BindingResult bindingResult){
+        ModelAndView modelAndView  = new ModelAndView("admin/customer"); // Trả về trang admin/employee nếu có lỗi
+
+        // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult
+        if (customerRepo.existsByUsername(customer.getUsername())) {
+            bindingResult.rejectValue("username", "error.customer", "Username đã tồn tại");
+        }
+        if (customerRepo.existsByEmail(customer.getEmail())) {
+            bindingResult.rejectValue("email", "error.customer", "Email đã tồn tại");
+        }
+        if (customerRepo.existsByPhone(customer.getPhone())) {
+            bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
+        }
+
+        // Kiểm tra nếu có lỗi, trả về trang với modal mở kèm thông báo lỗi
+        if (bindingResult.hasErrors()) {
+            modelAndView.addObject("customer", customer);
+            modelAndView.addObject("showModal", true); // Thêm flag để JavaScript nhận biết cần hiển thị modal
+            return modelAndView;
+        }
         customer.setCreatedDate(LocalDateTime.now());
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customerRepo.save(customer);
-        return "redirect:/admin/customer";
+        return new ModelAndView("redirect:/admin/customer") ;
     }
 
     @GetMapping("/detail/{id}")
@@ -79,19 +102,31 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam("searchValue") String searchValue,
+    public String search(@RequestParam(value = "searchValue", required = false) String searchValue,
+                         @RequestParam(value = "status", required = false) String status,
                          Model model){
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            model.addAttribute("customers", customerRepo.findAll());
-            return "/admin/customer";
-        }
-        List<Customer> list = new ArrayList<>();
-        for (Customer e:customerRepo.findAll()){
-            if (e.getUsername().contains(searchValue)|| e.getFullname().contains(searchValue)){
-                list.add(e);
+        List<Customer> customers;
+        Byte statusValue = null;
+        model.addAttribute("customer", new Customer());
+        // Chuyển đổi status nếu không null hoặc rỗng
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusValue = Byte.parseByte(status);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
         }
-        model.addAttribute("customers", list);
+
+// Nếu searchValue không được điền, tìm tất cả nhân viên
+        if (searchValue == null || searchValue.isEmpty()) {
+            customers = customerRepo.findAllCustomers(statusValue);
+        } else {
+            // Nếu có searchValue, tìm theo tên, username hoặc SĐT
+            customers = customerRepo.findCustomersBySearchValue(searchValue, statusValue);
+        }
+
+        // Gán danh sách nhân viên vào model
+        model.addAttribute("customers", customers);
         return "/admin/customer";
     }
 

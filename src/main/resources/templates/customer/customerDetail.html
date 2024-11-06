@@ -19,7 +19,12 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Chi tiết Khach Hang</h1>
+    <div class="form123 mt-3">
+    <div class="breadcrumb">
+        <a style="font-size: 30px; font-weight: bold" th:href="@{/admin/index}">Home</a>
+        <p style="font-size: 30px; ">/</p>
+        <a style="font-size: 30px; font-weight: bold" th:href="@{/admin/customer/detail/{id}(id=${customer.id})}">Details</a>
+    </div>
     <form th:action="@{/admin/customer/update}" th:object="${customer}" method="post">
         <div class="form-group mb-4" style="display: flex; justify-content: center;">
             <img id="customerPhoto" th:src="@{'/images/customers/' + ${customer.photo}}" alt="customer Photo" width="150" height="150" class="img-thumbnail" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
@@ -78,17 +83,19 @@
             <label>Phone</label>
             <input type="text" name="phone" th:value="${customer.phone}" class="form-control" required/>
         </div>
-        
+
         <div class="form-group">
             <label>Status</label><br>
             <input type="radio" name="status" value="1" th:checked="${customer.status == 1}"> Active
             <input type="radio" name="status" value="0" th:checked="${customer.status == 0}"> Inactive
         </div>
+        <div
         <div class="d-flex justify-content-center">
             <button type="submit" class="btn btn-outline-primary me-2">Update</button>
-            <a th:href="@{/admin/customer}" class="btn btn-outline-primary">Cancel</a>
+            <a th:href="@{/admin/customer}" class="btn btn-outline-danger">Cancel</a>
         </div>
     </form>
+
 </main>
 </body>
 </html>

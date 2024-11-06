@@ -1,6 +1,7 @@
 package com.beehat.repository;
 
 import com.beehat.entity.Customer;
+import com.beehat.entity.Employee;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,17 @@ public interface CustomerRepo extends JpaRepository<Customer, Integer> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
-    @Query("SELECT c.fullname FROM Customer c WHERE LOWER(c.fullname) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<String> findCustomerNamesByQuery(@Param("query") String query);
+    // Phương thức tìm tất cả khách hàng theo trạng thái và vai trò
+    @Query("SELECT e FROM Customer e WHERE (:status IS NULL OR e.status = :status) ")
+    List<Customer> findAllCustomers(@Param("status") Byte statusValue);
+
+    // Phương thức tìm Khách hàng theo tên, username hoặc số điện thoại
+    @Query("SELECT e FROM Customer e WHERE " +
+            "(LOWER(e.fullname) LIKE LOWER(CONCAT('%', :searchValue, '%')) OR " +
+            "LOWER(e.username) LIKE LOWER(CONCAT('%', :searchValue, '%')) OR " +
+            "LOWER(e.phone) LIKE LOWER(CONCAT('%', :searchValue, '%'))) " +
+            "AND (:status IS NULL OR e.status = :status)")
+    List<Customer> findCustomersBySearchValue(@Param("searchValue") String searchValue,
+                                              @Param("status") Byte statusValue);
 }
+
