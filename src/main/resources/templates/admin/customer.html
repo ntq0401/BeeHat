@@ -32,7 +32,9 @@
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
     <div class="breadcrumb">
-        <a style="font-size: 30px; font-weight: bold" th:href="@{/admin/index}">Home</a>
+        <a style="font-size: 30px; font-weight: bold" th:href="@{/admin/index}">Trang chủ</a>
+        <span style="font-size: 30px;">/</span>
+        <a style="font-size: 30px; font-weight: bold" th:href="@{/admin/customer}">Khách hàng</a>
     </div>
     <div class="d-flex justify-content-end mt-3">
         <button type="button" class="btn btn-outline-primary mx-2" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
@@ -154,90 +156,100 @@
             </label>
         </div>
     </form>
-    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addCustomerModalLabel">Thêm khách hàng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form th:action="@{/admin/customer/add}" th:object="${customer}" method="post">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" name="username" class="form-control" required/>
-                            <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
-                                  class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" name="password" class="form-control" required/>
-                        </div>
+        <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCustomerModalLabel" style="font-size: 24px; font-weight: bold;">Thêm Khách Hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{/admin/customer/add}" th:object="${customer}" method="post">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="username" class="form-control" required placeholder="Username"/>
+                                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="password" name="password" class="form-control" placeholder="Password" required/>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>Fullname</label>
-                            <input type="text" name="fullname" class="form-control" required/>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="fullname" class="form-control" placeholder="Fullname" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="email" name="email" class="form-control" placeholder="Email" required/>
+                                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" class="form-control" required/>
-                            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="address" class="form-control" placeholder="Address" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="city" class="form-control" placeholder="City" required/>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>Address</label>
-                            <input type="address" name="address" class="form-control" required/>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="district" class="form-control" placeholder="District" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="ward" class="form-control" placeholder="Ward" required/>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>City</label>
-                            <input type="city" name="city" class="form-control" required/>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="country" class="form-control" placeholder="Country" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="phone" class="form-control" placeholder="Phone" required/>
+                                        <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>District</label>
-                            <input type="district" name="district" class="form-control" required/>
-                        </div>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="photo">Photo</label>
+                                        <input type="file" name="photo" id="photo" class="form-control" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="form-group">
-                            <label>Ward</label>
-                            <input type="ward" name="ward" class="form-control" required/>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Country</label>
-                            <input type="country" name="country" class="form-control" required/>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" name="phone" class="form-control" required/>
-                            <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
-                        </div>
-
-<!--                        <div class="form-group">-->
-<!--                            <label>Status</label><br>-->
-<!--                            <input type="radio" name="status" value="1" >-->
-<!--                            <label>Active</label>-->
-<!--                            <input class="ml-5" type="radio" name="status" value="0">-->
-<!--                            <label>Inactive</label>-->
-<!--                        </div>-->
-
-                        <div class="form-group">
-                            <label for="photo">Photo</label>
-                            <input type="file" name="photo" id="photo" class="form-control" accept="image/*">
-                        </div>
-
-                        <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary me-2">Save</button>
-                        </div>
-                    </form>
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-primary me-2">Save</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </main>
 <script>
     $(document).ready(function () {
