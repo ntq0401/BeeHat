@@ -16,6 +16,14 @@ import java.util.List;
 public class ColorController {
     @Autowired
     ColorRepo colorRepo;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-palette fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Màu sắc";
+    }
 
     @ModelAttribute("listColor")
     List<Color> listColor() {

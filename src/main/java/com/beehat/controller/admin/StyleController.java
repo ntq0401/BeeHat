@@ -1,6 +1,5 @@
 package com.beehat.controller.admin;
 
-import com.beehat.entity.Size;
 import com.beehat.entity.Style;
 import com.beehat.repository.StyleRepo;
 import jakarta.validation.Valid;
@@ -15,6 +14,14 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin/style")
 public class StyleController {
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-smiley-wink fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Kiểu dáng";
+    }
     @Autowired
     StyleRepo styleRepo;
 

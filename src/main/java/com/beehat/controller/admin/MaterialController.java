@@ -16,6 +16,14 @@ import java.util.List;
 public class MaterialController {
     @Autowired
     MaterialRepo materialRepo;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-yarn fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Chất liệu";
+    }
 
     @ModelAttribute("listMaterial")
     List<Material> listMaterial() {
@@ -25,13 +33,13 @@ public class MaterialController {
     @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("m", new Material());
-        return "admin/material";
+        return "admin/material/material";
     }
 
     @PostMapping("/index")
     public String add(@Valid @ModelAttribute("m") Material material, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "admin/material";
+            return "admin/material/material";
         }
         materialRepo.save(material);
         return "redirect:/admin/material/index";
@@ -40,13 +48,13 @@ public class MaterialController {
     @GetMapping("/update/{id}")
     public String update(@PathVariable int id, Model model) {
         model.addAttribute("m", materialRepo.findById(id).orElse(null));
-        return "admin/form-material";
+        return "admin/material/form-material";
     }
 
     @PostMapping("/update/{id}")
     public String update(@Valid @ModelAttribute("m") Material material, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "admin/form-material";
+            return "admin/material/form-material";
         }
         materialRepo.save(material);
         return "redirect:/admin/material/index";

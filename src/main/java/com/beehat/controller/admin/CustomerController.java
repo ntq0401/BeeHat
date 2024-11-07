@@ -28,7 +28,14 @@ public class CustomerController {
     CustomerRepo customerRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-user fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Khách hàng";
+    }
 
     @GetMapping
     public String customers(
@@ -43,7 +50,7 @@ public class CustomerController {
         model.addAttribute("size", size);
         model.addAttribute("totalPages", customerRepo.findAll(pageable).getTotalPages());
 
-        return "admin/customer";
+        return "admin/customer/customer";
     }
 
     @GetMapping("/delete/{id}")
@@ -83,7 +90,7 @@ public class CustomerController {
                          Model model){
         if (searchValue == null || searchValue.trim().isEmpty()) {
             model.addAttribute("customers", customerRepo.findAll());
-            return "/admin/customer";
+            return "/admin/customer/customer";
         }
         List<Customer> list = new ArrayList<>();
         for (Customer e:customerRepo.findAll()){
@@ -92,7 +99,7 @@ public class CustomerController {
             }
         }
         model.addAttribute("customers", list);
-        return "/admin/customer";
+        return "/admin/customer/customer";
     }
 
     @GetMapping("/export")

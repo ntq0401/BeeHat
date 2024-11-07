@@ -38,11 +38,19 @@ public class PromotionController {
     private ProductPromotionRepo productPromotionRepo;
     @Autowired
     private ProductDetailRepo productDetailRepo;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-seal-percent fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Chương trình giảm giá";
+    }
     @GetMapping
     public String promotion(Model model) {
         List<Promotion> listPromotion = promotionRepo.findAll();
         model.addAttribute("listPromotion",listPromotion);
-        return "admin/promotion";
+        return "admin/promotion/promotion";
     }
     @GetMapping("/search")
     public String searchPromotions(@RequestParam(value = "search", required = false) String search,
@@ -88,7 +96,7 @@ public class PromotionController {
 
         // Gán danh sách khuyến mãi vào model
         model.addAttribute("listPromotion", promotions);
-        return "admin/promotion";
+        return "admin/promotion/promotion";
     }
     @GetMapping("/add")
     public String add(Model model,@RequestParam(required = false) List<Integer> selectedProducts,@RequestParam(defaultValue = "0") int page){
@@ -101,7 +109,7 @@ public class PromotionController {
         }
         model.addAttribute("selectedSet", selectedSet);
         model.addAttribute("listProduct",productsPage);
-        return "/admin/add-promotion";
+        return "/admin/promotion/add-promotion";
     }
     @PostMapping("/add")
     public String addPromotion(Model model,
@@ -169,7 +177,7 @@ public class PromotionController {
         List<ProductDetail> listProductDetail = productDetailRepo.findByPromotionId(id);
         model.addAttribute("listProductDetail",listProductDetail);
         model.addAttribute("promotion",promotion);
-        return "/admin/detail-promotion";
+        return "/admin/promotion/detail-promotion";
     }
     @GetMapping("/update")
     public String update(@RequestParam Integer id,
@@ -199,7 +207,7 @@ public class PromotionController {
         model.addAttribute("promotion", promotion);
         model.addAttribute("listProduct", productsPage);
 
-        return "/admin/update-promotion";
+        return "/admin/promotion/update-promotion";
     }
     @Transactional
     @PostMapping("/update")

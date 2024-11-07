@@ -4,6 +4,48 @@
     <meta charset="UTF-8">
     <title>Bán hàng tại quầy</title>
     <link rel="stylesheet" href="/admin/store/style.css">
+    <style>
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .suggestion-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,7 +58,8 @@
                 <div class="card text-center">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <ul class="nav nav-pills card-header-pills" id="navPills">
-                            <li class="hoa-don nav-item" th:each="invoice,stt : ${listInvoice}">
+                            <li class="hoa-don nav-item" th:if="${listInvoice != null}"
+                                th:each="invoice,stt : ${listInvoice}">
                                 <a th:href="@{/admin/store/invoice-detail/{id}(id=${invoice.id})}"
                                    th:classappend="${invoice.id == activeInvoiceId} ? 'active'"
                                    class="hoa-don-link nav-link">
@@ -29,7 +72,7 @@
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
                         <form id="invoiceForm" th:action="@{/admin/store/add-invoice}" method="post" th:object="${i}">
-                            <input hidden="hidden" name="username" th:value="${username}">
+                            <!--                            <input hidden="hidden" name="username" th:value="${username}">-->
                             <button id="showToastButton" type="button" class="btn btn-success"
                                     th:data-invoice-count="${listInvoice.size()}">Thêm hoá đơn
                             </button>
@@ -39,11 +82,17 @@
                         <div class="mb-3 d-flex justify-content-between">
                             <div class="d-flex">
                                 <div class="d-flex align-items-center">
-                                    <input type="text" class="form-control flex-grow-1"
-                                           placeholder="Tìm kiếm sản phẩm">
-                                    <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
-                                            data-bs-target="#productModal">+
-                                    </button>
+                                    <div class="search-container d-flex align-items-center">
+                                        <input type="text" class="form-control flex-grow-1"
+                                               id="product-search" placeholder="Tìm kiếm sản phẩm..."
+                                               oninput="showSuggestions()">
+                                        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+                                                data-bs-target="#productModal">+
+                                        </button>
+                                        <div id="suggestions" class="suggestions-list"
+                                             th:each="detail : ${productDetails.content}"></div>
+                                    </div>
+
                                     <!-- Modal -->
                                     <div class="modal fade" id="productModal" tabindex="-1"
                                          aria-labelledby="productModalLabel" aria-hidden="true">
@@ -56,6 +105,58 @@
                                                             aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
+                                                    <div class="card-body">
+                                                        <form class="row g-3">
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Màu sắc</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn màu sắc</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Kích cỡ</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn kích cỡ</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Kiểu dáng</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn kiểu dáng</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Chất liệu</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn chất liệu</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Danh mục</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn danh mục</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Vải lót</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn vải lót</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Đai mũ</label>
+                                                                <select class="form-select">
+                                                                    <option>Chọn đai mũ</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <button type="submit" class="btn btn-primary mt-3">Tìm
+                                                                    kiếm
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+
                                                     <table class="table">
                                                         <thead>
                                                         <tr>
@@ -63,14 +164,13 @@
                                                             <th>Ảnh</th>
                                                             <th>SKU</th>
                                                             <th>Tên sản phẩm</th>
-                                                            <th>Kích cỡ</th>
-                                                            <th>Màu sắc</th>
                                                             <th>Chất liệu</th>
                                                             <th>Danh mục</th>
                                                             <th>Vải lót</th>
                                                             <th>Đai mũ</th>
                                                             <th>Kiểu dáng</th>
                                                             <th>Số lượng</th>
+                                                            <th>Giá</th>
                                                             <th>Hành động</th>
                                                         </tr>
                                                         </thead>
@@ -81,22 +181,50 @@
                                                             <td th:if="${detail.product.images.size() > 0}">
                                                                 <img th:src="${detail.product.images[0].imageUrl}"
                                                                      alt="Ảnh sản phẩm"
-                                                                     style="width: 100px; height: auto;"/>
+                                                                     style="width: 80px; height: auto;"/>
                                                             </td>
                                                             <td th:if="${detail.product.images.size() <= 0}">
                                                                 <img src="" alt="Ảnh mặc định"
-                                                                     style="width: 100px; height: auto;"/>
+                                                                     style="width: 80px; height: auto;"/>
                                                             </td>
                                                             <td>[[${detail.product.sku}]]</td>
-                                                            <td>[[${detail.product.name}]]</td>
-                                                            <td>[[${detail.size.name}]]</td>
-                                                            <td>[[${detail.color.name}]]</td>
+                                                            <td>
+                                                                <div class="flex-lg-grow-1 ms-3">
+                                                                    <h5 class="small mb-0"><a href="#"
+                                                                                              class="text-reset">[[${detail.product.name}]]</a>
+                                                                    </h5>
+                                                                    <span class="small">Màu sắc: [[${detail.color.name}]]</span><br>
+                                                                    <span class="small">Kích cỡ: [[${detail.size.name}]]</span>
+                                                                </div>
+                                                            </td>
                                                             <td>[[${detail.product.material.name}]]</td>
                                                             <td>[[${detail.product.category.name}]]</td>
                                                             <td>[[${detail.product.lining.name}]]</td>
                                                             <td>[[${detail.product.belt.name}]]</td>
                                                             <td>[[${detail.product.style.name}]]</td>
                                                             <td>[[${detail.stock}]]</td>
+                                                            <td>
+                                                                <span th:if="${detail.product.promotion != null}"
+                                                                      style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
+                                                                    [[${detail.price}]]
+                                                                </span>
+                                                                <div th:if="${detail.product.promotion != null}">
+                                                                <!-- Kiểm tra nếu có discountPercentage -->
+                                                                <span th:if="${detail.product.promotion.discountPercentage != null && detail.product.promotion.discountPercentage > 0}">
+                                                                    <span th:text="${detail.price - (detail.price * detail.product.promotion.discountPercentage / 100)}"></span>
+                                                                </span>
+
+                                                                <!-- Kiểm tra nếu có discountAmount -->
+                                                                <span th:if="${detail.product.promotion.discountAmount != null && detail.product.promotion.discountAmount > 0}">
+                                                                    <span th:text="${detail.price - detail.product.promotion.discountAmount}"></span>
+                                                                </span>
+                                                                </div>
+                                                                <!-- Nếu không có giảm giá -->
+                                                                <span th:unless="${detail.product.promotion != null}">
+                                                                    [[${detail.price}]]
+                                                                </span>
+                                                            </td>
+
                                                             <td colspan="2">
                                                                 <form th:action="@{/admin/store/add-product-detail-to-invoice}"
                                                                       method="post">
@@ -109,8 +237,9 @@
                                                                            name="productDetailId" hidden="hidden">
                                                                     <button
                                                                             class="btn btn-primary" type="button"
-                                                                            onclick="showAlert(this)" th:data-quantity-product="${detail.stock}">Thêm
-                                                                        vào giỏ
+                                                                            onclick="showAlert(this)"
+                                                                            th:data-quantity-product="${detail.stock}">
+                                                                        Thêm vào giỏ
                                                                     </button>
                                                                 </form>
                                                             </td>
@@ -196,13 +325,34 @@
                                             <input class="form-control"
                                                    style="width:60px; text-align: center; align-items: center"
                                                    type="number" name="quantities" th:value="${invoiceDetail.quantity}"
-                                                   min="1" th:data-quantity-product="${invoiceDetail.productDetail.stock}"
+                                                   min="1"
+                                                   th:data-quantity-product="${invoiceDetail.productDetail.stock}"
                                                    th:data-quantity-invoice-detail="${invoiceDetail.quantity}"
                                                    onchange="checkQuantityAndSubmit(this)"/>
                                         </center>
                                     </td>
                                 </form>
-                                <td>[[${invoiceDetail.productDetail.price}]]</td>
+                                <td>
+                                    <span th:if="${invoiceDetail.productDetail.product.promotion != null}"
+                                          style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
+                                                                    [[${invoiceDetail.productDetail.price}]]
+                                                                </span>
+                                    <div th:if="${invoiceDetail.productDetail.product.promotion != null}">
+                                        <!-- Kiểm tra nếu có discountPercentage -->
+                                        <span th:if="${invoiceDetail.productDetail.product.promotion.discountPercentage != null && invoiceDetail.productDetail.product.promotion.discountPercentage > 0}">
+                                                                    <span th:text="${invoiceDetail.productDetail.price - (invoiceDetail.productDetail.price * invoiceDetail.productDetail.product.promotion.discountPercentage / 100)}"></span>
+                                                                </span>
+
+                                        <!-- Kiểm tra nếu có discountAmount -->
+                                        <span th:if="${invoiceDetail.productDetail.product.promotion.discountAmount != null && invoiceDetail.productDetail.product.promotion.discountAmount > 0}">
+                                                                    <span th:text="${invoiceDetail.productDetail.price - invoiceDetail.productDetail.product.promotion.discountAmount}"></span>
+                                                                </span>
+                                    </div>
+                                    <!-- Nếu không có giảm giá -->
+                                    <span th:unless="${invoiceDetail.productDetail.product.promotion != null}">
+                                                                    [[${invoiceDetail.unitPrice}]]
+                                                                </span>
+                                </td>
                                 <td>[[${invoiceDetail.finalPrice}]]</td>
                                 <td>
                                     <button class="btn btn-danger" onclick="deleteProduct(this)"
@@ -222,7 +372,8 @@
             <!-- Card thông tin khách hàng ở bên phải -->
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-header" style="min-height: 56.8px; display: grid; place-items: center;font-size: 19px">
+                    <div class="card-header"
+                         style="min-height: 56.8px; display: grid; place-items: center;font-size: 19px">
                         Thông tin hoá đơn
                     </div>
 
@@ -334,7 +485,8 @@
                                 </table>
                             </div>
                             <button type="button" class="btn btn-primary w-100" onclick="pay(this)"
-                                    th:data-invoice-details-count="${listInvoiceDetail != null ? listInvoiceDetail.size() : ''}">Thanh toán
+                                    th:data-invoice-details-count="${listInvoiceDetail != null ? listInvoiceDetail.size() : ''}">
+                                Thanh toán
                             </button>
                         </form>
                     </div>
@@ -469,10 +621,13 @@
                             </div>
 
                         </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="button" class="btn btn-primary" onclick="submitPayment(this)">Xác nhận thanh toán</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary"
+                                    th:data-invoice-submit-payment="${infoInvoice != null ? infoInvoice.id : null}"
+                                    onclick="submitPayment(this)">Xác nhận thanh toán
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -482,25 +637,77 @@
 
     <!-- JavaScript -->
     <script>
-        document.querySelector('tbody').addEventListener('change', function(event) {
+        const products = [
+            {
+                name: "Mũ thời trang 1",
+                image: "https://yt3.ggpht.com/ytc/AIdro_lKx-Sdd8jmDaBecmYHwC_5J4W9qcRPN4qbalefZi0g9Q=s88-c-k-c0x00ffffff-no-rj"
+            },
+            {
+                name: "Mũ thời trang 2",
+                image: "https://yt3.ggpht.com/ytc/AIdro_lKx-Sdd8jmDaBecmYHwC_5J4W9qcRPN4qbalefZi0g9Q=s88-c-k-c0x00ffffff-no-rj"
+            },
+            {
+                name: "Mũ thời trang 3",
+                image: "https://yt3.ggpht.com/ytc/AIdro_lKx-Sdd8jmDaBecmYHwC_5J4W9qcRPN4qbalefZi0g9Q=s88-c-k-c0x00ffffff-no-rj"
+            },
+            {
+                name: "Mũ thời trang 4",
+                image: "https://yt3.ggpht.com/ytc/AIdro_lKx-Sdd8jmDaBecmYHwC_5J4W9qcRPN4qbalefZi0g9Q=s88-c-k-c0x00ffffff-no-rj"
+            }
+        ];
+
+        // Hàm hiển thị gợi ý
+        function showSuggestions() {
+            const input = document.getElementById("product-search");
+            const suggestionsContainer = document.getElementById("suggestions");
+            const query = input.value.toLowerCase();
+
+            // Xóa gợi ý cũ
+            suggestionsContainer.innerHTML = "";
+            suggestionsContainer.style.display = "none";
+
+            if (query) {
+                const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+
+                if (filteredProducts.length > 0) {
+                    suggestionsContainer.style.display = "block";
+
+                    filteredProducts.forEach(product => {
+                        const suggestionItem = document.createElement("div");
+                        suggestionItem.className = "suggestion-item";
+                        suggestionItem.onclick = () => alert(`Bạn đã chọn sản phẩm: ${product.name}`);
+
+                        suggestionItem.innerHTML = `
+                      <img src="${product.image}" alt="${product.name}" class="suggestion-image">
+                      <span class="suggestion-text">${product.name}</span>
+                  `;
+
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+                }
+            }
+        }
+
+        document.querySelector('tbody').addEventListener('change', function (event) {
             if (event.target.matches('input[name="quantities"]')) {
                 checkQuantityAndSubmit(event.target);
                 console.log("chạy vào đa")
             }
         });
+
         function checkQuantityAndSubmit(inputElement) {
             const form = inputElement.form;
             const quantity = parseInt(inputElement.value);
             const maxQuantity = parseInt(inputElement.getAttribute('data-quantity-product')); // Số lượng trong kho
             const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
 
-            if(quantity <= 0){
+            if (quantity <= 0) {
                 alert("Số lượng sản phẩm không hợp lệ !")
                 inputElement.value = lastQuantity;
-                form.onsubmit = function() {
+                form.onsubmit = function () {
                     return false; // Ngăn không cho form được submit
                 };
-                return ;
+                return;
             }
             // Kiểm tra số lượng tồn kho sau khi thêm số lượng mong muốn vào hóa đơn
             if (quantity > maxQuantity + lastQuantity) {
@@ -512,6 +719,7 @@
             // Nếu số lượng hợp lệ, cho phép form submit
             form.submit();
         }
+
         // Mở modal và thiết lập tổng tiền
         function openPaymentModal() {
             var finalPriceElement = document.getElementById('finalPrice');
@@ -526,7 +734,7 @@
         function submitPayment(button) {
             const paymentMethod = document.getElementById("paymentMethod").value;
             const totalAmount = document.getElementById("totalAmount").value;
-
+            const id = parseInt(button.getAttribute('data-invoice-submit-payment'));
             if (!paymentMethod) {
                 Swal.fire({
                     icon: 'error',
@@ -565,6 +773,12 @@
 
                     // Chờ toast hoàn thành rồi submit form
                     setTimeout(() => {
+                        const newTab = window.open('/admin/store/' + id + '/pdf', '_blank');
+                        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
+                            alert("Trình duyệt của bạn đã chặn tab mới. Hãy kiểm tra cài đặt popup!");
+                        } else {
+                            window.location.href = '/admin/store/index';
+                        }
                         const form = button.closest("form");
                         form.submit(); // Submit form mà không cần click lại button
                     }, 1500);
@@ -848,7 +1062,7 @@
                 var qrImageElement = document.getElementById('qrCode');
                 // Đặt giá trị src
 
-                qrImageElement.setAttribute('src', 'https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=' + finalPrice + '&addInfo=Thanh toan hoa don : ' + document.getElementById("invoice-tracking-number").textContent  + '&accountName=NGUYEN THE QUANG');
+                qrImageElement.setAttribute('src', 'https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=' + finalPrice + '&addInfo=Thanh toan hoa don : ' + document.getElementById("invoice-tracking-number").textContent + '&accountName=NGUYEN THE QUANG');
                 console.log(qrImageElement);
                 cashCalculationDiv.style.display = "none";
                 bankTransferDetailsDiv.style.display = "block";

@@ -42,6 +42,16 @@ public class StoreController {
     @Autowired
     EmployeeRepo employeeRepo;
 
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-basket fs-3";
+    }
+
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Bán hàng tại quầy";
+    }
+
     @ModelAttribute("productDetails")
     public Page<ProductDetail> detail(@RequestParam(defaultValue = "0") int page,
                                       Model model) {
@@ -82,7 +92,7 @@ public class StoreController {
     @GetMapping("/index")
     public String store(Model model) {
         model.addAttribute("i", new Invoice());
-        model.addAttribute("pay",new Invoice());
+        model.addAttribute("pay", new Invoice());
         model.addAttribute("kh", new Customer());
         return "admin/store/index";
     }
@@ -127,7 +137,23 @@ public class StoreController {
         }
 
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(idInvoice);
-
+        Product product = productDetail.getProduct();
+        if (product.getPromotion() != null) {
+            for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
+                if (invoiceDetail.getProductDetail().getId() == idProductDetail) {
+                    int discountAmount;
+                    if (product.getPromotion().getDiscountAmount() > 0){
+                        discountAmount = product.getPromotion().getDiscountAmount();
+                    }else {
+                        discountAmount = (productDetail.getPrice() * product.getPromotion().getDiscountPercentage()) / 100;
+                        System.out.println(discountAmount);
+                    }
+                    invoiceDetail.setUnitPrice(productDetail.getPrice() - discountAmount);
+                    invoiceDetailRepo.save(invoiceDetail);
+                    break;
+                }
+            }
+        }
         boolean isExistingProduct = false;
         for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
             if (invoiceDetail.getProductDetail().getId() == idProductDetail) {
@@ -150,8 +176,15 @@ public class StoreController {
             invoiceDetail.setInvoice(invoice);
             invoiceDetail.setProductDetail(productDetail);
             invoiceDetail.setQuantity(1);
-            invoiceDetail.setUnitPrice(productDetail.getPrice());
-            invoiceDetail.setFinalPrice(productDetail.getPrice());
+            if (product.getPromotion() != null) {
+                //kiểm tra lại kĩ cách tính giá ở phần tăng giảm số lượng bằng nút
+                invoiceDetail.setUnitPrice(product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0 ? invoiceDetail.getProductDetail().getPrice() - product.getPromotion().getDiscountAmount() : invoiceDetail.getProductDetail().getPrice() - (invoiceDetail.getProductDetail().getPrice() * product.getPromotion().getDiscountPercentage()) / 100);
+                invoiceDetail.setFinalPrice(product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0 ? invoiceDetail.getProductDetail().getPrice() - product.getPromotion().getDiscountAmount() : invoiceDetail.getProductDetail().getPrice() - (invoiceDetail.getProductDetail().getPrice() * product.getPromotion().getDiscountPercentage()) / 100);
+            }else {
+                invoiceDetail.setUnitPrice(productDetail.getPrice());
+                invoiceDetail.setFinalPrice(productDetail.getPrice());
+            }
+
             invoiceDetailRepo.save(invoiceDetail);
 
             // Giảm số lượng tồn kho của sản phẩm
@@ -206,6 +239,13 @@ public class StoreController {
             os.write(pdfData);
             os.flush();
         }
+
+    }
+
+    @GetMapping("/{id}/view")
+    public String viewInvoice(@PathVariable Integer id, Model model) {
+        model.addAttribute("invoiceId", id);
+        return "/admin/invoice-view";
     }
 
     @GetMapping("/delete-product-from-invoice/{id}")
@@ -277,6 +317,7 @@ public class StoreController {
         }
         return "redirect:/admin/store/index";
     }
+
     @PostMapping("/add-customer-to-invoice")
     public String addCustomerToInvoice(@RequestParam("customerId") int customerId, @RequestParam("invoiceId") int invoiceId) {
         Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
@@ -289,6 +330,7 @@ public class StoreController {
 
         return "redirect:/admin/store/invoice-detail/" + invoiceId;
     }
+
     @PostMapping("/updateCustomer")
     public ResponseEntity<String> updateCustomer(
             @RequestParam("invoiceId") Integer invoiceId,
@@ -308,10 +350,11 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
         }
     }
+
     @PostMapping("/pay")
     public String pay(@RequestParam(name = "idPayment") int id,
                       @RequestParam(name = "totalPayment") int totalPayment,
-                      @RequestParam(name = "voucherPayment",defaultValue = "") Voucher voucherPayment,
+                      @RequestParam(name = "voucherPayment", defaultValue = "") Voucher voucherPayment,
                       @RequestParam(name = "methodPayment") PaymentMethod paymentMethod) {
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
         if (voucherPayment != null) {

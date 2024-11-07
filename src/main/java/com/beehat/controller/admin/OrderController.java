@@ -26,10 +26,17 @@ public class OrderController {
     List<Invoice> listInvoice() {
         return invoiceRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedDate"));
     }
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-file-text fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Hoá đơn";
+    }
     @GetMapping("/index")
     public String order() {
-
-        return "admin/order";
+        return "admin/invoice/invoice";
     }
     @GetMapping("/view-invoice/{id}")
     public String viewInvoice(@PathVariable int id, Model model) {
@@ -37,6 +44,6 @@ public class OrderController {
         List<InvoiceDetail> invoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
         model.addAttribute("invoice", invoice);
         model.addAttribute("invoiceDetail", invoiceDetail);
-        return "admin/view-invoice";
+        return "admin/invoice/view-invoice";
     }
 }

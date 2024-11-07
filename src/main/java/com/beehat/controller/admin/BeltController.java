@@ -17,7 +17,14 @@ import java.util.List;
 public class BeltController {
     @Autowired
     BeltRepo beltRepo;
-
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-belt fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Đai mũ";
+    }
     @ModelAttribute("listBelt")
     List<Belt> list() {
         return beltRepo.findAll();
@@ -26,13 +33,13 @@ public class BeltController {
     @GetMapping("/index")
     public String belt(Model model, @ModelAttribute("b") Belt belt) {
         model.addAttribute("belt", beltRepo.findAll());
-        return "admin/belt";
+        return "admin/belt/belt";
     }
 
     @PostMapping("/index")
     public String create(@Valid @ModelAttribute("b") Belt belt, BindingResult rs, RedirectAttributes redirectAttributes) {
         if (rs.hasErrors()) {
-            return "admin/belt";
+            return "admin/belt/belt";
         }
         beltRepo.save(belt);
         redirectAttributes.addFlashAttribute("message", "Thêm mới thành công!");
@@ -43,13 +50,13 @@ public class BeltController {
     @GetMapping("/update/{id}")
     public String update(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("b", beltRepo.findById(id).orElse(null));
-        return "admin/form-belt";
+        return "admin/belt/form-belt";
     }
 
     @PostMapping("/update/{id}")
     public String update(@Valid @ModelAttribute("b") Belt belt, BindingResult rs) {
         if (rs.hasErrors()) {
-            return "admin/form-belt";
+            return "admin/belt/form-belt";
         }
         beltRepo.save(belt);
         return "redirect:/admin/belt/index";

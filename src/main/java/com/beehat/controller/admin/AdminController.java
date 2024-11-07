@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.security.Principal;
@@ -18,7 +19,14 @@ import java.security.Principal;
 public class AdminController {
     @Autowired
     EmployeeRepo employeeRepo;
-
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-house-simple fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Trang chủ";
+    }
     @GetMapping("/index")
     public String index() {
         return "admin/index";

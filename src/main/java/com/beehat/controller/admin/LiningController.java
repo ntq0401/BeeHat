@@ -17,6 +17,14 @@ public class LiningController {
     @Autowired
     LiningRepo liningRepo;
 
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-parallelogram fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Vải lót";
+    }
     @ModelAttribute("listLining")
     List<Lining> linings() {
         return liningRepo.findAll();
@@ -25,13 +33,13 @@ public class LiningController {
     @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("l", new Lining());
-        return "admin/lining";
+        return "admin/lining/lining";
     }
 
     @PostMapping("/index")
     public String add(@Valid @ModelAttribute("l") Lining lining, BindingResult rs) {
         if (rs.hasErrors()) {
-            return "admin/lining";
+            return "admin/lining/lining";
         }
         liningRepo.save(lining);
         return "redirect:/admin/lining/index";
@@ -40,13 +48,13 @@ public class LiningController {
     @GetMapping("/update/{id}")
     public String update(@PathVariable("id") int id, Model model) {
         model.addAttribute("l", liningRepo.findById(id).orElse(null));
-        return "admin/form-lining";
+        return "admin/lining/form-lining";
     }
 
     @PostMapping("/update/{id}")
     public String update(@Valid @ModelAttribute("l") Lining lining, BindingResult rs) {
         if (rs.hasErrors()) {
-            return "admin/form-lining";
+            return "admin/lining/form-lining";
         }
         liningRepo.save(lining);
         return "redirect:/admin/lining/index";

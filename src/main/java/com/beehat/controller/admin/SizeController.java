@@ -16,6 +16,14 @@ import java.util.List;
 public class SizeController {
     @Autowired
     SizeRepo sizeRepo;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-arrows-out-simple fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Kích cỡ";
+    }
 
     @ModelAttribute("listSize")
     List<Size> listSize() {
@@ -25,13 +33,13 @@ public class SizeController {
     @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("s", new Size());
-        return "admin/size";
+        return "admin/size/size";
     }
 
     @PostMapping("/index")
     public String add(@Valid @ModelAttribute("s") Size size, BindingResult rs) {
         if (rs.hasErrors()) {
-            return "admin/size";
+            return "admin/size/size";
         }
         sizeRepo.save(size);
         return "redirect:/admin/size/index";
@@ -40,13 +48,13 @@ public class SizeController {
     @GetMapping("/update/{id}")
     public String update(@PathVariable("id") int id, Model model) {
         model.addAttribute("s", sizeRepo.findById(id).orElse(null));
-        return "admin/form-size";
+        return "admin/size/form-size";
     }
 
     @PostMapping("/update/{id}")
     public String updateS(@Valid @ModelAttribute("s") Size size, BindingResult rs) {
         if (rs.hasErrors()) {
-            return "admin/form-size";
+            return "admin/size/form-size";
         }
         sizeRepo.save(size);
         return "redirect:/admin/size/index";

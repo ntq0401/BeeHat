@@ -1,6 +1,5 @@
 package com.beehat.controller.admin;
 
-import com.beehat.DTO.ProductDTO;
 import com.beehat.entity.*;
 import com.beehat.repository.*;
 import com.beehat.service.ProductService;
@@ -47,6 +46,15 @@ public class ProductController {
     @Autowired
     private ProductImageRepo productImageRepo;
 
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-baseball-cap fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Sản phẩm";
+    }
+
     @ModelAttribute("listCategory")
     List<Category> listCategory() {
         return categoryRepo.findByStatus(Byte.valueOf("1"));
@@ -87,20 +95,20 @@ public class ProductController {
         model.addAttribute("p", new Product());
         model.addAttribute("isAdd", true);
         model.addAttribute("product", productRepo.findAll());
-        return "admin/product";
+        return "admin/product/product";
     }
 
     @GetMapping("/search")
     public String search(@RequestParam(defaultValue = " ") String keyword, Model model) {
         model.addAttribute("product", productRepo.findByName("%" + keyword + "%"));
-        return "admin/product";
+        return "admin/product/product";
     }
 
     @GetMapping("/add-product")
     public String addProduct(Model model) {
         model.addAttribute("p", new Product());
         model.addAttribute("isAdd", true);
-        return "admin/add-product";
+        return "admin/product/add-product";
     }
 
     @PostMapping("/add-product")
@@ -110,16 +118,16 @@ public class ProductController {
             if (files[0].getOriginalFilename().equals("")) {
                 model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
                 model.addAttribute("isAdd", true);
-                return "admin/add-product";
+                return "admin/product/add-product";
             }
             model.addAttribute("isAdd", true);
-            return "admin/add-product";
+            return "admin/product/add-product";
         }
         // Kiểm tra kỹ hơn đối với files
         if (files[0].getOriginalFilename().equals("")) {
             model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
             model.addAttribute("isAdd", true);
-            return "admin/add-product";
+            return "admin/product/add-product";
         }
         String debug = files[0].getOriginalFilename();
         System.out.println(debug);
@@ -145,7 +153,7 @@ public class ProductController {
                         e.printStackTrace();
                         // Xử lý lỗi khi lưu ảnh
                         model.addAttribute("error", "Error uploading image: " + fileName);
-                        return "admin/add-product";
+                        return "admin/product/add-product";
                     }
                 }
             }
@@ -171,7 +179,7 @@ public class ProductController {
                 .collect(Collectors.groupingBy(ProductDetail::getColor));
         model.addAttribute("groupedByColor", groupedByColor);
         model.addAttribute("colors", new ArrayList<>()); // Danh sách màu sẽ được chọn
-        return "admin/add-product-detail";
+        return "admin/product/add-product-detail";
     }
 
     @PostMapping("/add-product-detail/{id}")
@@ -180,7 +188,7 @@ public class ProductController {
                                    @RequestParam("colors") List<Integer> colorIds,
                                    @RequestParam("sizes") List<Integer> sizeIds, BindingResult rs) {
         if (rs.hasErrors() || colorIds.size() == 0 || sizeIds.size() == 0) {
-            return "admin/add-product-detail";
+            return "admin/product/add-product-detail";
         }
         for (Integer colorId : colorIds) {
             for (Integer sizeId : sizeIds) {
@@ -202,7 +210,7 @@ public class ProductController {
     public String updateProduct(@PathVariable("id") int id, Model model) {
         model.addAttribute("p", productRepo.findById(id).orElse(null));
         model.addAttribute("isAdd", false);
-        return "admin/add-product";
+        return "admin/product/add-product";
     }
 
     @PostMapping("/update-product/{id}")
@@ -210,7 +218,7 @@ public class ProductController {
                                 @RequestParam("file") MultipartFile[] files, Model model) {
         if (rs.hasErrors()) {
             model.addAttribute("isAdd", false);
-            return "admin/add-product";
+            return "admin/product/add-product";
         }
         p.setId(id);
         p.setSku(productRepo.findById(id).get().getSku());
@@ -237,7 +245,7 @@ public class ProductController {
                         e.printStackTrace();
                         // Xử lý lỗi khi lưu ảnh
                         model.addAttribute("error", "Error uploading image: " + fileName);
-                        return "admin/add-product";
+                        return "admin/product/add-product";
                     }
                 }
             }

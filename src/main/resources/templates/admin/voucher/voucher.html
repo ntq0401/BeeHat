@@ -34,8 +34,8 @@
       <td th:text="${voucher.quantity}"></td>
       <td th:text="${voucher.discountPercentage}"></td>
       <td th:text="${voucher.discountAmount}"></td>
-      <td th:text="${voucher.startDate}"></td>
-      <td th:text="${voucher.endDate}"></td>
+      <td th:text="${#temporals.format(voucher.startDate,'dd/MM/yyyy HH:mm')}"></td>
+      <td th:text="${#temporals.format(voucher.endDate,'dd/MM/yyyy HH:mm')}"></td>
       <td th:text="${voucher.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></td>
       <td>
         <a th:href="@{/vouchers/edit/{id}(id=${voucher.id})}">Sửa</a>

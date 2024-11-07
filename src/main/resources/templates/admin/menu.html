@@ -98,15 +98,25 @@
     </div>
 </aside>
 <nav th:fragment="navbar" class="navbar navbar-expand px-3 py-2">
-    <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-        <div class="input-group">
-            <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..."
-                   aria-describedby="btnNavbarSearch">
-            <button class="btn btn-primary" id="btnNavbarSearch" type="button">
-                <i class="ph ph-magnifying-glass"></i>
-            </button>
+    <!-- Tiêu đề trang mới -->
+    <div class="d-flex align-items-center ms-auto me-0 me-md-3 my-2 my-md-0">
+        <!-- Icon mô tả trang -->
+        <div class="d-flex align-items-center justify-content-center me-2">
+            <i th:class="${iconTitle}" style="color: #0d6efd"></i> <!-- Thay đổi icon nếu cần -->
         </div>
-    </form>
+
+        <!-- Đường phân cách giữa icon và tên trang -->
+        <div class="vr" style="margin-right: 10px"></div>
+
+        <!-- Tên trang và dòng chữ chào mừng bên dưới -->
+        <div class="d-flex flex-column">
+            <!-- Tên trang -->
+            <span class="fw-bold fs-6 text-primary" th:text="${pageTitle}" >Trang Chủ</span> <!-- Thay đổi tên trang nếu cần -->
+
+            <!-- Dòng chữ chào mừng nằm dưới tên trang -->
+            <span class="text-muted" style="font-size: 0.85rem;">Chào mừng đến với hệ thống!</span> <!-- Thay đổi nội dung chào mừng -->
+        </div>
+    </div>
 
     <div class="navbar-collapse collapse">
         <ul class="navbar-nav ms-auto">

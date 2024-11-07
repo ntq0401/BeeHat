@@ -38,6 +38,14 @@ public class EmployeeController {
     EmployeeRepo employeeRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-user-list fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Nhân viên";
+    }
     @GetMapping
     public String employee(
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -52,7 +60,7 @@ public class EmployeeController {
         model.addAttribute("size", size);
         model.addAttribute("totalPages", employeeRepository.findAll(pageable).getTotalPages());
 
-        return "admin/employee";
+        return "admin/employee/employee";
     }
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes){
@@ -76,7 +84,7 @@ public class EmployeeController {
         Employee employee = employeeRepository.findeById(id);
         if (employee!=null) {
             model.addAttribute("employee", employee);
-            return "/admin/employee_detail";
+            return "/admin/employee/employee_detail";
         }
         return "redirect:/admin/employee";
     }
@@ -99,7 +107,7 @@ public class EmployeeController {
 
             // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
-            return "admin/employee_detail"; // Trả về trang cập nhật nếu có lỗi
+            return "admin/employee/employee_detail"; // Trả về trang cập nhật nếu có lỗi
         }
         employee.setUpdatedDate(LocalDateTime.now());
         employeeRepository.save(employee);
@@ -107,7 +115,7 @@ public class EmployeeController {
     }
     @PostMapping("/add")
     public ModelAndView add(@ModelAttribute("employee") Employee employee, BindingResult bindingResult) {
-        ModelAndView modelAndView = new ModelAndView("admin/employee"); // Trả về trang admin/employee nếu có lỗi
+        ModelAndView modelAndView = new ModelAndView("admin/employee/employee"); // Trả về trang admin/employee nếu có lỗi
 
         // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult
         if (employeeRepository.existsByUsername(employee.getUsername())) {
@@ -165,7 +173,7 @@ public class EmployeeController {
 
         // Gán danh sách nhân viên vào model
         model.addAttribute("employees", employees);
-        return "/admin/employee";
+        return "/admin/employee/employee";
     }
     @GetMapping("/export")
     @ResponseBody
