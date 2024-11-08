@@ -38,6 +38,7 @@ public class CustomerRegisterController {
             // Lấy thông tin người dùng từ SecurityContext
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String username = userDetails.getUsername();
+            System.out.println(username);
             model.addAttribute("username1", username); // Thêm tên người dùng vào mô hình
         }
         return "customer/index";
@@ -48,7 +49,7 @@ public class CustomerRegisterController {
         // Kiểm tra xem người dùng đã đăng nhập hay chưa
         if (authentication != null && authentication.isAuthenticated()) {
             // Nếu đã đăng nhập, chuyển hướng về trang index của khách hàng
-            return "redirect:/customer/index";
+            return "redirect:/home/index";
         }
         // Nếu chưa đăng nhập, hiển thị trang đăng nhập
         return "customer/customerLogin"; // Trả về tên template đăng nhập

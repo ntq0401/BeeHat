@@ -21,6 +21,19 @@
         .nav-item.dropdown:hover .dropdown-menu {
             opacity: 1;
         }
+        .user-dropdown-menu {
+            position: absolute;   /* Đảm bảo menu có vị trí tuyệt đối so với phần tử chứa */
+            top: 100%;            /* Đặt menu bên dưới phần tử */
+            right: 0;              /* Đặt menu căn trái với nút User */
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 200px;
+            z-index: 9999;        /* Đảm bảo menu nổi trên các phần tử khác */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng để menu nổi bật */
+        }
+
+
     </style>
 </head>
 <body>
@@ -53,10 +66,10 @@
                     <a class="nav-link text-dark fst-normal fs-6" href="#">Tra cứu</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark fst-normal fs-6" href="#">Tin tức</a>
+                    <a class="nav-link text-dark fst-normal fs-6" href="/home/tin-tuc">Tin tức</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark fst-normal fs-6" href="#">Liên hệ</a>
+                    <a class="nav-link text-dark fst-normal fs-6" href="/home/lien-he">Liên hệ</a>
                 </li>
             </ul>
             <form class="d-flex align-items-center flex-grow-1" style="max-width: 200px; margin: 5px;">
@@ -64,7 +77,23 @@
                 <button class="btn btn-sm btn-outline-none" type="submit"><i class="fas fa-search"></i></button>
             </form>
             <div class="d-flex align-items-center gap-2 ms-2">
-                <a href="#" class="nav-link"><i class="fas fa-user"></i></a>
+                <input type="hidden" id="isLoggedIn" th:value="${isLoggedIn}">
+                <input type="hidden" id="username" th:value="${username1}">
+                <a href="#" class="nav-link" id="userMenuToggle"><i class="fas fa-user"></i></a>
+                <!--dropdown custom-->
+                <div class="user-dropdown-menu" id="userMenu" style="display: none;" >
+                    <div id="notLoggedInOptions" style="display: none;">
+                            <a href="/customer/login" class="dropdown-item">Đăng nhập</a>
+                    </div>
+                    <div id="loggedInOptions" style="display: none;">
+                            <a class="dropdown-item fw-bold" id="usernameDisplay">User</a>
+                            <a href="/profile" class="dropdown-item" id="userProfile">Thông tin cá nhân</a>
+                            <a href="/change-password" class="dropdown-item">Đổi mật khẩu</a>
+                        <form th:action="@{/customer/logout}" method="post">
+                            <button  class="dropdown-item " type="submit">Đăng xuất</button>
+                        </form>
+                    </div>
+                </div>
                 <a href="#" class="nav-link position-relative">
                     <i class="fas fa-heart"></i>
                 </a>
@@ -73,6 +102,36 @@
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning cart-count">0</span>
                 </a>
             </div>
+
+            <script>
+                document.getElementById('userMenuToggle').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    console.log("User menu toggle clicked");
+                    const menu = document.getElementById('userMenu');
+                    console.log('đang ở '+menu.style.display)
+
+                    if (document.getElementById('userMenu').style.display=== 'none') {
+                        document.getElementById('userMenu').style.display= 'block';  // Hiển thị menu
+                    } else {
+                        document.getElementById('userMenu').style.display= 'none';   // Ẩn menu
+                    }
+
+                });
+
+                // Truyền giá trị từ backend vào JavaScript
+                const isLoggedIn = document.getElementById('isLoggedIn').value === 'true';  // Chuyển đổi giá trị thành boolean
+                const username = document.getElementById('username').value;
+                console.log(isLoggedIn,'usser: '+ username);
+                // Hiển thị tùy chọn dựa trên trạng thái đăng nhập
+                if (isLoggedIn) {
+                    document.getElementById('loggedInOptions').style.display = 'block';
+                    document.getElementById('usernameDisplay').innerText ='Hello '+ username +'!';  // Hiển thị tên người dùng
+                } else {
+                    document.getElementById('notLoggedInOptions').style.display = 'block';
+                }
+
+
+            </script>
         </div>
     </div>
 </nav>
