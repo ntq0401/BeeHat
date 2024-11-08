@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -125,40 +126,38 @@ public class StoreController {
 //        model.addAttribute("qrUrl", qrUrl);
         return "admin/store/index";
     }
-
+    // Hàm tính giá sau khi giảm
+    int getDiscountedPrice(ProductDetail productDetail, Product product) {
+        if (product.getPromotion() != null) {
+            if (product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0) {
+                return productDetail.getPrice() - product.getPromotion().getDiscountAmount();
+            } else if (product.getPromotion().getDiscountPercentage() != null) {
+                return productDetail.getPrice() - (productDetail.getPrice() * product.getPromotion().getDiscountPercentage()) / 100;
+            }
+        }
+        return productDetail.getPrice();
+    }
     @PostMapping("/add-product-detail-to-invoice")
-    public String addInvoice(@RequestParam(value = "invoiceId") Integer idInvoice,
-                             @RequestParam("productDetailId") int idProductDetail, Model model) {
+    public String addInvoice(@RequestParam("invoiceId") Integer idInvoice,
+                             @RequestParam("productDetailId") int idProductDetail) {
 
         ProductDetail productDetail = productDetailRepo.findById(idProductDetail).orElse(null);
         Invoice invoice = invoiceRepo.findById(idInvoice).orElse(null);
         if (productDetail == null || invoice == null) {
-            return "redirect:/admin/store/invoice-detail/" + idInvoice; // xử lý lỗi nếu không tìm thấy
+            return "redirect:/admin/store/invoice-detail/" + idInvoice;
         }
 
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(idInvoice);
         Product product = productDetail.getProduct();
-        if (product.getPromotion() != null) {
-            for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
-                if (invoiceDetail.getProductDetail().getId() == idProductDetail) {
-                    int discountAmount;
-                    if (product.getPromotion().getDiscountAmount() > 0){
-                        discountAmount = product.getPromotion().getDiscountAmount();
-                    }else {
-                        discountAmount = (productDetail.getPrice() * product.getPromotion().getDiscountPercentage()) / 100;
-                        System.out.println(discountAmount);
-                    }
-                    invoiceDetail.setUnitPrice(productDetail.getPrice() - discountAmount);
-                    invoiceDetailRepo.save(invoiceDetail);
-                    break;
-                }
-            }
-        }
         boolean isExistingProduct = false;
+
+        int unitPrice = getDiscountedPrice(productDetail, product);
+
+        // Kiểm tra sản phẩm đã tồn tại trong hóa đơn chi tiết chưa
         for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
-            if (invoiceDetail.getProductDetail().getId() == idProductDetail) {
+            if (invoiceDetail.getProductDetail().getId().equals(idProductDetail)) {
                 isExistingProduct = true;
-                // Cập nhật số lượng và giá tiền cuối cùng của sản phẩm trong hóa đơn
+                invoiceDetail.setUnitPrice(unitPrice);
                 invoiceDetail.setQuantity(invoiceDetail.getQuantity() + 1);
                 invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
                 invoiceDetailRepo.save(invoiceDetail);
@@ -170,37 +169,33 @@ public class StoreController {
             }
         }
 
+        // Nếu sản phẩm chưa tồn tại trong hóa đơn
         if (!isExistingProduct) {
-            // Thêm sản phẩm chi tiết mới vào hóa đơn nếu chưa có trong danh sách
             InvoiceDetail invoiceDetail = new InvoiceDetail();
             invoiceDetail.setInvoice(invoice);
             invoiceDetail.setProductDetail(productDetail);
             invoiceDetail.setQuantity(1);
-            if (product.getPromotion() != null) {
-                //kiểm tra lại kĩ cách tính giá ở phần tăng giảm số lượng bằng nút
-                invoiceDetail.setUnitPrice(product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0 ? invoiceDetail.getProductDetail().getPrice() - product.getPromotion().getDiscountAmount() : invoiceDetail.getProductDetail().getPrice() - (invoiceDetail.getProductDetail().getPrice() * product.getPromotion().getDiscountPercentage()) / 100);
-                invoiceDetail.setFinalPrice(product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0 ? invoiceDetail.getProductDetail().getPrice() - product.getPromotion().getDiscountAmount() : invoiceDetail.getProductDetail().getPrice() - (invoiceDetail.getProductDetail().getPrice() * product.getPromotion().getDiscountPercentage()) / 100);
-            }else {
-                invoiceDetail.setUnitPrice(productDetail.getPrice());
-                invoiceDetail.setFinalPrice(productDetail.getPrice());
-            }
+            invoiceDetail.setUnitPrice(unitPrice);
+            invoiceDetail.setFinalPrice(unitPrice);
 
             invoiceDetailRepo.save(invoiceDetail);
 
             // Giảm số lượng tồn kho của sản phẩm
             productDetail.setStock(productDetail.getStock() - 1);
             productDetailRepo.save(productDetail);
+
             listInvoiceDetail.add(invoiceDetail);
         }
 
-        // Cập nhật tổng tiền của hóa đơn sau khi đã thêm sản phẩm chi tiết
+        // Cập nhật tổng tiền của hóa đơn
         int totalInvoicePrice = listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
         invoice.setTotalPrice(totalInvoicePrice);
-        invoice.setFinalPrice(totalInvoicePrice); // Nếu có giảm giá hoặc phí thêm, xử lý tại đây
+        invoice.setFinalPrice(totalInvoicePrice);  // Có thể thêm xử lý khác nếu cần
         invoiceRepo.save(invoice);
 
         return "redirect:/admin/store/invoice-detail/" + idInvoice;
     }
+
 
     @GetMapping("/delete-invoice/{id}")
     public String deleteInvoice(@PathVariable int id, Model model) {
@@ -274,49 +269,67 @@ public class StoreController {
 
     @PostMapping("/update-quantity")
     public String updateQuantity(@RequestParam("ids") List<Integer> ids, @RequestParam("quantities") List<Integer> quantities) {
-        int sl = 0;
         for (int i = 0; i < ids.size(); i++) {
             int id = ids.get(i);
-            //số lượng sản phẩm khi thay đổi trên form
             int quantity = quantities.get(i);
+
             InvoiceDetail invoiceDetail = invoiceDetailRepo.findById(id).orElse(null);
+            if (invoiceDetail == null) continue;
+
             ProductDetail productDetail = invoiceDetail.getProductDetail();
+            Product product = productDetail.getProduct();
+
             if (id == invoiceDetail.getId()) {
-                //kiểm tra xem số lượng trên form bị trừ hay cộng
-                //trừ
+                // Trường hợp giảm số lượng
                 if (invoiceDetail.getQuantity() > quantity) {
-                    sl = invoiceDetail.getQuantity() - quantity;
+                    int sl = invoiceDetail.getQuantity() - quantity;
                     invoiceDetail.setQuantity(quantity);
                     invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * quantity);
-                    invoiceDetailRepo.save(invoiceDetail);
                     productDetail.setStock(productDetail.getStock() + sl);
-                    productDetailRepo.save(productDetail);
-                    Invoice invoice = invoiceDetail.getInvoice();
-                    int totalPrice = invoice.getInvoiceDetails().stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-                    invoice.setTotalPrice(totalPrice);
-                    invoice.setFinalPrice(totalPrice);
-                    invoiceRepo.save(invoice);
-                    return "redirect:/admin/store/invoice-detail/" + invoiceDetail.getInvoice().getId();
                 }
-                //cộng
-                if (invoiceDetail.getQuantity() < quantity) {
-                    sl = quantity - invoiceDetail.getQuantity();
+                // Trường hợp tăng số lượng
+                else if (invoiceDetail.getQuantity() < quantity) {
+                    int sl = quantity - invoiceDetail.getQuantity();
                     invoiceDetail.setQuantity(quantity);
                     invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * quantity);
-                    invoiceDetailRepo.save(invoiceDetail);
                     productDetail.setStock(productDetail.getStock() - sl);
-                    productDetailRepo.save(productDetail);
-                    Invoice invoice = invoiceDetail.getInvoice();
-                    int totalPrice = invoice.getInvoiceDetails().stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-                    invoice.setTotalPrice(totalPrice);
-                    invoice.setFinalPrice(totalPrice);
-                    invoiceRepo.save(invoice);
-                    return "redirect:/admin/store/invoice-detail/" + invoiceDetail.getInvoice().getId();
                 }
+
+                // Cập nhật giá khuyến mãi nếu có
+                if (product.getPromotion() != null) {
+                    invoiceDetail.setUnitPrice(product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0
+                            ? invoiceDetail.getProductDetail().getPrice() - product.getPromotion().getDiscountAmount()
+                            : invoiceDetail.getProductDetail().getPrice() - (invoiceDetail.getProductDetail().getPrice() * product.getPromotion().getDiscountPercentage()) / 100);
+                } else {
+                    invoiceDetail.setUnitPrice(productDetail.getPrice());
+                }
+
+                invoiceDetailRepo.save(invoiceDetail);
+                productDetailRepo.save(productDetail);
+
+                // Cập nhật tổng giá trị hóa đơn
+                Invoice invoice = invoiceDetail.getInvoice();
+                int totalPrice = invoice.getInvoiceDetails().stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
+                invoice.setTotalPrice(totalPrice);
+                invoice.setFinalPrice(totalPrice);
+                invoiceRepo.save(invoice);
+
+                return "redirect:/admin/store/invoice-detail/" + invoice.getId();
             }
         }
         return "redirect:/admin/store/index";
     }
+
+    // Hàm tính giá giảm giá
+    private int calculateDiscountedPrice(ProductDetail productDetail, Promotion promotion) {
+        if (promotion.getDiscountAmount() != null && promotion.getDiscountAmount() > 0) {
+            return productDetail.getPrice() - promotion.getDiscountAmount();
+        } else if (promotion.getDiscountPercentage() != null) {
+            return productDetail.getPrice() - (productDetail.getPrice() * promotion.getDiscountPercentage()) / 100;
+        }
+        return productDetail.getPrice();
+    }
+
 
     @PostMapping("/add-customer-to-invoice")
     public String addCustomerToInvoice(@RequestParam("customerId") int customerId, @RequestParam("invoiceId") int invoiceId) {
@@ -354,18 +367,25 @@ public class StoreController {
     @PostMapping("/pay")
     public String pay(@RequestParam(name = "idPayment") int id,
                       @RequestParam(name = "totalPayment") int totalPayment,
-                      @RequestParam(name = "voucherPayment", defaultValue = "") Voucher voucherPayment,
-                      @RequestParam(name = "methodPayment") PaymentMethod paymentMethod) {
+                      @RequestParam(name = "voucherPayment") int voucherPayment,
+                      @RequestParam(name = "methodPayment") int paymentMethod) {
+        System.out.println("Voucher ID received: " + voucherPayment);  // Log giá trị voucherPayment
+
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
-        if (voucherPayment != null) {
-            Voucher voucher = voucherRepo.findById(voucherPayment.getId()).orElse(null);
+        Voucher voucher = voucherRepo.findById(voucherPayment).orElse(null);
+        if (voucher != null) {
             invoice.setVoucher(voucher);
         }
-        PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod.getId()).orElse(null);
+
+        PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod).orElse(null);
+        if (paymentMethod1 != null) {
+            invoice.setPaymentMethod(paymentMethod1);
+        }
+
         invoice.setFinalPrice(totalPayment);
-        invoice.setPaymentMethod(paymentMethod1);
         invoice.setStatus(Byte.valueOf("2"));
         invoiceRepo.save(invoice);
+
         return "redirect:/admin/store/index";
     }
 }

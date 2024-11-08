@@ -206,22 +206,22 @@
                                                             <td>
                                                                 <span th:if="${detail.product.promotion != null}"
                                                                       style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
-                                                                    [[${detail.price}]]
+                                                                    [[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.price)}]]
                                                                 </span>
                                                                 <div th:if="${detail.product.promotion != null}">
                                                                 <!-- Kiểm tra nếu có discountPercentage -->
                                                                 <span th:if="${detail.product.promotion.discountPercentage != null && detail.product.promotion.discountPercentage > 0}">
-                                                                    <span th:text="${detail.price - (detail.price * detail.product.promotion.discountPercentage / 100)}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.price - (detail.price * detail.product.promotion.discountPercentage / 100))}"></span>
                                                                 </span>
 
                                                                 <!-- Kiểm tra nếu có discountAmount -->
                                                                 <span th:if="${detail.product.promotion.discountAmount != null && detail.product.promotion.discountAmount > 0}">
-                                                                    <span th:text="${detail.price - detail.product.promotion.discountAmount}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.price - detail.product.promotion.discountAmount)}"></span>
                                                                 </span>
                                                                 </div>
                                                                 <!-- Nếu không có giảm giá -->
                                                                 <span th:unless="${detail.product.promotion != null}">
-                                                                    [[${detail.price}]]
+                                                                    [[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.price)}]]
                                                                 </span>
                                                             </td>
 
@@ -335,25 +335,25 @@
                                 <td>
                                     <span th:if="${invoiceDetail.productDetail.product.promotion != null}"
                                           style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
-                                                                    [[${invoiceDetail.productDetail.price}]]
+                                                                    [[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price)}]]
                                                                 </span>
                                     <div th:if="${invoiceDetail.productDetail.product.promotion != null}">
                                         <!-- Kiểm tra nếu có discountPercentage -->
                                         <span th:if="${invoiceDetail.productDetail.product.promotion.discountPercentage != null && invoiceDetail.productDetail.product.promotion.discountPercentage > 0}">
-                                                                    <span th:text="${invoiceDetail.productDetail.price - (invoiceDetail.productDetail.price * invoiceDetail.productDetail.product.promotion.discountPercentage / 100)}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - (invoiceDetail.productDetail.price * invoiceDetail.productDetail.product.promotion.discountPercentage / 100))}"></span>
                                                                 </span>
 
                                         <!-- Kiểm tra nếu có discountAmount -->
                                         <span th:if="${invoiceDetail.productDetail.product.promotion.discountAmount != null && invoiceDetail.productDetail.product.promotion.discountAmount > 0}">
-                                                                    <span th:text="${invoiceDetail.productDetail.price - invoiceDetail.productDetail.product.promotion.discountAmount}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - invoiceDetail.productDetail.product.promotion.discountAmount)}"></span>
                                                                 </span>
                                     </div>
                                     <!-- Nếu không có giảm giá -->
                                     <span th:unless="${invoiceDetail.productDetail.product.promotion != null}">
-                                                                    [[${invoiceDetail.unitPrice}]]
+                                                                    [[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.unitPrice)}]]
                                                                 </span>
                                 </td>
-                                <td>[[${invoiceDetail.finalPrice}]]</td>
+                                <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.finalPrice)}]]</td>
                                 <td>
                                     <button class="btn btn-danger" onclick="deleteProduct(this)"
                                             th:data-delete-url="@{/admin/store/delete-product-from-invoice/{id}(id=${invoiceDetail.id})}">
@@ -463,7 +463,8 @@
                                         <tr>
                                             <td>Tổng tiền :</td>
                                             <td id="totalPrice" th:if="${infoInvoice != null}" class="text-end"
-                                                th:field="*{totalPrice}" th:text="*{totalPrice}"></td>
+                                                th:field="*{totalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}"
+                                                th:data-totalprice="*{totalPrice}"></td>
                                         </tr>
                                         <tr id="discountRow" style="display: none;">
                                             <td>Giảm giá :</td>
@@ -476,8 +477,8 @@
                                         <tr class="bg-light">
                                             <th>Thực thu :</th>
                                             <td class="text-end">
-                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold"
-                                                  th:field="*{finalPrice}" th:text="*{finalPrice}">
+                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold" data-raw-value=""
+                                                  th:field="*{finalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(finalPrice)}">
                                             </span>
                                             </td>
                                         </tr>
@@ -566,14 +567,15 @@
                         <!-- Hiển thị tổng tiền -->
                         <div class="mb-3" th:if="${infoInvoice != null && infoInvoice.totalPrice != null}">
                             <label for="totalAmount" class="form-label">Tổng tiền</label>
-                            <input type="text" class="form-control" id="totalAmount" name="totalPayment" readonly>
-
+                            <input type="text" class="form-control" id="totalAmount"  readonly>
+                            <input id="totalAmountRaw" name="totalPayment" readonly>
                         </div>
-                        <select id="voucherPayment" class="form-select" name="voucherPayment" disabled hidden="hidden">
+                        <select id="voucherPayment" class="form-select" name="voucherPayment" hidden="hidden">
                             <option value="">Chọn voucher</option>
                             <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
-                                    th:text="${voucher.code}+' - '+${voucher.name}+ ' - ' +${voucher.discountPercentage} + '%'"
-                                    th:selected="${infoInvoice != null && infoInvoice.voucher != null && voucher.id == infoInvoice.voucher.id}"></option>
+                                    th:text="${voucher.code} + ' - ' + ${voucher.name} + ' - ' + ${voucher.discountPercentage} + '%'"
+                                    th:selected="${infoInvoice != null && infoInvoice.voucher != null && voucher.id == infoInvoice.voucher.id}">
+                            </option>
                         </select>
                         <!-- Lựa chọn phương thức thanh toán -->
                         <div class="mb-3" th:if="${infoInvoice != null}">
@@ -688,13 +690,6 @@
             }
         }
 
-        document.querySelector('tbody').addEventListener('change', function (event) {
-            if (event.target.matches('input[name="quantities"]')) {
-                checkQuantityAndSubmit(event.target);
-                console.log("chạy vào đa")
-            }
-        });
-
         function checkQuantityAndSubmit(inputElement) {
             const form = inputElement.form;
             const quantity = parseInt(inputElement.value);
@@ -724,9 +719,12 @@
         function openPaymentModal() {
             var finalPriceElement = document.getElementById('finalPrice');
             var finalPrice = finalPriceElement.textContent; // Hoặc dùng innerText
-            console.log(finalPrice); // In giá trị ra console
+            const finalPriceRaw = finalPriceElement.getAttribute("data-raw-value")
+            console.log(finalPriceRaw); // In giá trị ra console
             const totalAmount = document.getElementById("totalAmount");
+            const totalAmountRaw = document.getElementById("totalAmountRaw");
             totalAmount.value = finalPrice;
+            totalAmountRaw.value = finalPriceRaw;
             new bootstrap.Modal(document.getElementById('paymentModal')).show();
         }
 
@@ -1047,7 +1045,7 @@
             const bankTransferDetailsDiv = document.getElementById("bankTransferDetails");
             const finalPriceElement = parseInt(document.getElementById("totalAmount").value.replace(/[^\d]/g, "") || 0);
             const finalPrice1 = document.getElementById('finalPrice');
-            const finalPrice = finalPrice1.textContent; // Hoặc dùng innerText
+            const finalPriceRaw = finalPrice1.getAttribute("data-raw-value")
             if (selectedMethod === "Tiền mặt") {
                 calculateChange();
                 cashCalculationDiv.style.display = "block";
@@ -1062,7 +1060,7 @@
                 var qrImageElement = document.getElementById('qrCode');
                 // Đặt giá trị src
 
-                qrImageElement.setAttribute('src', 'https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=' + finalPrice + '&addInfo=Thanh toan hoa don : ' + document.getElementById("invoice-tracking-number").textContent + '&accountName=NGUYEN THE QUANG');
+                qrImageElement.setAttribute('src', 'https://img.vietqr.io/image/MB-2234686869-compact2.png?amount=' + finalPriceRaw + '&addInfo=Thanh toan hoa don : ' + document.getElementById("invoice-tracking-number").textContent + '&accountName=NGUYEN THE QUANG');
                 console.log(qrImageElement);
                 cashCalculationDiv.style.display = "none";
                 bankTransferDetailsDiv.style.display = "block";
@@ -1112,35 +1110,43 @@
             const selectValue = document.getElementById("voucherSelect").value;
             const selectedOption = select.options[select.selectedIndex];
             const selectPayment = document.getElementById("voucherPayment");
-            console.log(selectValue)
+
             selectPayment.value = selectValue;
-            console.log(selectPayment)
+
             // Lấy phần preview container
             const previewContainer = document.querySelector(".card-body .preview-block");
 
-            // Kiểm tra nếu không chọn voucher nào
             if (!selectedOption || !selectedOption.value) {
-                // Ẩn phần preview
                 previewContainer.style.display = "none";
                 return;
             }
 
             const totalPriceElement = document.getElementById("totalPrice");
+            console.log(totalPriceElement)
             const discountRow = document.getElementById("discountRow");
             const discountAmountElement = document.getElementById("discountAmount");
             const finalPriceElement = document.getElementById("finalPrice");
 
-            // Lấy tổng tiền từ phần tử tổng tiền
-            const totalPrice = parseFloat(totalPriceElement.innerText) || 0;
-            const discountPer = parseFloat(selectedOption.getAttribute("data-discount")) || 0;
+            // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
+            const totalPrice = totalPriceElement.getAttribute("data-totalprice") || 0;
+            const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
             const discountAmount = (totalPrice * discountPer) / 100;
             const finalPrice = totalPrice - discountAmount;
 
             // Hiển thị dòng giảm giá và cập nhật giá trị
             discountRow.style.display = "table-row";
-            discountAmountElement.innerText = `${discountAmount.toFixed(0)}`;
-            finalPriceElement.innerText = `${finalPrice.toFixed(0)}`;
 
+            discountAmountElement.innerText = discountAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND"
+            });
+
+            finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND"
+            });
+            // Cập nhật data-raw-value bằng giá trị mới
+            finalPriceElement.setAttribute("data-raw-value", finalPrice);
             // Hiển thị phần preview nếu có lựa chọn
             previewContainer.style.display = "block";
 
@@ -1153,11 +1159,9 @@
             const startDate = selectedOption.getAttribute("data-startdate") || "--";
             const endDate = selectedOption.getAttribute("data-enddate") || "--";
 
-            // Định dạng chuỗi ngày tháng
             const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : "--";
             const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString() : "--";
 
-            // Cập nhật nội dung phần preview
             document.getElementById("previewName").innerText = name;
             document.getElementById("previewCode").innerText = code;
             document.getElementById("previewDiscount").innerText = `${discount}% OFF`;
@@ -1165,6 +1169,7 @@
             document.getElementById("previewDescription").innerText = description;
             document.getElementById("previewValidity").innerText = `Valid: ${formattedStartDate} - ${formattedEndDate}`;
         }
+
     </script>
     <script src="/admin/store/script.js"></script>
     <script th:if="${errorMessage != null}" th:inline="javascript">
