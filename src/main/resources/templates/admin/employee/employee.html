@@ -155,7 +155,7 @@
 
 <!--     Modal Thêm Nhân Viên -->
     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true" >
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addEmployeeModalLabel">Thêm Nhân Viên</h5>
@@ -163,6 +163,7 @@
                 </div>
                 <div class="modal-body">
                     <form th:action="@{/admin/employee/add}" th:object="${employee}" method="post" >
+                        <input type="text" th:value="${showModal}" hidden id="showModal">
                         <div class="form-group">
                             <label>Username</label>
                             <input type="text" name="username" class="form-control" required/>
@@ -254,7 +255,7 @@
             });
 
             // Mở modal khi cần hiển thị lỗi sau khi tải lại trang
-            const showModal = [[${showModal}]];
+            const showModal = document.getElementById('showModal').value;
             if (showModal) {
                 $('#addEmployeeModal').modal('show');
             }

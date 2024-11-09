@@ -68,12 +68,13 @@ public class EmployeeController {
         UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUsername = currentUser.getUsername();
 
+        // Giả sử bạn có phương thức tìm Employee theo username
         Employee currentEmployee = employeeRepository.findByUsername(currentUsername);
 
         // Kiểm tra nếu ID cần xóa là của người dùng hiện tại
         if (currentEmployee.getId().equals(id)) {
             redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản của chính mình.");
-            return "redirect:/admin/employee";
+            return "redirect:/admin/employee";  // Điều hướng về trang danh sách hoặc trang khác phù hợp
         }
         employeeRepository.deleteById(id);
         return "redirect:/admin/employee";
@@ -104,7 +105,7 @@ public class EmployeeController {
             }
         }
 
-            // Kiểm tra có lỗi không
+        // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
             return "admin/employee/employee_detail"; // Trả về trang cập nhật nếu có lỗi
         }
@@ -129,9 +130,6 @@ public class EmployeeController {
 
         // Kiểm tra nếu có lỗi, trả về trang với modal mở kèm thông báo lỗi
         if (bindingResult.hasErrors()) {
-            List<Employee> employees = employeeRepository.findAll();
-
-            modelAndView.addObject("employees", employees);
             modelAndView.addObject("employee", employee);
             modelAndView.addObject("showModal", true); // Thêm flag để JavaScript nhận biết cần hiển thị modal
             return modelAndView;

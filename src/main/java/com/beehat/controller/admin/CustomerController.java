@@ -1,6 +1,7 @@
 package com.beehat.controller.admin;
 
 import com.beehat.entity.Customer;
+import com.beehat.entity.Employee;
 import com.beehat.repository.CustomerRepo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Row;
@@ -10,11 +11,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -42,9 +46,11 @@ public class CustomerController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "page", defaultValue = "0") int page,
             Model model) {
+
         Pageable pageable = PageRequest.of(page, size);
         List<Customer> customers = customerRepo.findAll(pageable).getContent();
 
+        model.addAttribute("customer", new Customer());
         model.addAttribute("customers", customers);
         model.addAttribute("currentPage", page);
         model.addAttribute("size", size);
@@ -59,14 +65,37 @@ public class CustomerController {
         return "redirect:/admin/customer";
     }
 
-    @PostMapping("/add")
-    public String add(@ModelAttribute("customer") Customer customer){
-        customer.setCreatedDate(LocalDateTime.now());
-        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-        customerRepo.save(customer);
-        return "redirect:/admin/customer";
-    }
 
+    @PostMapping("/add")
+    public ModelAndView add(@ModelAttribute("customer") Customer customer, BindingResult bindingResult) {
+        ModelAndView modelAndView = new ModelAndView("admin/customer/customer"); // Trả về trang admin/employee nếu có lỗi
+
+        // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult
+        if (customerRepo.existsByUsername(customer.getUsername())) {
+            bindingResult.rejectValue("username", "error.customer", "Username đã tồn tại");
+        }
+        if (customerRepo.existsByEmail(customer.getEmail())) {
+            bindingResult.rejectValue("email", "error.customer", "Email đã tồn tại");
+        }
+        if (customerRepo.existsByPhone(customer.getPhone())) {
+            bindingResult.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
+        }
+
+        // Kiểm tra nếu có lỗi, trả về trang với modal mở kèm thông báo lỗi
+        if (bindingResult.hasErrors()) {
+            List<Customer> customers = customerRepo.findAll();
+
+            modelAndView.addObject("customers", customers);
+            modelAndView.addObject("customer", customer);
+            modelAndView.addObject("showModal", true); // Thêm flag để JavaScript nhận biết cần hiển thị modal
+            return modelAndView;
+        }
+            customer.setCountry("Việt Nam");
+            customer.setCreatedDate(LocalDateTime.now());
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            customerRepo.save(customer);
+            return new ModelAndView("redirect:/admin/customer");
+    }
     @GetMapping("/detail/{id}")
     public String editcustomer(@PathVariable("id") Integer id, Model model) {
         Customer customer = customerRepo.findeById(id);
@@ -78,27 +107,47 @@ public class CustomerController {
     }
 
     @PostMapping("/update")
-    public String updateCustomer(@ModelAttribute Customer customer) {
+    public String updateCustomer(@ModelAttribute Customer customer,BindingResult bindingResult) {
+        Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
+
+        if (existingCustomer != null) {
+            // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
+                bindingResult.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
+            }
+            // Kiểm tra email đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingCustomer.getEmail().equals(customer.getEmail()) && customerRepo.existsByEmail(customer.getEmail())) {
+                bindingResult.rejectValue("email", "error.customer", "Email đã tồn tại");
+            }
+        }
+
+        // Kiểm tra có lỗi không
+        if (bindingResult.hasErrors()) {
+            return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
+        }
         customer.setUpdatedDate(LocalDateTime.now());
-//        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customerRepo.save(customer);
         return "redirect:/admin/customer";
     }
-
     @GetMapping("/search")
-    public String search(@RequestParam("searchValue") String searchValue,
-                         Model model){
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            model.addAttribute("customers", customerRepo.findAll());
-            return "/admin/customer/customer";
-        }
-        List<Customer> list = new ArrayList<>();
-        for (Customer e:customerRepo.findAll()){
-            if (e.getUsername().contains(searchValue)|| e.getFullname().contains(searchValue)){
-                list.add(e);
+    public String searchCustomers(@RequestParam(value = "searchValue", required = false) String searchValue,
+                                  @RequestParam(value = "fromDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime fromDate,
+                                  @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
+                                  @RequestParam(value = "status", required = false) String status,
+                                  Model model) {
+        List<Customer> customers;
+        Byte statusValue = null;
+        model.addAttribute("customer", new Customer());
+        // Chuyển đổi status nếu không null hoặc rỗng
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusValue = Byte.parseByte(status);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
         }
-        model.addAttribute("customers", list);
+        customers = customerRepo.searchCustomers(searchValue, statusValue, fromDate, toDate);
+        model.addAttribute("customers",customers);
         return "/admin/customer/customer";
     }
 
@@ -185,4 +234,6 @@ public class CustomerController {
 
         return "redirect:/admin/customer";
     }
+
+
 }
