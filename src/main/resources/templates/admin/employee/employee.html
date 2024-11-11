@@ -77,10 +77,13 @@
             </div>
         </div>
     </div>
+    <div th:if="${error}">
+        <div class="alert alert-danger" th:text="${error}"></div>
+    </div>
 
-    <script th:if="${error}" th:inline="javascript">
-        alert([[${error}]]);
-    </script>
+    <div th:if="${success}">
+        <div class="alert alert-success" th:text="${success}"></div>
+    </div>
     <div class="card mt-5">
         <div class="card-header">
             <h5 class="card-title">Danh sách nhân viên</h5>

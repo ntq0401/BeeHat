@@ -8,7 +8,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,8 +22,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +56,14 @@ public class CustomerController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        List<Customer> customers = customerRepo.findAll(pageable).getContent();
-
+        Page<Customer> customerPage = customerRepo.findAll(pageable);
+        List<Customer> customers = customerPage.getContent();
+        for (Customer customer : customers) {
+            // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
+            customer.setProvinceName(getProvinceNameByCode(customer.getCity()));
+            customer.setDistrictName(getDistrictNameByCode(customer.getDistrict()));
+            customer.setWardName(getWardNameByCode(customer.getWard()));
+        }
         model.addAttribute("customer", new Customer());
         model.addAttribute("customers", customers);
         model.addAttribute("currentPage", page);
@@ -60,8 +74,17 @@ public class CustomerController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id){
-        customerRepo.deleteById(id);
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            customerRepo.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            // Nếu gặp ngoại lệ liên quan đến khóa ngoại, thông báo lỗi
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa khách hàng vì vẫn còn các hóa đơn liên quan.");
+            return "redirect:/admin/customer";
+        }
+
+        // Xóa thành công, chuyển hướng về danh sách khách hàng
+        redirectAttributes.addFlashAttribute("success", "Xóa khách hàng thành công.");
         return "redirect:/admin/customer";
     }
 
@@ -90,11 +113,50 @@ public class CustomerController {
             modelAndView.addObject("showModal", true); // Thêm flag để JavaScript nhận biết cần hiển thị modal
             return modelAndView;
         }
+            customer.setCity(customer.getCity());
+            customer.setDistrict(customer.getDistrict());
+            customer.setWard(customer.getWard());
             customer.setCountry("Việt Nam");
             customer.setCreatedDate(LocalDateTime.now());
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerRepo.save(customer);
             return new ModelAndView("redirect:/admin/customer");
+    }
+
+    private String getProvinceNameByCode(String provinceCode) {
+        return getNameFromApi("https://provinces.open-api.vn/api/p/" + provinceCode);
+    }
+
+    private String getDistrictNameByCode(String districtCode) {
+        return getNameFromApi("https://provinces.open-api.vn/api/d/" + districtCode);
+    }
+
+    private String getWardNameByCode(String wardCode) {
+        return getNameFromApi("https://provinces.open-api.vn/api/w/" + wardCode);
+    }
+
+    private String getNameFromApi(String url) {
+        String name = "";
+        try {
+            // Gửi request tới API và lấy kết quả
+            URL apiUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+            connection.setRequestMethod("GET");
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // Phân tích cú pháp JSON và lấy tên
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            name = jsonResponse.optString("name", "");
+        } catch (IOException e) {
+            System.err.println("Không thể truy cập API: " + e.getMessage());
+        }
+        return name;
     }
     @GetMapping("/detail/{id}")
     public String editcustomer(@PathVariable("id") Integer id, Model model) {
@@ -147,6 +209,12 @@ public class CustomerController {
             }
         }
         customers = customerRepo.searchCustomers(searchValue, statusValue, fromDate, toDate);
+        for (Customer customer : customers) {
+            // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
+            customer.setProvinceName(getProvinceNameByCode(customer.getCity()));
+            customer.setDistrictName(getDistrictNameByCode(customer.getDistrict()));
+            customer.setWardName(getWardNameByCode(customer.getWard()));
+        }
         model.addAttribute("customers",customers);
         return "/admin/customer/customer";
     }

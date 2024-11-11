@@ -4,6 +4,57 @@
   <meta charset="UTF-8">
   <title>Quản lí khách hàng</title>
   <script>
+
+    const apiBase = 'https://provinces.open-api.vn/api/';
+
+    // Khi trang tải, lấy danh sách tỉnh
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch(apiBase + 'p')
+              .then(response => response.json())
+              .then(data => {
+                const citySelect = document.getElementById('city');
+                citySelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+                data.forEach(city => {
+                  citySelect.innerHTML += `<option value="${city.code}">${city.name}</option>`;
+                });
+              })
+              .catch(error => console.error('Error fetching cities:', error));
+
+      const citySelect =document.getElementById('city');
+      if(citySelect){
+        citySelect.addEventListener('change',function () {
+          const cityCode = this.value;
+          fetch(`${apiBase}p/${cityCode}?depth=2`)
+                  .then(response => response.json())
+                  .then(data => {
+                    const districtSelect = document.getElementById('district');
+                    districtSelect.innerHTML = '<option value="">Chọn huyện</option>';
+                    data.districts.forEach(district => {
+                      districtSelect.innerHTML += `<option value="${district.code}">${district.name}</option>`;
+                    });
+                  })
+                  .catch(error => console.error('Error fetching districts:', error));
+        })
+      }
+      const  districtSelect = document.getElementById('district');
+      if(districtSelect){
+        districtSelect.addEventListener('change',function () {
+          const districtCode = this.value;
+          if(districtCode){
+            fetch(`${apiBase}d/${districtCode}?depth=2`)
+                    .then(response => response.json())
+                    .then(data => {
+                      const wardSelect = document.getElementById('ward');
+                      wardSelect.innerHTML = '<option value="">Chọn xã</option>';
+                      data.wards.forEach(ward => {
+                        wardSelect.innerHTML += `<option value="${ward.code}">${ward.name}</option>`;
+                      });
+                    })
+                    .catch(error => console.error('Error fetching wards:', error));
+          }
+        })
+      }
+    });
     document.addEventListener('DOMContentLoaded', function() {
       const fileInput = document.getElementById('fileInput');
       if (fileInput) {
@@ -78,7 +129,13 @@
     </div>
   </div>
 
+  <div th:if="${error}">
+    <div class="alert alert-danger" th:text="${error}"></div>
+  </div>
 
+  <div th:if="${success}">
+    <div class="alert alert-success" th:text="${success}"></div>
+  </div>
   <div class="card mt-5">
     <div class="card-header">
       <h5 class="card-title">Danh sách khách hàng</h5>
@@ -111,9 +168,9 @@
           <td th:text="${customer.fullname}"></td>
           <td th:text="${customer.email}"></td>
           <td th:text="${customer.address}"></td>
-          <td th:text="${customer.city}"></td>
-          <td th:text="${customer.district}"></td>
-          <td th:text="${customer.ward}"></td>
+          <td th:text="${customer.provinceName}"></td>
+          <td th:text="${customer.districtName}"></td>
+          <td th:text="${customer.wardName}"></td>
           <td th:text="${customer.country}"></td>
           <td th:text="${customer.phone}"></td>
           <td th:text="${#temporals.format(customer.createdDate, 'dd-MM-yyyy')}"></td>
@@ -194,19 +251,24 @@
               <!-- Dropdown chọn tỉnh/thành phố -->
               <div class="form-group col-md-4">
                 <label>City</label>
-                <input type="text" name="city" class="form-control" required/>
+                <select id="city" name="city" class="form-control" required>
+                  <option value="">Chọn tỉnh/thành phố</option>
+                </select>
               </div>
-
               <!-- Dropdown chọn quận/huyện -->
               <div class="form-group col-md-4">
                 <label>District</label>
-                <input type="text" name="district" class="form-control" required/>
+                <select id="district" name="district" class="form-control" required>
+                  <option value="">Chọn quận/huyên</option>
+                </select>
               </div>
 
               <!-- Dropdown chọn phường/xã -->
               <div class="form-group col-md-4">
                 <label>Ward</label>
-                <input type="text" name="ward" class="form-control" required/>
+                <select id="ward" name="ward" class="form-control" required>
+                  <option value="">Chọn phường/xã</option>
+                </select>
               </div>
             </div>
             <div class="form-group">
