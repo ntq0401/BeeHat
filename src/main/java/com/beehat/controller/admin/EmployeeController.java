@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -63,12 +64,12 @@ public class EmployeeController {
         return "admin/employee/employee";
     }
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes){
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         // Lấy thông tin người dùng hiện tại
         UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUsername = currentUser.getUsername();
 
-        // Giả sử bạn có phương thức tìm Employee theo username
+        // phương thức tìm Employee theo username
         Employee currentEmployee = employeeRepository.findByUsername(currentUsername);
 
         // Kiểm tra nếu ID cần xóa là của người dùng hiện tại
@@ -76,9 +77,27 @@ public class EmployeeController {
             redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản của chính mình.");
             return "redirect:/admin/employee";  // Điều hướng về trang danh sách hoặc trang khác phù hợp
         }
-        employeeRepository.deleteById(id);
+
+        // Kiểm tra nếu tài khoản cần xóa là tài khoản admin
+        Employee employeeToDelete = employeeRepository.findById(id).orElse(null);
+        if (employeeToDelete != null && employeeToDelete.getRole()==1) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản admin.");
+            return "redirect:/admin/employee";  // Điều hướng về trang danh sách hoặc trang khác phù hợp
+        }
+
+        // Kiểm tra nếu tài khoản có liên kết với dữ liệu khác (ví dụ: hóa đơn)
+        try {
+            employeeRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản này vì có ràng buộc dữ liệu khác.");
+            return "redirect:/admin/employee";
+        }
+
+        // Nếu không có lỗi, chuyển hướng về trang danh sách nhân viên
+        redirectAttributes.addFlashAttribute("success", "Xóa tài khoản thành công.");
         return "redirect:/admin/employee";
     }
+
     @GetMapping("/detail/{id}")
     public String editEmployee(@PathVariable("id") Integer id, Model model) {
         Employee employee = employeeRepository.findeById(id);
@@ -105,7 +124,7 @@ public class EmployeeController {
             }
         }
 
-            // Kiểm tra có lỗi không
+        // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
             return "admin/employee/employee_detail"; // Trả về trang cập nhật nếu có lỗi
         }

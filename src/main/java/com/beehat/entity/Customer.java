@@ -44,7 +44,15 @@ public class Customer {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+    // Các trường tạm thời để lưu tên của tỉnh, huyện, xã (Không cần lưu vào cơ sở dữ liệu)
+    @Transient
+    private String provinceName;
 
+    @Transient
+    private String districtName;
+
+    @Transient
+    private String wardName;
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();

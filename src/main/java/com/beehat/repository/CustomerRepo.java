@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CustomerRepo extends JpaRepository<Customer, Integer> {
@@ -17,6 +18,13 @@ public interface CustomerRepo extends JpaRepository<Customer, Integer> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
-    @Query("SELECT c.fullname FROM Customer c WHERE LOWER(c.fullname) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<String> findCustomerNamesByQuery(@Param("query") String query);
+    @Query("SELECT c FROM Customer c " +
+            "WHERE (:searchValue IS NULL OR c.username LIKE %:searchValue% OR c.fullname LIKE %:searchValue% OR c.phone LIKE %:searchValue%) " +
+            "AND (:status IS NULL OR c.status = :status) " +
+            "AND (:fromDate IS NULL OR c.createdDate >= :fromDate) " +
+            "AND (:toDate IS NULL OR c.createdDate <= :toDate)")
+    List<Customer> searchCustomers(@Param("searchValue") String searchValue,
+                                   @Param("status") Byte status,
+                                   @Param("fromDate") LocalDateTime fromDate,
+                                   @Param("toDate") LocalDateTime toDate);
 }
