@@ -5,6 +5,10 @@ import com.beehat.repository.*;
 import com.beehat.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -114,21 +118,18 @@ public class ProductController {
     @PostMapping("/add-product")
     public String addProduct(@Valid @ModelAttribute("p") Product p, BindingResult rs,
                              Model model, @RequestParam(value = "file") MultipartFile[] files) {
-        if (rs.hasErrors()) {
-            if (files[0].getOriginalFilename().equals("")) {
-                model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
-                model.addAttribute("isAdd", true);
-                return "admin/product/add-product";
-            }
-            model.addAttribute("isAdd", true);
-            return "admin/product/add-product";
-        }
-        // Kiểm tra kỹ hơn đối với files
-        if (files[0].getOriginalFilename().equals("")) {
+        if (rs.hasErrors() || files[0].getOriginalFilename().equals("")) {
             model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
             model.addAttribute("isAdd", true);
             return "admin/product/add-product";
         }
+        // Kiểm tra trùng tên sản phẩm (ngoại trừ sản phẩm hiện tại)
+        if (productRepo.existsByName(p.getName())) {
+            rs.rejectValue("name", "error.p", "Tên sản phẩm đã tồn tại!");
+            model.addAttribute("isAdd", true);
+            return "admin/product/add-product";
+        }
+
         String debug = files[0].getOriginalFilename();
         System.out.println(debug);
         // Kiểm tra nếu có file ảnh
@@ -183,28 +184,61 @@ public class ProductController {
     }
 
     @PostMapping("/add-product-detail/{id}")
-    public String addProductDetail(@Valid @PathVariable("id") int id,
-                                   @ModelAttribute("pd") ProductDetail pd,
-                                   @RequestParam("colors") List<Integer> colorIds,
-                                   @RequestParam("sizes") List<Integer> sizeIds, BindingResult rs) {
-        if (rs.hasErrors() || colorIds.size() == 0 || sizeIds.size() == 0) {
+    public String addProductDetail(@PathVariable("id") int id,
+                                   @Valid @ModelAttribute("pd") ProductDetail pd,
+                                   BindingResult rs,
+                                   @RequestParam(value = "colors", required = false) List<Integer> colorIds,
+                                   @RequestParam(value = "sizes", required = false) List<Integer> sizeIds,
+                                   Model model) {
+
+        List<ProductDetail> productDetails = productDetailRepo.findByProductId(id);
+        Map<Color, List<ProductDetail>> groupedByColor = productDetails.stream()
+                .collect(Collectors.groupingBy(ProductDetail::getColor));
+        model.addAttribute("groupedByColor", groupedByColor);
+        // Nếu có lỗi, trả về form
+        if (rs.hasErrors()) {
+            pd.setProduct(productRepo.findById(id).orElse(null));
+            model.addAttribute("pd", pd);
+            model.addAttribute("product", productRepo.findById(id).orElse(null));
             return "admin/product/add-product-detail";
         }
+
+        // Kiểm tra màu sắc và kích cỡ
+        if (colorIds == null || colorIds.isEmpty()) {
+            rs.rejectValue("color", "error.pd", "Phải chọn ít nhất một màu sắc!");
+        }
+        if (sizeIds == null || sizeIds.isEmpty()) {
+            rs.rejectValue("size", "error.pd", "Phải chọn ít nhất một kích cỡ!");
+        }
+
+        // Nếu có lỗi, trả về trang thêm mới với thông báo lỗi
+        if (rs.hasErrors()) {
+            return "admin/product/add-product-detail";
+        }
+
+        // Lưu ProductDetail cho từng màu sắc và kích cỡ
         for (Integer colorId : colorIds) {
             for (Integer sizeId : sizeIds) {
+                if (productDetailRepo.existsByProductIdAndColorIdAndSizeId(id, colorId, sizeId)) {
+                    rs.rejectValue("product", "duplicateProductDetail", "Sản phẩm đã tồn tại với màu sắc và kích cỡ này!");
+                    model.addAttribute("product", productRepo.findById(id).orElse(null));
+                    return "admin/product/add-product-detail";
+                }
                 ProductDetail productDetail = new ProductDetail();
-                productDetail.setId(null);
-                productDetail.setProduct(productRepo.findById(id).get());
+                productDetail.setProduct(productRepo.findById(id).orElse(null));
                 productDetail.setColor(colorRepo.findById(colorId).orElse(null));
                 productDetail.setSize(sizeRepo.findById(sizeId).orElse(null));
                 productDetail.setPrice(pd.getPrice());
                 productDetail.setStock(pd.getStock());
                 productDetail.setStatus(pd.getStatus());
+
                 productDetailRepo.save(productDetail);
             }
         }
+
         return "redirect:/admin/product/add-product-detail/" + id;
     }
+
 
     @GetMapping("/update-product/{id}")
     public String updateProduct(@PathVariable("id") int id, Model model) {
@@ -217,6 +251,12 @@ public class ProductController {
     public String updateProduct(@PathVariable("id") int id, @Valid @ModelAttribute("p") Product p, BindingResult rs,
                                 @RequestParam("file") MultipartFile[] files, Model model) {
         if (rs.hasErrors()) {
+            model.addAttribute("isAdd", false);
+            return "admin/product/add-product";
+        }
+        // Kiểm tra trùng tên sản phẩm, loại trừ sản phẩm hiện tại
+        if (productRepo.existsByNameAndIdNot(p.getName(), id)) {
+            rs.rejectValue("name", "error.p", "Tên sản phẩm đã tồn tại!");
             model.addAttribute("isAdd", false);
             return "admin/product/add-product";
         }
@@ -258,5 +298,32 @@ public class ProductController {
         }
         productRepo.save(p);
         return "redirect:/admin/product/index";
+    }
+    @GetMapping("/detail-product/{id}")
+    public String detailProduct(@PathVariable("id") int id, Model model) {
+        model.addAttribute("product", productRepo.findById(id).orElse(null));
+        return "admin/product/view-product-detail";
+    }
+    @PostMapping("/add-category")
+    @ResponseBody
+    public ResponseEntity<Category> addCategory(@RequestBody Category categorydto) {
+        Category category = categoryRepo.save(categorydto); // Lưu danh mục mới
+        return ResponseEntity.ok(category); // Trả về đối tượng danh mục vừa thêm
+    }
+    @GetMapping("/test-page")
+    public String viewProducts(Model model,
+                               @RequestParam(defaultValue = "1") int page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Product> productPage = productRepo.findAll(pageable);
+        model.addAttribute("productPage", productPage);
+        return "admin/product/test-product"; // Tên file Thymeleaf HTML
+    }
+
+    @GetMapping("/test-page/{page}")
+    public String getProductsByPage(@PathVariable("page") int page, Model model) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Product> productPage = productRepo.findAll(pageable);
+        model.addAttribute("productPage", productPage);
+        return "admin/product/productTable :: productTable";
     }
 }

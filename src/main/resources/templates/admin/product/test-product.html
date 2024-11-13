@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí sản phẩm</title>
+    <style>
+        th, td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+            vertical-align: middle; /* Căn dọc giữa */
+        }
+    </style>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <div id="productContainer" th:replace="~{/admin/product/productTable :: productTable}">
+        <!-- Nội dung bảng sản phẩm sẽ được thay thế ở đây -->
+    </div>
+    <script>
+        $(document).on("click", ".page-link", function(event) {
+            console.log("alo")
+            event.preventDefault(); // Ngăn chuyển hướng trang
+            const page = $(this).attr("data-page"); // Lấy số trang
+            $.ajax({
+                url: "/admin/product/test-page/" + page,
+                type: "GET",
+                success: function(fragment) {
+                    $("#productContainer").html(fragment); // Thay thế nội dung fragment
+                }
+            });
+        });
+    </script>
+</main>
+
+
+</body>
+</html>

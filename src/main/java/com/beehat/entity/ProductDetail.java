@@ -1,6 +1,7 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -26,16 +27,15 @@ public class ProductDetail {
 
     @ManyToOne
     @JoinColumn(name = "color_id")
-    @NotNull(message = "Không được bỏ trống màu sắc !")
     private Color color;
 
     @ManyToOne
     @JoinColumn(name = "size_id")
-    @NotNull(message = "Không được bỏ trống kích cỡ!")
     private Size size;
     @NotNull(message = "Không được bỏ trống giá!")
     private Integer price;
     @NotNull(message = "Không được bỏ trống số lượng!")
+    @Min(value = 1,message = "Số lượng phải lớn hơn 0")
     private Integer stock;
     @NotNull(message = "Không được bỏ trống trạng thái!")
     private Byte status;

@@ -310,7 +310,7 @@
                                         <img src="" alt="Ảnh mặc định" width="35" class="img-fluid"/>
                                     </div>
                                 </td>
-                                <td>
+                                <td th:if="${invoiceDetail.productDetail.status == 1}">
                                     <div class="flex-lg-grow-1 ms-3">
                                         <h6 class="small mb-0"><a href="#" class="text-reset">[[${invoiceDetail.productDetail.product.name}]]</a>
                                         </h6>
@@ -318,12 +318,21 @@
                                         <span class="small">Kích cỡ: [[${invoiceDetail.productDetail.size.name}]]</span>
                                     </div>
                                 </td>
+                                <td th:if="${invoiceDetail.productDetail.status == 2}">
+                                    <div class="flex-lg-grow-1 ms-3">
+                                        <del class="small mb-0"><a href="#" class="text-reset">[[${invoiceDetail.productDetail.product.name}]]</a>
+                                        </del>
+                                        <del class="small">Màu sắc: [[${invoiceDetail.productDetail.color.name}]],</del>
+                                        <del class="small">Kích cỡ: [[${invoiceDetail.productDetail.size.name}]]</del><br>
+                                        <strong class="text-danger">Sản phẩm này đã bị ngừng bán</strong>
+                                    </div>
+                                </td>
                                 <form th:action="@{/admin/store/update-quantity}" method="post">
                                     <td>
                                         <center>
                                             <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
                                             <input class="form-control"
-                                                   style="width:60px; text-align: center; align-items: center"
+                                                   style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                                                    type="number" name="quantities" th:value="${invoiceDetail.quantity}"
                                                    min="1"
                                                    th:data-quantity-product="${invoiceDetail.productDetail.stock}"
@@ -357,7 +366,7 @@
                                 <td>
                                     <button class="btn btn-danger" onclick="deleteProduct(this)"
                                             th:data-delete-url="@{/admin/store/delete-product-from-invoice/{id}(id=${invoiceDetail.id})}">
-                                        Xoá
+                                        <i class="ph-bold ph-trash" style="font-size: 17px"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -400,7 +409,7 @@
                             <!-- Nhập voucher -->
                             <div class="row">
                                 <label class="form-label">Mã Voucher</label>
-                                <div class="col-7 d-flex align-items-center">
+                                <div class="col-12 d-flex align-items-center">
                                     <select id="voucherSelect" class="form-select" onchange="updateVoucherPreview()">
                                         <option value="">Chọn voucher</option>
                                         <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
@@ -413,10 +422,6 @@
                                                 th:data-enddate="${voucher.endDate}"
                                                 th:selected="${infoInvoice != null && infoInvoice.voucher != null && voucher.id == infoInvoice.voucher.id}"></option>
                                     </select>
-                                </div>
-                                <div class="col-5">
-                                    <button type="button" class="btn btn-primary w-100" id="applyVoucherBtn">Áp dụng
-                                    </button>
                                 </div>
                                 <!-- Phần hiển thị preview -->
                                 <div class="card-body preview-block" style="display: none">
@@ -467,8 +472,16 @@
                                                 th:data-totalprice="*{totalPrice}"></td>
                                         </tr>
                                         <tr id="discountRow" style="display: none;">
-                                            <td>Giảm giá :</td>
+                                            <td>Giảm giá voucher :</td>
                                             <td id="discountAmount" class="text-end"></td>
+                                        </tr>
+                                        <tr th:if="${infoInvoice != null and infoInvoice.voucherDiscount != null && infoInvoice.voucherDiscount > 0}" id="discount">
+                                            <td>Giảm giá sản phẩm :</td>
+                                            <td id="discountAll" class="text-end" th:data-discount-raw-value="*{voucherDiscount}" th:text="*{'-' + T(com.beehat.service.CurrencyUtil).formatCurrency(voucherDiscount)}"></td>
+                                        </tr>
+                                        <tr th:unless="${infoInvoice != null and infoInvoice.voucherDiscount != null && infoInvoice.voucherDiscount > 0}" id="discount" hidden="hidden">
+                                            <td>Giảm giá sản phẩm :</td>
+                                            <td id="discountAll" class="text-end" data-discount-raw-value="0"></td>
                                         </tr>
                                         <tr th:if="${infoInvoice != null and infoInvoice.deliverDate != null}">
                                             <td>Phí ship :</td>
@@ -663,7 +676,6 @@
             const input = document.getElementById("product-search");
             const suggestionsContainer = document.getElementById("suggestions");
             const query = input.value.toLowerCase();
-
             // Xóa gợi ý cũ
             suggestionsContainer.innerHTML = "";
             suggestionsContainer.style.display = "none";
@@ -689,7 +701,7 @@
                 }
             }
         }
-
+        // hàm update số lượng sản phẩm
         function checkQuantityAndSubmit(inputElement) {
             const form = inputElement.form;
             const quantity = parseInt(inputElement.value);
@@ -715,20 +727,23 @@
             form.submit();
         }
 
-        // Mở modal và thiết lập tổng tiền
+        // Mở modal chọn phương thức thanh toán và set tổng tiền
         function openPaymentModal() {
             var finalPriceElement = document.getElementById('finalPrice');
+            console.log(finalPriceElement)
             var finalPrice = finalPriceElement.textContent; // Hoặc dùng innerText
             const finalPriceRaw = finalPriceElement.getAttribute("data-raw-value")
             console.log(finalPriceRaw); // In giá trị ra console
             const totalAmount = document.getElementById("totalAmount");
+            console.log(totalAmount)
             const totalAmountRaw = document.getElementById("totalAmountRaw");
+            console.log(totalAmountRaw);
             totalAmount.value = finalPrice;
             totalAmountRaw.value = finalPriceRaw;
             new bootstrap.Modal(document.getElementById('paymentModal')).show();
         }
 
-        // Gửi dữ liệu thanh toán
+        // Gửi dữ liệu thanh toán, là hàm xác nhận thanh toán
         function submitPayment(button) {
             const paymentMethod = document.getElementById("paymentMethod").value;
             const totalAmount = document.getElementById("totalAmount").value;
@@ -783,17 +798,12 @@
                 }
             });
 
-
-            console.log("Phương thức thanh toán:", paymentMethod);
-            console.log("Tổng tiền:", totalAmount);
-
             // Đóng modal sau khi thanh toán thành công
             bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
         }
     </script>
-
-    <!-- JavaScript để hiển thị SweetAlert và submit form sau -->
     <script>
+        //hàm chạy khi bấm nút thanh toán
         function pay(button) {
             const form = button.closest("form");
             let invoiceInput = "";
@@ -842,6 +852,16 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const selectElement = document.getElementById('paymentMethod');
+                    const selectValue = document.getElementById("voucherSelect").value;
+                    if (!selectValue){
+                        const finalPriceElement = document.getElementById('finalPrice');
+                        const totalPriceElement = document.getElementById("totalPrice");
+                        const totalPrice = totalPriceElement.getAttribute("data-totalprice");
+                        const discountAllRaw = document.getElementById("discountAll");
+                        const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
+                        const finalPrice = totalPrice - discountAll;
+                        finalPriceElement.setAttribute("data-raw-value", finalPrice);
+                    }
                     selectElement.selectedIndex = 0; // Reset về phần tử đầu tiên
                     const cashCalculationDiv = document.getElementById("cashCalculation");
                     const bankTransferDetailsDiv = document.getElementById("bankTransferDetails");
@@ -851,7 +871,7 @@
                 }
             });
         }
-
+        // hàm xoá sản phẩm
         function deleteProduct(button) {
             const deleteUrl = button.getAttribute('data-delete-url');
 
@@ -868,7 +888,7 @@
                 }
             });
         }
-
+        // hàm thêm sản phẩm vào hoá đơn
         function showAlert(button) {
             // Lấy giá trị invoiceId từ input trong form
             const invoiceId = button.closest("form").querySelector("input[name='invoiceId']").value;
@@ -927,6 +947,7 @@
     </script>
 
     <script>
+        //hàm cập nhật thông tin khách hàng
         function updateCustomerInvoice() {
             let customerId = document.getElementById("customerSelect").value;
             let invoiceId = document.getElementById("invoiceId").value;
@@ -957,88 +978,7 @@
                     .catch(error => console.error("Error:", error));
             }
         }
-
-        // // Đếm ngược thời gian khi mở modal
-        // let countdownInterval;
-        //
-        // // Lắng nghe sự kiện thay đổi của select phương thức thanh toán
-        // document.getElementById("paymentMethod").addEventListener("change", function () {
-        //     const paymentMethod = this.value;
-        //
-        //     // Kiểm tra nếu chọn "tiền mặt" (ví dụ id của tiền mặt là 1)
-        //     if (paymentMethod === "1") {
-        //         document.getElementById("scanQrButton").addEventListener("click", handleCashPayment);
-        //     } else {
-        //         document.getElementById("scanQrButton").addEventListener("click", handleTransferPayment);
-        //     }
-        // });
-        //
-        // // Hàm xử lý thanh toán chuyển khoản
-        // function handleTransferPayment() {
-        //     // Hiển thị modal chuyển khoản
-        //     const qrModal = new bootstrap.Modal(document.getElementById("qrModal"));
-        //     qrModal.show();
-        //
-        //     const countdownElement = document.getElementById("countdown");
-        //     let timeLeft = 300; // Đếm ngược từ 300 giây (5 phút)
-        //
-        //     countdownElement.innerText = timeLeft;
-        //     countdownInterval = setInterval(function () {
-        //         timeLeft -= 1;
-        //         countdownElement.innerText = timeLeft;
-        //
-        //         // Khi đếm ngược đến 15 giây, hiển thị thông báo SweetAlert
-        //         if (timeLeft === 285) { // 300 giây - 15 giây = 285 giây còn lại
-        //             Swal.fire({
-        //                 icon: 'success',
-        //                 title: 'Thanh toán thành công',
-        //                 text: 'Thanh toán của bạn đã được xác nhận!',
-        //                 confirmButtonText: 'OK',
-        //                 timer: 3000 // SweetAlert sẽ tự động đóng sau 3 giây
-        //             }).then(() => {
-        //                 // Mở trang PDF trong tab mới sau khi SweetAlert đóng
-        //                 const newTab = window.open('/admin/store/9/pdf', '_blank');
-        //                 if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-        //                     alert("Trình duyệt của bạn đã chặn tab mới. Hãy kiểm tra cài đặt popup!");
-        //                 } else {
-        //                     window.location.href = '/admin/store/index';
-        //                 }
-        //             });
-        //         }
-        //
-        //         // Đóng modal khi hết thời gian
-        //         if (timeLeft <= 0) {
-        //             clearInterval(countdownInterval);
-        //             qrModal.hide();
-        //         }
-        //     }, 1000);
-        // }
-        //
-        // // Xóa đếm ngược khi đóng modal
-        // document.getElementById("qrModal").addEventListener("hidden.bs.modal", function () {
-        //     clearInterval(countdownInterval);
-        // });
-        //
-        // // Hàm xử lý thanh toán tiền mặt
-        // function handleCashPayment() {
-        //     Swal.fire({
-        //         icon: 'success',
-        //         title: 'Thanh toán thành công',
-        //         text: 'Thanh toán của bạn đã được xác nhận!',
-        //         confirmButtonText: 'OK',
-        //         timer: 3000 // SweetAlert sẽ tự động đóng sau 3 giây
-        //     }).then(() => {
-        //         // Mở trang PDF trong tab mới sau khi SweetAlert đóng
-        //         const newTab = window.open('/admin/store/9/pdf', '_blank');
-        //         if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-        //             alert("Trình duyệt của bạn đã chặn tab mới. Hãy kiểm tra cài đặt popup!");
-        //         } else {
-        //             window.location.href = '/admin/store/index';
-        //         }
-        //     });
-        // }
-
-
+        //hàm kiểm tra thay đổi của ô select phương thức thanh toán
         document.getElementById("paymentMethod").addEventListener("change", function () {
             const selectedMethod = this.options[this.selectedIndex].text;
             const cashCalculationDiv = document.getElementById("cashCalculation");
@@ -1077,7 +1017,6 @@
 
         function calculateChange() {
             // Lấy giá trị totalAmount từ thuộc tính data-total-amount
-            const cashCalculationDiv = document.getElementById("cashCalculation");
             const finalPriceElement = parseInt(document.getElementById("totalAmount").value.replace(/[^\d]/g, "") || 0);
             const cashGiven = parseInt(document.getElementById("cashGiven").value || 0);
             const change = cashGiven - finalPriceElement;
@@ -1087,6 +1026,7 @@
             document.getElementById("changeAmount1").value = change1 > 0 ? change1 : "0";
         }
 
+        //jquery select2 dùng để tìm kiếm khách hàng
         $(document).ready(function () {
             $('#customerSelect').select2({
                 placeholder: "Tìm kiếm khách hàng",
@@ -1095,11 +1035,13 @@
         });
     </script>
     <script>
+        //jquery select2 dùng để tìm kiếm voucher
         $(document).ready(function () {
             $('#voucherSelect').select2({
                 placeholder: "Chọn voucher",
                 allowClear: true
             });
+
         });
         document.addEventListener("DOMContentLoaded", function () {
             updateVoucherPreview(); // Gọi khi trang tải để hiển thị voucher đã có
@@ -1117,26 +1059,39 @@
             const previewContainer = document.querySelector(".card-body .preview-block");
 
             if (!selectedOption || !selectedOption.value) {
+                const finalPriceElement = document.getElementById('finalPrice');
+                const totalPriceElement = document.getElementById("totalPrice");
+                const totalPrice = totalPriceElement.getAttribute("data-totalprice");
+                const discountAllRaw = document.getElementById("discountAll");
+                const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
+                const finalPrice = totalPrice - discountAll;
+                finalPriceElement.setAttribute("data-raw-value", finalPrice);
+                finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND"
+                });
+                const discountRow = document.getElementById("discountRow");
+                discountRow.style.display = "none";
                 previewContainer.style.display = "none";
                 return;
             }
 
             const totalPriceElement = document.getElementById("totalPrice");
-            console.log(totalPriceElement)
             const discountRow = document.getElementById("discountRow");
             const discountAmountElement = document.getElementById("discountAmount");
             const finalPriceElement = document.getElementById("finalPrice");
-
+            const discountAllRaw = document.getElementById("discountAll");
             // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
             const totalPrice = totalPriceElement.getAttribute("data-totalprice") || 0;
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
             const discountAmount = (totalPrice * discountPer) / 100;
-            const finalPrice = totalPrice - discountAmount;
-
+            const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
+            const finalPrice = totalPrice - discountALL - discountAmount ;
+            console.log(finalPrice)
             // Hiển thị dòng giảm giá và cập nhật giá trị
             discountRow.style.display = "table-row";
 
-            discountAmountElement.innerText = discountAmount.toLocaleString("vi-VN", {
+            discountAmountElement.innerText = '-' + discountAmount.toLocaleString("vi-VN", {
                 style: "currency",
                 currency: "VND"
             });
@@ -1172,15 +1127,6 @@
 
     </script>
     <script src="/admin/store/script.js"></script>
-    <script th:if="${errorMessage != null}" th:inline="javascript">
-        Swal.fire({
-            title: 'Lỗi!',
-            text: '/*[[${errorMessage}]]*/',  // Sử dụng cú pháp inline của Thymeleaf
-            icon: 'error',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3085d6'
-        });
-    </script>
     <script>
         document.getElementById('showToastButton').addEventListener('click', function (event) {
             // Kiểm tra số lượng hóa đơn hiện có
@@ -1270,6 +1216,18 @@
                 }
             });
         }
+        // $(document).ready(function() {
+        //     // Khi modal mở, thêm padding vào body nếu cần
+        //     $('#paymentModal').on('shown.bs.modal', function() {
+        //         $('body').css('padding-right', ''); // Xóa padding-right nếu có
+        //     });
+        //
+        //     // Khi modal đóng, đảm bảo padding và margin không bị thay đổi
+        //     $('#paymentModal').on('hidden.bs.modal', function() {
+        //         $('body').css('padding-right', ''); // Xóa padding-right
+        //         $('body').css('margin', ''); // Xóa margin nếu có
+        //     });
+        // });
     </script>
 </main>
 </body>

@@ -15,4 +15,5 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.id IN " +
             "(SELECT pp.product.id FROM ProductPromotion pp WHERE pp.promotion.id = :promotionId)")
     List<ProductDetail> findByPromotionId(@Param("promotionId") Integer promotionId);
+    boolean existsByProductIdAndColorIdAndSizeId(Integer productId, Integer colorId, Integer sizeId);
 }

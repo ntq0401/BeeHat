@@ -72,7 +72,7 @@ public class InvoiceService {
         // Totals Section
         document.add(new Paragraph("Subtotal: " + invoice.getTotalPrice()).setTextAlignment(TextAlignment.RIGHT));
         document.add(new Paragraph("Tax: " + invoice.getInvoiceStatus()).setTextAlignment(TextAlignment.RIGHT));
-        document.add(new Paragraph("Discount: " + invoice.getVoucher().getDiscountPercentage()).setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("Discount: " + invoice.getVoucherDiscount()).setTextAlignment(TextAlignment.RIGHT));
         document.add(new Paragraph("Total Price: " + invoice.getTotalPrice()).setBold().setTextAlignment(TextAlignment.RIGHT));
         document.add(new Paragraph("Final Price: " + invoice.getFinalPrice()).setBold().setFontSize(14).setTextAlignment(TextAlignment.RIGHT));
 

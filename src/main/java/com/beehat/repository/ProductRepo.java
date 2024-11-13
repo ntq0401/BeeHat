@@ -21,4 +21,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Transactional
     @Query("UPDATE Product p SET p.promotion = null WHERE p.promotion.id = :promotionId")
     void clearPromotionByPromotionId(@Param("promotionId") Integer promotionId);
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, int id);
 }

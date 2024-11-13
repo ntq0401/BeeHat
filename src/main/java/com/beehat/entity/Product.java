@@ -1,10 +1,7 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -24,7 +21,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "Tên sản phẩm không được bỏ trống !")
+    @NotBlank(message = "Tên sản phẩm không được bỏ trống!")
     private String name;
 
     @Column(name = "sku", unique = true)
@@ -102,6 +99,12 @@ public class Product {
         return productCode + "-" + timeStamp + "-" + randomUUID;
     }
 
+    public int getTotalStock() {
+        return productDetail.stream()
+                .filter(detail -> detail.getStock() != null)
+                .mapToInt(ProductDetail::getStock)
+                .sum();
+    }
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();

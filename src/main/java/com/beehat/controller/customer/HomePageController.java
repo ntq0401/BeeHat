@@ -13,8 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/home")
 public class HomePageController {
+    @Autowired
+    private ProductRepo productRepo;
+    @Autowired
+    private ProductImageRepo productImageRepo;
+    @Autowired
+    private ProductDetailRepo productDetailRepo;
    @GetMapping("/index")
     public String home(Model model) {
+       model.addAttribute("products", productRepo.findAll());
        return "online_store/trangchu";
    }
    @GetMapping("/cart")

@@ -3,61 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lí sản phẩm</title>
+    <style>
+        th, td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+            vertical-align: middle; /* Căn dọc giữa */
+        }
+    </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
+        </ol>
+    </nav>
+    <!-- Card tìm kiếm hóa đơn -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Tìm kiếm sản phẩm
+        </div>
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <label for="invoiceCode" class="form-label">Tên sản phẩm</label>
+                    <input type="text" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Kiểu dáng</label>
+                    <select class="form-select">
+                        <option>Chọn kiểu dáng</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Chất liệu</label>
+                    <select class="form-select">
+                        <option>Chọn chất liệu</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Danh mục</label>
+                    <select class="form-select">
+                        <option>Chọn danh mục</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Vải lót</label>
+                    <select class="form-select">
+                        <option>Chọn vải lót</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Đai mũ</label>
+                    <select class="form-select">
+                        <option>Chọn đai mũ</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary mt-3">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <h1>Quản lí sản phẩm</h1>
-    <form class="d-flex" th:action="@{/admin/product/search}">
-        <input class="form-control me-2" type="search" name="keyword" placeholder="Nhập tên sản phẩm"
-               aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-    </form>
+    <!-- Card hiển thị danh sách hóa đơn -->
+    <div class="card">
 
-    <a href="/admin/product/index">
-        <button style="margin-top: 10px" class="btn btn-success">Làm mới</button>
-    </a>
-    <a href="/admin/product/add-product">
-        <button style="margin-top: 10px" class="btn btn-primary">Thêm mới</button>
-    </a>
-
-    <table class="table">
-        <tr>
-            <th>STT</th>
-            <th>Ảnh</th>
-            <th>SKU</th>
-            <th>Tên sản phẩm</th>
-            <th>Danh mục</th>
-            <th>Số lượng</th>
-            <th>Ngày tạo</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-        <tr th:each="p,stt : ${product}">
-            <td>[[${stt.index +1}]]</td>
-            <td th:if="${p.images.size() > 0}">
-                <img th:src="${p.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 100px; height: auto;"/>
-            </td>
-            <td th:if="${p.images.size() <= 0}">
-                <img src="" alt="Ảnh mặc định" style="width: 100px; height: auto;"/>
-            </td>
-            <td>[[${p.sku}]]</td>
-            <td>[[${p.name}]]</td>
-            <td>[[${p.category.name}]]</td>
-            <td>[[${p.productDetail.size()}]]</td>
-            <td>[[${p.createdDate.toString().substring(0,10)}]]</td>
-            <td>[[${p.status}== 1 ? 'Đang bán' : 'Không hoạt động']]</td>
-            <td colspan="2">
-                <a th:href="@{/admin/product/add-product-detail/{id}(id=${p.id})}">
-                    <button class="btn btn-info">Chi tiết</button>
-                </a>
-                <a th:href="@{/admin/product/update-product/{id}(id=${p.id})}">
-                    <button class="btn btn-secondary">Chỉnh sửa</button>
-                </a>
-            </td>
-        </tr>
-    </table>
-
+        <div class="card-body">
+            <!-- Tiêu đề với nút chỉnh sửa bên phải -->
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0"><strong>Danh sách sản phẩm</strong></h6>
+                <a th:href="@{/admin/product/add-product}" class="btn btn-primary mt-2">Thêm sản phẩm</a>
+            </div>
+            <table class="table table-bordered table-hover mt-3">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Ảnh</th>
+                    <th>SKU</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Số lượng</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p,stt : ${product}">
+                    <td>[[${stt.index + 1}]]</td>
+                    <td th:if="${p.images.size() > 0}">
+                        <img th:src="${p.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 100px; height: auto;">
+                    </td>
+                    <td th:if="${p.images.size() <= 0}">
+                        <img src="" alt="Ảnh mặc định" style="width: 100px; height: auto;">
+                    </td>
+                    <td>[[${p.sku}]]</td>
+                    <td>[[${p.name}]]</td>
+                    <td>[[${p.category.name}]]</td>
+                    <td>[[${p.totalStock}]]</td>
+                    <td>[[${p.createdDate.toString().substring(0,10)}]]</td>
+                    <td>[[${p.status} == 1 ? 'Đang bán' : 'Không hoạt động']]</td>
+                    <td>
+                        <a th:href="@{/admin/product/detail-product/{id}(id=${p.id})}">
+                            <button class="btn btn-secondary"><i class="ph ph-info"></i></button>
+                        </a>
+                        <a th:href="@{/admin/product/update-product/{id}(id=${p.id})}">
+                            <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
+                        </a>
+                        <a th:href="@{/admin/product/add-product-detail/{id}(id=${p.id})}">
+                            <button class="btn btn-success"><i class="ph ph-plus"></i></button>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
 </body>
 </html>

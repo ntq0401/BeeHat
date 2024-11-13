@@ -1,0 +1,28 @@
+<div id="productTable" th:fragment="productTable">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Tên sản phẩm</th>
+      <th>Giá</th>
+      <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${productPage.content}">
+      <td th:text="${product.sku}"></td>
+      <td th:text="${product.name}"></td>
+      <td><button class="btn btn-primary">Chi tiết</button></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Phân trang -->
+  <nav>
+    <ul class="pagination">
+      <li th:each="i : ${#numbers.sequence(1, productPage.totalPages)}"
+          th:classappend="${productPage.number + 1 == i} ? 'active' : ''">
+        <a class="page-link" href="#" th:text="${i}" th:attr="data-page=${i}"></a>
+      </li>
+    </ul>
+  </nav>
+</div>

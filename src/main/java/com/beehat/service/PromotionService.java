@@ -72,10 +72,19 @@ public class PromotionService {
             }
 
             // Cập nhật tổng tiền của hóa đơn
-            int totalInvoicePrice = allInvoiceDetails.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-            invoice.setTotalPrice(totalInvoicePrice);
-            invoice.setFinalPrice(totalInvoicePrice);
+            int totalPrice = allInvoiceDetails.stream()
+                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                    .sum();
+            int finalInvoicePrice = allInvoiceDetails.stream()
+                    .mapToInt(InvoiceDetail::getFinalPrice)
+                    .sum();
+            int discountMoney = totalPrice - finalInvoicePrice;
+
+            invoice.setVoucherDiscount(discountMoney);
+            invoice.setTotalPrice(totalPrice);
+            invoice.setFinalPrice(finalInvoicePrice);
             invoiceRepo.save(invoice);
+
         }
     }
     public List<Promotion> getAllPromotions() {
@@ -90,7 +99,11 @@ public class PromotionService {
             for (ProductDetail productDetail : productDetails) {
                 List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByProductDetailId(productDetail.getId());
                 for (InvoiceDetail invoiceDetail : invoiceDetails) {
-                    resetInvoiceDetailPrice(invoiceDetail);
+                    Invoice invoice = invoiceRepo.findById(invoiceDetail.getInvoice().getId()).orElse(null);
+                    // Chỉ cập nhật nếu hóa đơn đang chờ thanh toán
+                    if (invoice != null && invoice.getStatus() == 0) {
+                        resetInvoiceDetailPrice(invoiceDetail);
+                    }
                 }
             }
         }
@@ -106,9 +119,18 @@ public class PromotionService {
 
             // Cập nhật tổng tiền của hóa đơn
             List<InvoiceDetail> allInvoiceDetails = invoiceDetailRepo.findByInvoiceId(invoice.getId());
-            int totalInvoicePrice = allInvoiceDetails.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-            invoice.setTotalPrice(totalInvoicePrice);
-            invoice.setFinalPrice(totalInvoicePrice); // Nếu có thêm xử lý khác thì cập nhật tại đây
+            // Cập nhật tổng tiền của hóa đơn
+            int totalPrice = allInvoiceDetails.stream()
+                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                    .sum();
+            int finalInvoicePrice = allInvoiceDetails.stream()
+                    .mapToInt(InvoiceDetail::getFinalPrice)
+                    .sum();
+            int discountMoney = totalPrice - finalInvoicePrice;
+
+            invoice.setVoucherDiscount(discountMoney);
+            invoice.setTotalPrice(totalPrice);
+            invoice.setFinalPrice(finalInvoicePrice);
             invoiceRepo.save(invoice);
         }
     }
@@ -136,18 +158,29 @@ public class PromotionService {
                 // Cập nhật giá trong các hóa đơn chi tiết nếu sản phẩm này đã có trong hóa đơn
                 List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByProductDetailId(productDetail.getId());
                 for (InvoiceDetail invoiceDetail : invoiceDetails) {
-                    invoiceDetail.setUnitPrice(discountedPrice);
-                    invoiceDetail.setFinalPrice(discountedPrice * invoiceDetail.getQuantity());
-                    invoiceDetailRepo.save(invoiceDetail);
+                    Invoice invoice = invoiceDetail.getInvoice();
+                    // Chỉ cập nhật nếu hóa đơn đang chờ thanh toán
+                    if (invoice.getStatus() == 0) {
+                        invoiceDetail.setUnitPrice(discountedPrice);
+                        invoiceDetail.setFinalPrice(discountedPrice * invoiceDetail.getQuantity());
+                        invoiceDetailRepo.save(invoiceDetail);
 
-                    // Cập nhật lại tổng giá cho hóa đơn
-                    Invoice invoice = invoiceRepo.findById(invoiceDetail.getInvoice().getId()).orElse(null);
-                    if (invoice != null) {
+                        // Cập nhật lại tổng giá cho hóa đơn
                         List<InvoiceDetail> allInvoiceDetails = invoiceDetailRepo.findByInvoiceId(invoice.getId());
-                        int totalInvoicePrice = allInvoiceDetails.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-                        invoice.setTotalPrice(totalInvoicePrice);
-                        invoice.setFinalPrice(totalInvoicePrice);
+                        // Cập nhật tổng tiền của hóa đơn
+                        int totalPrice = allInvoiceDetails.stream()
+                                .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                                .sum();
+                        int finalInvoicePrice = allInvoiceDetails.stream()
+                                .mapToInt(InvoiceDetail::getFinalPrice)
+                                .sum();
+                        int discountMoney = totalPrice - finalInvoicePrice;
+
+                        invoice.setVoucherDiscount(discountMoney);
+                        invoice.setTotalPrice(totalPrice);
+                        invoice.setFinalPrice(finalInvoicePrice);
                         invoiceRepo.save(invoice);
+
                     }
                 }
             }

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí sản phẩm</title>
+    <style>
+        th, td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+            vertical-align: middle; /* Căn dọc giữa */
+        }
+        .status-badge {
+            min-width: 120px; /* Đặt độ rộng tối thiểu */
+            text-align: center; /* Căn giữa nội dung */
+            display: inline-block; /* Đảm bảo chiều rộng áp dụng */
+        }
+        .number-input input[type="number"] {
+            -webkit-appearance: textfield;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .number-input input[type=number]::-webkit-inner-spin-button,
+        .number-input input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .number-input button {
+            -webkit-appearance: none;
+            background-color: transparent;
+            border: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0;
+            position: relative;
+        }
+
+        .number-input button:before,
+        .number-input button:after {
+            display: inline-block;
+            position: absolute;
+            content: '';
+            height: 2px;
+            transform: translate(-50%, -50%);
+        }
+
+        .number-input button.plus:after {
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+
+        .number-input input[type=number] {
+            text-align: center;
+        }
+
+        .number-input.number-input {
+            border: 1px solid #ced4da;
+            width: 10rem;
+            border-radius: .25rem;
+        }
+
+        .number-input.number-input button {
+            width: 2.6rem;
+            height: .7rem;
+        }
+
+        .number-input.number-input button.minus {
+            padding-left: 10px;
+        }
+
+        .number-input.number-input button:before,
+        .number-input.number-input button:after {
+            width: .7rem;
+            background-color: #495057;
+        }
+
+        .number-input.number-input input[type=number] {
+            max-width: 4rem;
+            padding: .5rem;
+            border: 1px solid #ced4da;
+            border-width: 0 1px;
+            font-size: 1rem;
+            height: 2rem;
+            color: #495057;
+        }
+
+        @media not all and (min-resolution:.001dpcm) {
+            @supports (-webkit-appearance: none) and (stroke-color:transparent) {
+
+                .number-input.def-number-input.safari_only button:before,
+                .number-input.def-number-input.safari_only button:after {
+                    margin-top: -.3rem;
+                }
+            }
+        }
+
+        .def-number-input.number-input {
+            border: none;
+        }
+
+        .def-number-input.number-input input[type=number] {
+            max-width: 2rem;
+            border: none;
+        }
+
+        .def-number-input.number-input input[type=number].black-text,
+        .def-number-input.number-input input.btn.btn-link[type=number],
+        .def-number-input.number-input input.md-toast-close-button[type=number]:hover,
+        .def-number-input.number-input input.md-toast-close-button[type=number]:focus {
+            color: #212529 !important;
+        }
+
+        .def-number-input.number-input button {
+            width: 1rem;
+        }
+
+        .def-number-input.number-input button:before,
+        .def-number-input.number-input button:after {
+            width: .5rem;
+        }
+
+        .def-number-input.number-input button.minus:before,
+        .def-number-input.number-input button.minus:after {
+            background-color: #9e9e9e;
+        }
+
+        .def-number-input.number-input button.plus:before,
+        .def-number-input.number-input button.plus:after {
+            background-color: #4285f4;
+        }
+    </style>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/admin/product/index}">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết sản phẩm</li>
+        </ol>
+    </nav>
+    <!-- Card thông tin sản phẩm -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <!-- Tiêu đề với nút chỉnh sửa bên phải -->
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0"><strong>Thông tin sản phẩm</strong></h6>
+                <a th:href="@{/admin/product/update-product/{id}(id=${product.id})}" class="btn btn-link p-0">
+                    <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
+                </a>
+            </div>
+
+            <!-- Thông tin sản phẩm chia thành 3 hàng ngang -->
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Tên sản phẩm:</strong> [[${product.name}]]</li>
+                        <li class="list-group-item"><strong>Mã sản phẩm:</strong> [[${product.sku}]]</li>
+                    </ul>
+                </div
+                ><div class="col-md-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Chất liệu:</strong> [[${product.material.name}]]</li>
+                        <li class="list-group-item"><strong>Danh mục:</strong> [[${product.category.name}]]</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Kiểu dáng:</strong> [[${product.style.name}]]</li>
+                        <li class="list-group-item"><strong>Vải lót:</strong> [[${product.lining.name}]]</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Đai mũ:</strong> [[${product.belt.name}]]</li>
+                        <li class="list-group-item"><strong>Ngày tạo:</strong> [[${#temporals.format(product.createdDate, 'dd/MM/yyyy HH:mm')}]]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Select box lọc sản phẩm -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Lọc sản phẩm</h5>
+            </div>
+            <form th:action="@{/admin/product/detail}" method="get">
+                <!-- Hàng đầu tiên: Lọc theo màu sắc và kích cỡ -->
+                <div class="form-row d-flex">
+                    <div class="form-group col-md-6 px-2">
+                        <label for="colorSelect">Màu sắc</label>
+                        <select id="colorSelect" name="color" class="form-control">
+                            <!-- Options for colors go here -->
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6 px-2">
+                        <label for="sizeSelect">Kích cỡ</label>
+                        <select id="sizeSelect" name="size" class="form-control">
+                            <!-- Options for sizes go here -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hàng thứ hai: Lọc theo khoảng giá -->
+                <div class="form-row d-flex mt-3">
+                    <div class="form-group col-md-6 px-2">
+                        <label for="minPrice">Giá tối thiểu</label>
+                        <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="VND">
+                    </div>
+                    <div class="form-group col-md-6 px-2">
+                        <label for="maxPrice">Giá tối đa</label>
+                        <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="VND">
+                    </div>
+                </div>
+
+                <!-- Nút lọc ở giữa -->
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Danh sách các biến thể sản phẩm -->
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Ảnh</th>
+            <th>Màu sắc</th>
+            <th>Kích cỡ</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="variant, stt : ${product.getProductDetail()}">
+            <td>[[${stt.index + 1}]]</td>
+            <td th:if="${variant.product.images.size() > 0}">
+                <img th:src="${variant.product.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 50px; height: auto;">
+            </td>
+            <td th:if="${variant.product.images.size() <= 0}">
+                <img src="" alt="Ảnh mặc định" style="width: 60px; height: auto;">
+            </td>
+            <td>[[${variant.color.name}]]</td>
+            <td>[[${variant.size.name}]]</td>
+            <td>
+                <center>
+                <div class="def-number-input number-input safari_only">
+                <button data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
+                        class="minus"></button>
+                <input class="quantity fw-bold bg-body-tertiary text-body" min="0" name="quantity" th:value="${variant.stock}"
+                       type="number">
+                <button data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                        class="plus"></button>
+                </div>
+                </center>
+            </td>
+            <td>
+                <div class="d-flex align-items-center justify-content-center">
+                    <input class="form-control me-1" th:value="${variant.price}" style="max-width: 100px;">
+                    <p class="mb-0">VND</p>
+                </div>
+            </td>
+
+            <td>
+                <span th:if="${variant.status == 1}" class="badge rounded-pill bg-success status-badge">Hoạt động</span>
+                <span th:if="${variant.status == 0}" class="badge rounded-pill bg-danger status-badge">Không hoạt động</span>
+            </td>
+            <td>
+                <a href="#"><button class="btn btn-info"><i class="ph ph-arrows-clockwise"></i></button></a>
+                <a href="#"><button class="btn btn-danger"><i class="ph ph-power"></i></button></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -10,31 +10,41 @@
         <input type="hidden"
                th:name="${_csrf.parameterName}"
                th:value="${_csrf.token}"/>
-        <p>ID Sản phẩm :
-            <input class="form-control" type="text" th:field="*{product.id}" disabled>
+        <p>ID sản phẩm :
+            <input class="form-control" th:field="*{product}" th:value="*{product.id}" readonly>
         </p>
-        <p>Màu sắc :</p>
+        <p th:if="${#fields.hasErrors('product')}" class="text-danger" th:errors="*{product}"></p>
+        <p>Màu sắc:</p>
         <div th:each="color : ${listColor}">
-            <input class="form-color" type="checkbox" th:value="${color.id}" th:name="colors">
-            [[${color.name}]]
+            <input class="form-color" type="checkbox" th:value="${color.id}" th:name="colors" /> [[${color.name}]]
         </div>
+        <p th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></p>
 
-        <p>Kích cỡ :</p>
+        <p>Kích cỡ:</p>
         <div th:each="size : ${listSize}">
-            <input type="checkbox" th:value="${size.id}" name="sizes"> [[${size.name}]]
+            <input type="checkbox" th:value="${size.id}" th:name="sizes" /> [[${size.name}]]
         </div>
-        <p>Giá :
-            <input class="form-control" type="number" th:field="*{price}">
+        <p th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></p>
+
+        <p>Giá:
+            <input class="form-control" type="number" th:field="*{price}" />
         </p>
-        <p>Số lượng :
-            <input class="form-control" type="number" th:field="*{stock}">
+        <p th:if="${#fields.hasErrors('price')}" class="text-danger" th:errors="*{price}"></p>
+
+        <p>Số lượng:
+            <input class="form-control" type="number" th:field="*{stock}" />
         </p>
-        <p>Trạng thái :
-            <input type="radio" class="form-radio" th:field="*{status}" value="1">Hoạt động
-            <input type="radio" class="form-radio" th:field="*{status}" value="0">Không hoạt động
+        <p th:if="${#fields.hasErrors('stock')}" class="text-danger" th:errors="*{stock}"></p>
+
+        <p>Trạng thái:
+            <input type="radio" class="form-radio" th:field="*{status}" value="1" /> Hoạt động
+            <input type="radio" class="form-radio" th:field="*{status}" value="0" /> Không hoạt động
         </p>
+        <p th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></p>
+
         <button type="submit" class="btn btn-success">Create</button>
     </form>
+
     <div th:each="entry : ${groupedByColor}">
         <!-- Hiển thị tên màu từ đối tượng Color -->
         <h3>Danh sách chi tiết sản phẩm màu : [[${entry.key.name}]]</h3>
