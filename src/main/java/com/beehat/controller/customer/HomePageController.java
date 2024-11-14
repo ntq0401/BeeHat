@@ -1,5 +1,9 @@
 package com.beehat.controller.customer;
 
+import com.beehat.entity.Color;
+import com.beehat.entity.Product;
+import com.beehat.entity.ProductDetail;
+import com.beehat.entity.Size;
 import com.beehat.repository.ProductDetailRepo;
 import com.beehat.repository.ProductImageRepo;
 import com.beehat.repository.ProductRepo;
@@ -11,6 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.LinkedHashSet;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/home")
@@ -41,8 +50,26 @@ public class HomePageController {
     public String cart(Model model) {
        return "online_store/giohang";
    }
-   @GetMapping("/product-detail")
-    public String productDetail(Model model) {
+   @GetMapping("/product-detail/{id}")
+    public String productDetail(@PathVariable int id,Model model) {
+       Product products = productRepo.findById(id).orElse(null);
+       List<ProductDetail> productDetails = productDetailRepo.findByProductId(id);
+       // Sử dụng Set để loại bỏ các màu sắc trùng lặp
+       List<Color> uniqueColors = productDetails.stream()
+               .map(ProductDetail::getColor)
+               .collect(Collectors.toCollection(LinkedHashSet::new)) // Lọc trùng và giữ thứ tự
+               .stream().collect(Collectors.toList()); // Chuyển về
+       List<Size> uniqueSizes = productDetails.stream()
+               .map(ProductDetail::getSize)
+               .collect(Collectors.toCollection(LinkedHashSet::new)) // Lọc trùng và giữ thứ tự
+               .stream().collect(Collectors.toList()); // Chuyển về List
+
+        model.addAttribute("product",products );
+        model.addAttribute("minPrice", productDetailRepo.findTopByProductIdOrderByPriceAsc(id) == null ? null : productDetailRepo.findTopByProductIdOrderByPriceAsc(id).getPrice());
+        model.addAttribute("maxPrice", productDetailRepo.findTopByProductIdOrderByPriceDesc(id) == null ? null : productDetailRepo.findTopByProductIdOrderByPriceAsc(id).getPrice());
+        model.addAttribute("uniqueColors", uniqueColors);
+        model.addAttribute("uniqueSizes", uniqueSizes);
+
        return "online_store/productdetail";
    }
    @GetMapping("/lien-he")

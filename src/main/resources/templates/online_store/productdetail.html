@@ -1,23 +1,28 @@
-<html>
 <!DOCTYPE html>
-<!--<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}" >-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <meta charset="UTF-8">
 <head>
     <title>Bán hàng tại quầy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
     <style>
         .navbar-nav .nav-link:hover, .navbar-nav .dropdown-item:hover {
             color: #8b96cb !important;
         }
+
         .nav-item.dropdown:hover .dropdown-menu {
             display: block;
         }
+
         .dropdown-menu {
             transition: opacity 0.2s ease;
             opacity: 0;
         }
+
         .nav-item.dropdown:hover .dropdown-menu {
             opacity: 1;
         }
@@ -28,7 +33,8 @@
     <a class="navbar-brand d-flex align-items-center" href="#">
         <img src="/online_store/imgkh/Beehat.png" alt="Logo" class="me-2" style="width: 50px; height: auto;">
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -38,10 +44,12 @@
                     <a class="nav-link active text-dark fst-normal fs-6" href="/home/index">Trang chủ</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-dark fst-normal fs-6" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle text-dark fst-normal fs-6" href="#" id="productsDropdown"
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Sản phẩm
                     </a>
-                    <ul class="dropdown-menu border-0 shadow rounded-3" aria-labelledby="productsDropdown" style="min-width: 200px;">
+                    <ul class="dropdown-menu border-0 shadow rounded-3" aria-labelledby="productsDropdown"
+                        style="min-width: 200px;">
                         <li><a class="dropdown-item py-2 px-3 text-dark" href="#">Giày thể thao</a></li>
 
                     </ul>
@@ -60,7 +68,8 @@
                 </li>
             </ul>
             <form class="d-flex align-items-center flex-grow-1" style="max-width: 200px; margin: 5px;">
-                <input class="form-control form-control-sm me-1 border-0 border-bottom" type="search" placeholder="Tìm kiếm" aria-label="Search"> <!-- Smaller input -->
+                <input class="form-control form-control-sm me-1 border-0 border-bottom" type="search"
+                       placeholder="Tìm kiếm" aria-label="Search"> <!-- Smaller input -->
                 <button class="btn btn-sm btn-outline-none" type="submit"><i class="fas fa-search"></i></button>
             </form>
             <div class="d-flex align-items-center gap-2 ms-2">
@@ -79,33 +88,42 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-6">
-            <img src="/online_store/imgkh/1.png" class="img-fluid" style="height: 400px;">
+
+            <img th:src="${product.images[0].getImageUrl()}" class="img-fluid" style="height: 400px;">
             <div class="product-thumbnails d-flex mt-3">
-                <img src="/online_store/imgkh/1.png" class="img-thumbnail border-2 border-danger" style="width: 100px;">
-                <img src="/online_store/imgkh/1.png" class="img-thumbnail" style="width: 100px;">
-                <img src="/online_store/imgkh/1.png" class="img-thumbnail" style="width: 100px;">
-                <img src="/online_store/imgkh/1.png" class="img-thumbnail" style="width: 100px;">
+                <div th:each="productIMG : ${product.images}">
+                <img th:src="${productIMG.getImageUrl()}" class="img-thumbnail border-2 border-danger" style="min-width: 100px; max-width: 100px">
+                </div>
             </div>
         </div>
         <div class="col-md-6">
-            <h4 class="fw-bold">Chuck Taylor All Star Classic - 121184</h4>
+            <h4 class="fw-bold" th:text="${product.name}"></h4>
             <ul class="list-unstyled">
-                <li><strong>Mã sản phẩm:</strong> Đang cập nhật</li>
-                <li><strong>Thương hiệu:</strong> Converse</li>
-                <li><strong>Barcode:</strong> Đang cập nhật</li>
-                <li><strong>Dòng sản phẩm:</strong> Giày cổ cao</li>
+                <li><strong>Mã sản phẩm:</strong> [[${product.sku}]]</li>
+                <li><strong>Danh mục:</strong> [[${product.category.name}]]</li>
+                <li><strong>Chất liệu:</strong> [[${product.material.name}]]</li>
+                <li><strong>Kiểu dáng:</strong> [[${product.style.name}]]</li>
+                <li><strong>Vải lót:</strong> [[${product.lining.name}]]</li>
+                <li><strong>Đai mũ:</strong> [[${product.belt.name}]]</li>
             </ul>
-            <p class="fs-4 text-danger fw-bold">4.399.000₫</p>
+            <p th:if="${minPrice != null and maxPrice != null}" class="fs-4 text-danger fw-bold">[[${minPrice}]] VND - [[${maxPrice}]] VND</p>
+            <p th:if="${minPrice == null and maxPrice == null}" class="fs-4 text-danger fw-bold">Sản phẩm sắp ra mắt!</p>
+            <div class="mt-3">
+                <strong>Màu sắc</strong>
+                <div class="d-flex">
+                    <div th:each="color : ${uniqueColors}">
+                        <button class="btn btn-outline-secondary me-2" th:text="${color.name}"></button>
+                    </div>
+                </div>
+            </div>
             <div class="mt-3">
                 <strong>Size</strong>
                 <div class="d-flex">
-                    <button class="btn btn-outline-secondary me-2">34</button>
-                    <button class="btn btn-outline-secondary me-2">36</button>
-                    <button class="btn btn-outline-secondary me-2">39</button>
-                    <button class="btn btn-outline-secondary me-2">44</button>
+                    <div th:each="size : ${uniqueSizes}">
+                        <button class="btn btn-outline-secondary me-2" th:text="${size.name}"></button>
+                    </div>
                 </div>
             </div>
-
             <div class="mt-3">
                 <strong>Số lượng</strong>
                 <div class="d-flex align-items-center">
@@ -132,11 +150,15 @@
 
     <div class="tab-content mt-4">
         <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#description">Mô tả sản phẩm</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#privacy-policy">Chính sách bảo mật</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#return-policy">Chính sách đổi trả</a></li>
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#description">Mô tả sản phẩm</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#privacy-policy">Chính sách bảo mật</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#return-policy">Chính sách đổi trả</a>
+            </li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#terms">Điều khoản dịch vụ</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#technical-specs">Thông số kỹ thuật</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#technical-specs">Thông số kỹ thuật</a>
+            </li>
         </ul>
         <div class="tab-pane fade show active" id="description">
             <p>Chi tiết mô tả sản phẩm...</p>
