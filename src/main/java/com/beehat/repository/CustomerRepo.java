@@ -15,6 +15,8 @@ public interface CustomerRepo extends JpaRepository<Customer, Integer> {
     @Transactional
     @Query("SELECT e FROM Customer e WHERE e.username = :username")
     Customer findByUsername(@Param("username") String username);
+    @Query("SELECT e FROM Customer e WHERE e.email = :email")
+    Customer findByEmail(@Param("email") String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
