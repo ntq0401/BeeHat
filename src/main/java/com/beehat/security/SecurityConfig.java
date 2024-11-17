@@ -65,12 +65,13 @@ public  class SecurityConfig {
             http
                     .securityMatcher("/customer/**","/home/**") // Áp dụng cho các URL bắt đầu với /customer/
                     .authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers("/customer/login","/customer/register","/home/**","/customer/index").permitAll() // Trang login của customer không yêu cầu xác thực
+                            .requestMatchers("/customer/login","/customer/register","/home/**","/customer/index"
+                            ,"/customer/forgot-password","/customer/verify-code","/customer/reset-password").permitAll() // Trang login của customer không yêu cầu xác thực
                             .anyRequest().hasAuthority("ROLE_CUSTOMER") // Các trang khác yêu cầu xác thực
                     )
                     .formLogin(form -> form
                             .loginPage("/customer/login")
-                            .defaultSuccessUrl("/home/index", true)// Xử lý khi đăng nhập thành công
+                            .defaultSuccessUrl("/", true)// Xử lý khi đăng nhập thành công
                             .failureUrl("/customer/login?error=true") // URL chuyển hướng khi đăng nhập thất bại
                             .permitAll()
 
