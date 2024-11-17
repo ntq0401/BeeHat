@@ -23,4 +23,5 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     void clearPromotionByPromotionId(@Param("promotionId") Integer promotionId);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, int id);
+    Product findBySku(String sku);
 }

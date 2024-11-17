@@ -1159,7 +1159,7 @@ ol {
 }
 
 .product__item__pic {
-	height: 360px;
+	height: 300px;
 	position: relative;
 	overflow: hidden;
 }
@@ -1907,7 +1907,7 @@ ol {
 	display: inline-block;
 	cursor: pointer;
 	position: relative;
-	margin-right: 20px;
+	margin-right: 25px;
 }
 
 .product__details__widget ul li .color__checkbox label.active input~.checkmark:after {

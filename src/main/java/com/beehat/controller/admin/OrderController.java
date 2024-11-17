@@ -26,6 +26,12 @@ public class OrderController {
     List<Invoice> listInvoice() {
         return invoiceRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedDate"));
     }
+    @ModelAttribute("listInvoiceProcessing")
+    List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatus((byte) 0);}
+    @ModelAttribute("listInvoiceCanceled")
+    List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatus((byte) 1);}
+    @ModelAttribute("listInvoiceCompleted")
+    List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatus((byte) 2);}
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-file-text fs-3";

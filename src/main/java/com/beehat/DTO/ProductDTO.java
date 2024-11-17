@@ -1,108 +1,81 @@
 package com.beehat.DTO;
 
 import com.beehat.entity.*;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 public class ProductDTO {
-
     private Integer id;
-
-    @NotBlank(message = "Tên sản phẩm không được bỏ trống !")
     private String name;
-
-    @NotBlank(message = "Không được bỏ trống mô tả !")
+    private String sku;
     private String description;
+    private List<ProductImage> images;
+    private List<ProductDetail> productDetail;
+    private Style style;
+    private Category category;
+    private Material material;
+    private Lining lining;
+    private Belt belt;
+    private int lowestPrice;
+    private int highestPrice;
+    private int totalStock;
+    private List<Color> colors;
+    private List<Size> sizes;
 
-    @NotNull(message = "Không được bỏ trống ảnh !")
-    private List<ProductImage> images = new ArrayList<>();
+    // Constructor
+    public ProductDTO(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.sku = product.getSku();
+        this.description = product.getDescription();
+        this.images = product.getImages();
+        this.belt = product.getBelt();
+        this.lining = product.getLining();
+        this.material = product.getMaterial();
+        this.style = product.getStyle();
+        this.category = product.getCategory();
+        this.productDetail = product.getProductDetail();
+        this.lowestPrice = calculateLowestPrice(product.getProductDetail());
+        this.highestPrice = calculateHighestPrice(product.getProductDetail());
+        this.totalStock = product.getTotalStock();
+        this.colors = getColors(product.getProductDetail());
+        this.sizes = getSizes(product.getProductDetail());
+    }
 
-    @NotNull(message = "Không được bỏ trống danh mục !")
-    private Integer categoryId;
+    // Method to calculate lowest price
+    private int calculateLowestPrice(List<ProductDetail> productDetails) {
+        return productDetails.stream()
+                .mapToInt(ProductDetail::getPrice)
+                .min()
+                .orElse(0);  // Default to 0 if no prices found
+    }
 
-    @NotNull(message = "Không được bỏ trống chất liệu !")
-    private Integer materialId;
+    // Method to calculate highest price
+    private int calculateHighestPrice(List<ProductDetail> productDetails) {
+        return productDetails.stream()
+                .mapToInt(ProductDetail::getPrice)
+                .max()
+                .orElse(0);  // Default to 0 if no prices found
+    }
+    private List<Color> getColors(List<ProductDetail> productDetails) {
+        return productDetails.stream()
+                .map(ProductDetail::getColor)
+                .filter(java.util.Objects::nonNull) // Bỏ qua giá trị null
+                .distinct() // Lọc trùng lặp
+                .collect(Collectors.toList());
+    }
 
-    @NotNull(message = "Không được bỏ trống vải lót !")
-    private Integer liningId;
-
-    @NotNull(message = "Không được bỏ trống đai mũ!")
-    private Integer beltId;
-
-    @NotNull(message = "Không được bỏ trống kiểu dáng !")
-    private Integer styleId;
-
-    @NotNull(message = "Không được bỏ trống trạng thái !")
-    @Min(value = 0, message = "Status must be at least 0")
-    @Max(value = 1, message = "Status can only be 0 or 1")
-    private Byte status;
-
-    public Product toEntity() {
-        Product product = new Product();
-
-        product.setId(id);
-        product.setName(name);
-        product.setDescription(description);
-
-        // Set danh mục sản phẩm
-        if (categoryId != null) {
-            Category category = new Category();
-            category.setId(categoryId);
-            product.setCategory(category);
-        }
-
-        // Set chất liệu sản phẩm
-        if (materialId != null) {
-            Material material = new Material();
-            material.setId(materialId);
-            product.setMaterial(material);
-        }
-
-        // Set vải lót
-        if (liningId != null) {
-            Lining lining = new Lining();
-            lining.setId(liningId);
-            product.setLining(lining);
-        }
-
-        // Set đai mũ
-        if (beltId != null) {
-            Belt belt = new Belt();
-            belt.setId(beltId);
-            product.setBelt(belt);
-        }
-
-        // Set kiểu dáng
-        if (styleId != null) {
-            Style style = new Style();
-            style.setId(styleId);
-            product.setStyle(style);
-        }
-
-        // Set trạng thái
-        product.setStatus(status);
-
-        // Thêm danh sách ảnh
-        if (images != null && !images.isEmpty()) {
-            List<ProductImage> productImages = new ArrayList<>();
-            for (ProductImage image : images) {
-                ProductImage imgEntity = new ProductImage();
-                imgEntity.setImageUrl(image.getImageUrl());  // Assuming ProductImage has 'url' field
-                imgEntity.setProduct(product); // Set sản phẩm cho từng ảnh
-                productImages.add(imgEntity);
-            }
-            product.setImages(productImages); // Gán danh sách ảnh cho sản phẩm
-        }
-
-        return product;
-
+    private List<Size> getSizes(List<ProductDetail> productDetails) {
+        return productDetails.stream()
+                .map(ProductDetail::getSize)
+                .filter(java.util.Objects::nonNull) // Bỏ qua giá trị null
+                .distinct() // Lọc trùng lặp
+                .collect(Collectors.toList());
     }
 }

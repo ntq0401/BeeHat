@@ -6,44 +6,117 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <!-- Nút để mở modal thêm mới voucher -->
-  <a th:href="@{/admin/voucher/add-voucher}"><button class="btn btn-primary">Thêm mới</button></a>
-  <h1>Quản lí mã giảm giá</h1>
-  <table class="table">
-    <thead>
-    <tr>
-      <th>STT</th>
-      <th>ID</th>
-      <th>Tên Voucher</th>
-      <th>Mã Code</th>
-      <th>Số Lượng</th>
-      <th>Phần Trăm Giảm Giá</th>
-      <th>Số Tiền Giảm Giá</th>
-      <th>Bắt Đầu</th>
-      <th>Kết Thúc</th>
-      <th>Trạng Thái</th>
-      <th>Hành Động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="voucher, stat : ${listVoucher}">
-      <td th:text="${stat.index + 1}"></td>
-      <td th:text="${voucher.id}"></td>
-      <td th:text="${voucher.name}"></td>
-      <td th:text="${voucher.code}"></td>
-      <td th:text="${voucher.quantity}"></td>
-      <td th:text="${voucher.discountPercentage}"></td>
-      <td th:text="${voucher.discountAmount}"></td>
-      <td th:text="${#temporals.format(voucher.startDate,'dd/MM/yyyy HH:mm')}"></td>
-      <td th:text="${#temporals.format(voucher.endDate,'dd/MM/yyyy HH:mm')}"></td>
-      <td th:text="${voucher.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></td>
-      <td>
-        <a th:href="@{/vouchers/edit/{id}(id=${voucher.id})}">Sửa</a>
-        <a th:href="@{/vouchers/delete/{id}(id=${voucher.id})}" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Xóa</a>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Phiếu giảm giá</li>
+    </ol>
+  </nav>
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Tìm kiếm</h5>
+    </div>
+
+    <div class="card-body">
+      <div class="row mt-2 d-flex justify-content-center align-items-center">
+        <div class="col-10">
+          <form  method="get">
+            <div class="row">
+              <div class="form-group">
+                <input placeholder="Nhập mã voucher" type="text" class="form-control" id="search" name="search">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <label>Từ ngày:</label>
+                <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
+              </div>
+              <div class="col-md-3">
+                <label>Tới ngày:</label>
+                <input type="datetime-local" class="form-control" id="toDate" name="toDate">
+              </div>
+              <div class="col-md-3">
+                <label>Trạng thái:</label>
+                <select class="form-control" id="status" name="status">
+                  <option value="" th:selected="${status == null}">Tất cả</option>
+                  <option value="0" th:selected="${status == 0}">Sắp bắt đầu</option>
+                  <option value="1" th:selected="${status == 1}">Đang diễn ra</option>
+                  <option value="2" th:selected="${status == 2}">Đã kết thúc</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label>Loại giảm</label>
+                <select class="form-control" id="provalue" name="provalue">
+                  <option value="percent" >Phần trăm</option>
+                  <option value="amount" >Giá tiền</option>
+                  <option value="" >Tất cả</option>
+                </select>
+              </div>
+              <div class="col-auto d-flex align-items-center">
+                <button class="btn btn-info" type="submit">
+                  <i class="ph ph-magnifying-glass"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-2 d-flex justify-content-center align-items-center">
+          <a th:href="@{/admin/voucher/add-voucher}"><button class="btn btn-primary">Thêm mới</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-5">
+    <div class="card-header">
+      <h5 class="card-title">Danh sách voucher</h5>
+    </div>
+    <div class="card-body">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+        <tr>
+          <th>STT</th>
+          <th>ID</th>
+          <th>Tên Voucher</th>
+          <th>Mã Code</th>
+          <th>Số Lượng</th>
+          <th>Phần Trăm Giảm Giá</th>
+          <th>Số Tiền Giảm Giá</th>
+          <th>Bắt Đầu</th>
+          <th>Kết Thúc</th>
+          <th>Trạng Thái</th>
+          <th>Hành Động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="voucher, stat : ${listVoucher}">
+          <td th:text="${stat.index + 1}"></td>
+          <td th:text="${voucher.id}"></td>
+          <td th:text="${voucher.name}"></td>
+          <td th:text="${voucher.code}"></td>
+          <td th:text="${voucher.quantity}"></td>
+          <td th:text="${voucher.discountPercentage}"></td>
+          <td th:text="${voucher.discountAmount}"></td>
+          <td th:text="${#temporals.format(voucher.startDate,'dd/MM/yyyy HH:mm:ss')}"></td>
+          <td th:text="${#temporals.format(voucher.endDate,'dd/MM/yyyy HH:mm:ss')}"></td>
+          <td>
+            <span th:if="${voucher.status == 0}" class="badge text-bg-warning">Chưa bắt đầu</span>
+            <span th:if="${voucher.status == 1}" class="badge bg-success">Đang diễn ra</span>
+            <span th:if="${voucher.status == 2}" class="badge bg-warning">Đã kết thúc</span>
+          </td>
+          <td>
+            <a th:href="@{/admin/product}">
+              <button class="btn btn-secondary"><i class="ph ph-info"></i></button>
+            </a>
+            <a th:href="@{/admin/product}">
+              <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>
 
 </body>

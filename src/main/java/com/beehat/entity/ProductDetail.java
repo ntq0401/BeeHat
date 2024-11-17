@@ -35,7 +35,7 @@ public class ProductDetail {
     @NotNull(message = "Không được bỏ trống giá!")
     private Integer price;
     @NotNull(message = "Không được bỏ trống số lượng!")
-    @Min(value = 1,message = "Số lượng phải lớn hơn 0")
+    @Min(value = 0,message = "Số lượng phải lớn hơn 0")
     private Integer stock;
     @NotNull(message = "Không được bỏ trống trạng thái!")
     private Byte status;

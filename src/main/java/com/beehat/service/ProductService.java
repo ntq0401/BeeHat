@@ -1,6 +1,5 @@
 package com.beehat.service;
 
-import com.beehat.DTO.ProductDTO;
 import com.beehat.entity.*;
 import com.beehat.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;

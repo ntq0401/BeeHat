@@ -72,7 +72,7 @@
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
                         <form id="invoiceForm" th:action="@{/admin/store/add-invoice}" method="post" th:object="${i}">
-                            <!--                            <input hidden="hidden" name="username" th:value="${username}">-->
+                                                        <input  name="username" th:value="${username}">
                             <button id="showToastButton" type="button" class="btn btn-success"
                                     th:data-invoice-count="${listInvoice.size()}">Thêm hoá đơn
                             </button>
@@ -327,8 +327,8 @@
                                         <strong class="text-danger">Sản phẩm này đã bị ngừng bán</strong>
                                     </div>
                                 </td>
-                                <form th:action="@{/admin/store/update-quantity}" method="post">
                                     <td>
+                                        <form th:action="@{/admin/store/update-quantity}" method="post">
                                         <center>
                                             <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
                                             <input class="form-control"
@@ -339,8 +339,8 @@
                                                    th:data-quantity-invoice-detail="${invoiceDetail.quantity}"
                                                    onchange="checkQuantityAndSubmit(this)"/>
                                         </center>
+                                        </form>
                                     </td>
-                                </form>
                                 <td>
                                     <span th:if="${invoiceDetail.productDetail.product.promotion != null}"
                                           style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
@@ -808,6 +808,7 @@
             const form = button.closest("form");
             let invoiceInput = "";
             let customerSelect = "";
+            let element = document.querySelector('strong.text-danger');
             // Kiểm tra số lượng hóa đơn hiện có
             const currentInvoiceDetails = parseInt(button.getAttribute('data-invoice-details-count'));
 
@@ -831,6 +832,14 @@
                     icon: 'error',
                     title: 'Thanh toán thất bại',
                     text: 'Không thể thanh toán vì hoá đơn không có sản phẩm nào !',
+                });
+                return; // Dừng lại không thực hiện tiếp
+            }
+            if (element){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thanh toán thất bại',
+                    text: 'Không thể thanh toán vì hoá đơn có sản phẩm ngừng bán !',
                 });
                 return; // Dừng lại không thực hiện tiếp
             }

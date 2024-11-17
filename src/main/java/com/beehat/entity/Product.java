@@ -75,7 +75,6 @@ public class Product {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
-
     @PrePersist
     public void prePersist() {
         // Nếu SKU chưa có, tự động tạo mới SKU

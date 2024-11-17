@@ -6,6 +6,21 @@
 </head>
 <body>
 <main layout:fragment="main">
+    <!-- Breadcrumb Begin -->
+    <div class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__links">
+                        <a href="./index.html"><i class="fa fa-home"></i> Home</a>
+                        <span>Shop</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
     <!-- Shop Section Begin -->
     <section class="shop spad">
         <div class="container">
@@ -227,12 +242,12 @@
                                     <div class="label new">New</div>
                                     <ul class="product__hover">
                                         <li><a th:href="${p.images[0].getImageUrl()}" class="image-popup"><span class="arrow_expand"></span></a></li>
-                                        <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                                        <li><a href="#"><span class="icon_bag_alt"></span></a></li>
+                                        <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span class="icon_info_alt"></span></a></li>
+                                        <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span class="icon_bag_alt"></span></a></li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
-                                    <h5><a th:href="@{/detail}">[[${p.name}]]</a></h5>
+                                    <h6><a th:href="@{/detail/{sku}(sku=${p.sku})}">[[${p.name}]]</a></h6>
                                     <div class="rating">
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
@@ -240,7 +255,12 @@
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
                                     </div>
-                                    <div class="product__price" th:if="${p.productDetail != null and !p.productDetail.isEmpty()}">[[${p.productDetail[0].price}]]</div>
+                                    <div class="product__price" th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice}">
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]] - [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice)}]]
+                                    </div>
+                                    <div class="product__price" th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice == p.highestPrice}">
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]]
+                                    </div>
                                     <div class="product__price" th:if="${p.productDetail == null or p.productDetail.isEmpty()}">Coming soon</div>
                                 </div>
                             </div>

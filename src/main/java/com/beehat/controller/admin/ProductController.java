@@ -326,4 +326,36 @@ public class ProductController {
         model.addAttribute("productPage", productPage);
         return "admin/product/productTable :: productTable";
     }
+    @PostMapping("/change-product-detail")
+    public String changeProductDetail(@RequestParam("id") int id,
+                                      @RequestParam("quantity") int quantity,
+                                      @RequestParam("price") int price,
+                                      Model model) {
+        ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
+        if (productDetail == null) {
+            return "redirect:/admin/product/index";
+        }
+        productDetail.setStock(quantity);
+        productDetail.setPrice(price);
+        productDetailRepo.save(productDetail);
+        return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
+    }
+    @PostMapping("/change-status-product-detail")
+    public String changeStatusProductDetail(@RequestParam("id") int id){
+        ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
+        if (productDetail == null) {
+            return "redirect:/admin/product/index";
+        }
+        if (productDetail.getStatus() == 1){
+            productDetail.setStatus((byte) 2);
+            productDetailRepo.save(productDetail);
+            return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
+        }
+        if (productDetail.getStatus() == 2){
+            productDetail.setStatus((byte) 1);
+            productDetailRepo.save(productDetail);
+            return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
+        }
+        return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
+    }
 }

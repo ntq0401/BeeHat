@@ -103,7 +103,11 @@
                     <td>[[${p.category.name}]]</td>
                     <td>[[${p.totalStock}]]</td>
                     <td>[[${p.createdDate.toString().substring(0,10)}]]</td>
-                    <td>[[${p.status} == 1 ? 'Đang bán' : 'Không hoạt động']]</td>
+                    <td>
+                        <span th:if="${p.status == 0}" class="badge text-bg-danger">Ngừng bán</span>
+
+                        <span th:if="${p.status == 1}" class="badge bg-success">Đang bán</span>
+                    </td>
                     <td>
                         <a th:href="@{/admin/product/detail-product/{id}(id=${p.id})}">
                             <button class="btn btn-secondary"><i class="ph ph-info"></i></button>
