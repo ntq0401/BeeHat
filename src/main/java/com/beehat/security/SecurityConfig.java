@@ -63,9 +63,9 @@ public  class SecurityConfig {
         @Bean
         public SecurityFilterChain customerSecurityFilterChain(HttpSecurity http) throws Exception {
             http
-                    .securityMatcher("/customer/**","/home/**") // Áp dụng cho các URL bắt đầu với /customer/
+                    .securityMatcher("/customer/**","/home/**","/**") // Áp dụng cho các URL bắt đầu với /customer/
                     .authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers("/customer/login","/customer/register","/home/**","/customer/index"
+                            .requestMatchers("/customer/login","/customer/register","/home/**","/**","/customer/index"
                             ,"/customer/forgot-password","/customer/verify-code","/customer/reset-password").permitAll() // Trang login của customer không yêu cầu xác thực
                             .anyRequest().hasAuthority("ROLE_CUSTOMER") // Các trang khác yêu cầu xác thực
                     )
