@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -101,7 +98,7 @@ public class PromotionController {
     @GetMapping("/add")
     public String add(Model model,@RequestParam(required = false) List<Integer> selectedProducts,@RequestParam(defaultValue = "0") int page){
         Pageable pageable = PageRequest.of(page, 5); // 5 sản phẩm mỗi trang
-        Page<Product> productsPage = productRepo.findAll(pageable);
+        Page<Product> productsPage = productRepo.findByPromotionIsNull(pageable);
         // Khởi tạo tập hợp để lưu trạng thái checkbox
         Set<Integer> selectedSet = new HashSet<>();
         if (selectedProducts != null) {
@@ -185,7 +182,7 @@ public class PromotionController {
                          @RequestParam(required = false) List<Integer> selectedProducts,
                          @RequestParam(defaultValue = "0") int page) {
         Pageable pageable = PageRequest.of(page, 5); // 5 sản phẩm mỗi trang
-        Page<Product> productsPage = productRepo.findAll(pageable);
+        Page<Product> productsPage = productRepo.findProductUpdate(id,pageable);
 
         // Tìm tất cả ProductPromotion liên quan đến khuyến mãi đó
         List<ProductPromotion> productPromotions = productPromotionRepo.findByPromotionId(id);

@@ -1,3 +1,4 @@
+
 <!-- Page Preloder -->
 <div id="preloder" th:fragment="preloader">
     <div class="loader"></div>
@@ -9,9 +10,22 @@
     <div class="offcanvas__close">+</div>
     <ul class="offcanvas__widget">
         <li><span class="icon_search search-switch"></span></li>
-        <li><a href="#"><span class="icon_heart_alt"></span>
-            <div class="tip">2</div>
+        <li><a href="javascript:void(0);" id="userDropdownToggleMobile"><span class="fa fa-user"></span>
+            <div class="tip">5</div>
         </a></li>
+        <div class="drop-down" id="userMenu1" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111;"  >
+            <div id="notLoggedInOptions1" style="display: none; ">
+                <a href="/customer/login" class="dropdown-item" style="color: #FFFFFF;">Đăng nhập</a>
+            </div>
+            <div id="loggedInOptions1" style="display: none; ">
+                <!--                                <a class="dropdown-item fw-bold" id="usernameDisplay">User</a>-->
+                <a href="/profile" class="dropdown-item" id="userProfile1" style="color: #FFFFFF;">Thông tin cá nhân</a>
+                <a href="/change-password" class="dropdown-item " style="color: #FFFFFF;">Đổi mật khẩu</a>
+                <form th:action="@{/customer/logout}" method="post">
+                    <button class="dropdown-item" type="submit" style="color: #FFFFFF;">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
         <li><a href="#"><span class="icon_bag_alt"></span>
             <div class="tip">2</div>
         </a></li>
@@ -20,10 +34,10 @@
         <a href="./index.html"><img src="/img/logonew.png" alt=""></a>
     </div>
     <div id="mobile-menu-wrap"></div>
-    <div class="offcanvas__auth">
-        <a href="#">Login</a>
-        <a href="#">Register</a>
-    </div>
+<!--    <div class="offcanvas__auth">-->
+<!--        <a href="#">Login</a>-->
+<!--        <a href="#">Register</a>-->
+<!--    </div>-->
 </div>
 <!-- Offcanvas Menu End -->
 
@@ -55,23 +69,87 @@
             </div>
             <div class="col-lg-3">
                 <div class="header__right">
-                    <div class="header__right__auth">
-                        <a href="#">Login</a>
-                        <a href="#">Register</a>
-                    </div>
+
                     <ul class="header__right__widget">
+                        <input type="hidden" id="isLoggedIn" th:value="${isLoggedIn}">
+                        <input type="hidden" id="username" th:value="${username1}">
                         <li><span class="icon_search search-switch"></span></li>
-                        <li><a href="/customer/login"><span class="fa fa-user"></span>
+                        <li><a href="javascript:void(0);" id="userDropdownToggle">
+                            <span class="fa fa-user"></span>
                             <div class="tip">2</div>
-                        </a></li>
-                        <li><a href="/shop-cart"><span class="icon_bag_alt"></span>
-<!--                            <div th:if="${cartSum != null}" class="tip" th:text="${cartSum}"></div>-->
-<!--                            <div th:if="${cartSum == null}" class="tip" th:text="0"></div>-->
+                        </a>
+                        </li>
+                        <div class="drop-down" id="userMenu" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111;"  >
+                            <div id="notLoggedInOptions" style="display: none; ">
+                                <a href="/customer/login" class="dropdown-item" style="color: #FFFFFF;">Đăng nhập</a>
+                            </div>
+                            <div id="loggedInOptions" style="display: none; ">
+<!--                                <a class="dropdown-item fw-bold" id="usernameDisplay">User</a>-->
+                                <a href="/profile" class="dropdown-item" id="userProfile" style="color: #FFFFFF;">Thông tin cá nhân</a>
+                                <a href="/change-password" class="dropdown-item " style="color: #FFFFFF;">Đổi mật khẩu</a>
+                                <form th:action="@{/customer/logout}" method="post">
+                                    <button class="dropdown-item" type="submit" style="color: #FFFFFF;">Đăng xuất</button>
+                                </form>
+                            </div>
+                        </div>
+                        <li><a href="/shop-cart" ><span class="icon_bag_alt"></span>
+                            <div class="tip">2</div>
                         </a></li>
                     </ul>
                 </div>
             </div>
         </div>
+
+
+        <script>
+            document.querySelectorAll('#userDropdownToggle, #userDropdownToggleMobile').forEach(function(toggle) {
+                toggle.addEventListener('click', function () {
+
+                    if (document.getElementById('userMenu').style.display === 'none') {
+                        document.getElementById('userMenu').style.display = 'block';  // Hiển thị menu
+                    } else {
+                        document.getElementById('userMenu').style.display = 'none';   // Ẩn menu
+                    }
+
+                    if (document.getElementById('userMenu1').style.display === 'none') {
+                        document.getElementById('userMenu1').style.display = 'block';  // Hiển thị menu
+                    } else {
+                        document.getElementById('userMenu1').style.display = 'none';   // Ẩn menu
+                    }
+                });
+            });
+            // Đóng dropdown khi click ra ngoài
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('userMenu');
+                const menu1 = document.getElementById('userMenu1');
+
+                // Kiểm tra nếu click ra ngoài dropdown và không phải là nút toggle
+                if (!menu.contains(event.target) && !event.target.closest('#userDropdownToggle') && !event.target.closest('#userDropdownToggleMobile')) {
+                    menu.style.display = 'none';
+                }
+                if (!menu1.contains(event.target) && !event.target.closest('#userDropdownToggle') && !event.target.closest('#userDropdownToggleMobile')) {
+                    menu1.style.display = 'none';
+                }
+            });
+            // Truyền giá trị từ backend vào JavaScript
+            const isLoggedIn = document.getElementById('isLoggedIn').value === 'true';  // Chuyển đổi giá trị thành boolean
+            const username = document.getElementById('username').value;
+            // Hiển thị tùy chọn dựa trên trạng thái đăng nhập
+            if (isLoggedIn) {
+                document.getElementById('loggedInOptions').style.display = 'block';
+                // document.getElementById('usernameDisplay').innerText ='Hello '+ username +'!';  // Hiển thị tên người dùng
+            } else {
+                document.getElementById('notLoggedInOptions').style.display = 'block';
+            }
+
+            // Hiển thị tùy chọn dựa trên trạng thái đăng nhập
+            if (isLoggedIn) {
+                document.getElementById('loggedInOptions1').style.display = 'block';
+                // document.getElementById('usernameDisplay').innerText ='Hello '+ username +'!';  // Hiển thị tên người dùng
+            } else {
+                document.getElementById('notLoggedInOptions1').style.display = 'block';
+            }
+        </script>
         <div class="canvas__open">
             <i class="fa fa-bars"></i>
         </div>
@@ -266,4 +344,5 @@
         </form>
     </div>
 </div>
+
 <!-- Search End -->

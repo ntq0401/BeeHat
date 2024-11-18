@@ -38,10 +38,17 @@
       // Kiểm tra ngày kết thúc phải lớn hơn ngày bắt đầu
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
+      const now = new Date(); // Lấy thời gian hiện tại
       if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
         alert("Ngày kết thúc phải lớn hơn ngày bắt đầu.");
         event.preventDefault(); // Ngăn chặn gửi form nếu ngày kết thúc không hợp lệ
       }
+      if (startDate && new Date(startDate) < now.setHours(0, 0, 0, 0)) {
+        alert("Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại.");
+        event.preventDefault(); // Ngăn chặn gửi form nếu ngày bắt đầu không hợp lệ
+        return;
+      }
+
 
 
       // Kiểm tra yêu cầu nhập cho loại giảm giá

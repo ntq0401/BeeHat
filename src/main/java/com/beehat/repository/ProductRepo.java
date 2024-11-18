@@ -17,10 +17,13 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Query("select p from Product p where p.name like ?1")
     public List<Product> findByName(String keyword);
     Page<Product> findAll(Pageable pageable);
+    Page<Product> findByPromotionIsNull(Pageable pageable);
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.promotion = null WHERE p.promotion.id = :promotionId")
     void clearPromotionByPromotionId(@Param("promotionId") Integer promotionId);
+    @Query("SELECT p FROM Product p WHERE p.promotion IS NULL OR p.promotion.id = :promotionId")
+    Page<Product> findProductUpdate(@Param("promotionId") Integer promotionId, Pageable pageable);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, int id);
     Product findBySku(String sku);

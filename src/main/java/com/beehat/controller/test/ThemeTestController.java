@@ -1,17 +1,18 @@
 package com.beehat.controller.test;
 
 import com.beehat.DTO.ProductDTO;
-import com.beehat.entity.*;
+import com.beehat.entity.CartDetail;
+import com.beehat.entity.Customer;
+import com.beehat.entity.Product;
+import com.beehat.entity.ProductDetail;
 import com.beehat.repository.CartDetailRepo;
 import com.beehat.repository.CustomerRepo;
 import com.beehat.repository.ProductDetailRepo;
 import com.beehat.repository.ProductRepo;
 import com.beehat.service.CartService;
 import com.beehat.service.CurrencyUtil;
-import jakarta.servlet.http.HttpSession;
-import org.bouncycastle.est.CACertsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,7 +59,17 @@ public class ThemeTestController {
 //        return sum;
 //    }
     @GetMapping("/")
-    public String home() {
+    public String home(Authentication authentication, Model model) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+            Boolean isLoggedIn = username!=null?true:false;
+            model.addAttribute("isLoggedIn", isLoggedIn);
+            System.out.println(username);
+            model.addAttribute("username1", username);
+        }else {
+            model.addAttribute("isLoggedIn", false);  // Đảm bảo trường hợp không đăng nhập
+        }
         return "test-theme/index";
     }
     @GetMapping("/detail/{sku}")
