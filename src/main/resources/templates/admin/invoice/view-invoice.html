@@ -216,7 +216,6 @@
                         <th>Số lượng</th>
                         <th>Đơn giá</th>
                         <th>Thành tiền</th>
-                        <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -242,19 +241,9 @@
                                 <span class="small">Kích cỡ: [[${detail.productDetail.size.name}]]</span>
                             </div>
                         </td>
-                        <td>
-                            <center>
-                                <input class="form-control"
-                                       style="width:60px; text-align: center; align-items: center"
-                                       type="number" name="quantities" th:value="${detail.quantity}"
-                                       min="1" th:data-quantity-product="${detail.productDetail.stock}"
-                                       th:data-quantity-invoice-detail="${detail.quantity}"
-                                       />
-                            </center>
-                        </td>
+                        <td>[[${detail.quantity}]]</td>
                         <td>[[${detail.productDetail.price}]]</td>
                         <td>[[${detail.finalPrice}]]</td>
-                        <td style="display: flex; align-items: center; justify-content: center;"><i class="pe-7s-trash icon-large text-danger"></i></td>
                     </tr>
                     </tbody>
                 </table>

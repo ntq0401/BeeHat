@@ -51,12 +51,12 @@
                             <i class="fa fa-star"></i>
                             <span>( 0 đánh giá )</span>
                         </div>
-                        <div class="product__details__price"
+                        <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
                         </div>
-                        <div class="product__details__price"
+                        <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
                         </div>
@@ -91,11 +91,12 @@
                                     </label>
                                 </div>
                             </li>
+                            <input type="hidden" name="product__id" th:value="${product.id}">
                             <li>
                                 <span>Màu sắc:</span>
                                 <div class="color__checkbox">
                                     <label th:for="${c.name}" th:each="c : ${product.colors}">
-                                        <input type="radio" name="color__radio" th:id="${c.name}">
+                                        <input type="radio" name="color__radio" th:id="${c.name}" th:value="${c.id}">
                                         <span class="checkmark" th:style="'background-color:' + ${c.code}"></span>
                                     </label>
                                 </div>
@@ -104,7 +105,7 @@
                                 <span>Kích cỡ:</span>
                                 <div class="size__btn">
                                     <label th:for="${s.name}+'-btn'" th:each="s :${product.sizes}">
-                                        <input type="radio" th:id="${s.name}+'-btn'" th:text="${s.name}">
+                                        <input type="radio" name="size__radio" th:id="${s.name}+'-btn'" th:value="${s.id}" th:text="${s.name}">
                                     </label>
                                 </div>
                             </li>
@@ -273,6 +274,43 @@
         </div>
     </section>
     <!-- Product Details Section End -->
+    <script>
+        $(document).ready(function() {
+            // Lắng nghe sự thay đổi lựa chọn màu sắc và kích cỡ
+            $("input[name='color__radio'], input[name='size__radio']").change(function() {
+                updatePrice();
+            });
+
+            function updatePrice() {
+                // Lấy giá trị ID màu sắc và kích cỡ đã chọn
+                var selectedColor = $("input[name='color__radio']:checked").val();
+                var selectedSize = $("input[name='size__radio']:checked").val();
+                var productId = $("input[name='product__id']").val();
+                console.log(productId)
+                console.log(selectedColor)
+                console.log(selectedSize)
+                // Nếu cả màu sắc và kích cỡ đều được chọn, gửi yêu cầu AJAX
+                if (selectedColor && selectedSize) {
+                    $.ajax({
+                        url: 'http://localhost:8080/getProductPrice',
+                        method: 'GET',
+                        data: {
+                            product : productId,
+                            color: selectedColor,
+                            size: selectedSize
+                        },
+                        success: function(response) {
+                            // Cập nhật giá trên giao diện
+                            $("#productPrice").text(response);
+                        },
+                        error: function(error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 
 </main>
 </body>

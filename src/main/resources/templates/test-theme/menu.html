@@ -65,7 +65,8 @@
                             <div class="tip">2</div>
                         </a></li>
                         <li><a href="/shop-cart"><span class="icon_bag_alt"></span>
-                            <div class="tip">2</div>
+<!--                            <div th:if="${cartSum != null}" class="tip" th:text="${cartSum}"></div>-->
+<!--                            <div th:if="${cartSum == null}" class="tip" th:text="0"></div>-->
                         </a></li>
                     </ul>
                 </div>

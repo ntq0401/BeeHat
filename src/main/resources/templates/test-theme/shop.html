@@ -240,11 +240,17 @@
                             <div class="product__item">
                                 <div class="product__item__pic set-bg" th:data-setbg="${p.images[0].getImageUrl()}">
                                     <div class="label new">New</div>
+                                    <form method="post" th:action="@{/add-product-to-cart/{id}(id=${p.id})}">
+                                        <input type="hidden" name="username" th:value="${username}">
                                     <ul class="product__hover">
                                         <li><a th:href="${p.images[0].getImageUrl()}" class="image-popup"><span class="arrow_expand"></span></a></li>
                                         <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span class="icon_info_alt"></span></a></li>
-                                        <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span class="icon_bag_alt"></span></a></li>
+                                        <li><!-- Chuyển onclick vào thẻ <a> và sử dụng closest() để tìm form -->
+                                            <a href="javascript:void(0);" onclick="this.closest('form').submit()">
+                                                <span class="icon_bag_alt"></span>
+                                            </a></li>
                                     </ul>
+                                    </form>
                                 </div>
                                 <div class="product__item__text">
                                     <h6><a th:href="@{/detail/{sku}(sku=${p.sku})}">[[${p.name}]]</a></h6>

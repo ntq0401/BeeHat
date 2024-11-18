@@ -72,7 +72,7 @@
                         </ul>
                         <!-- Button to add new Nav item inside nav -->
                         <form id="invoiceForm" th:action="@{/admin/store/add-invoice}" method="post" th:object="${i}">
-                                                        <input  name="username" th:value="${username}">
+                                                        <input type="hidden" name="username" th:value="${username}">
                             <button id="showToastButton" type="button" class="btn btn-success"
                                     th:data-invoice-count="${listInvoice.size()}">Thêm hoá đơn
                             </button>
@@ -334,7 +334,7 @@
                                             <input class="form-control"
                                                    style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                                                    type="number" name="quantities" th:value="${invoiceDetail.quantity}"
-                                                   min="1"
+                                                   min="1" step="1" max="1000000" pattern="\d+"
                                                    th:data-quantity-product="${invoiceDetail.productDetail.stock}"
                                                    th:data-quantity-invoice-detail="${invoiceDetail.quantity}"
                                                    onchange="checkQuantityAndSubmit(this)"/>
@@ -708,7 +708,7 @@
             const maxQuantity = parseInt(inputElement.getAttribute('data-quantity-product')); // Số lượng trong kho
             const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
 
-            if (quantity <= 0) {
+            if (isNaN(quantity) ||quantity <= 0) {
                 alert("Số lượng sản phẩm không hợp lệ !")
                 inputElement.value = lastQuantity;
                 form.onsubmit = function () {

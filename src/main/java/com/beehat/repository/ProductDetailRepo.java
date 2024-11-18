@@ -22,5 +22,5 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     ProductDetail findTopByProductIdOrderByPriceAsc(int id);
 
     ProductDetail findTopByProductIdOrderByPriceDesc(int id);
-
+    ProductDetail findByProductIdAndColorIdAndSizeId(Integer productId,Integer colorId, Integer sizeId);
 }

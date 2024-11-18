@@ -36,6 +36,7 @@ public class CartDetail {
     @Column(name = "final_price")
     private Integer finalPrice; // Giá sau khi giảm giá
 
+    @Column(insertable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)
