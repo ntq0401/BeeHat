@@ -23,6 +23,11 @@ public class UsernameControllerAdvice {
             return principal.toString();
         }
     }
+    @ModelAttribute("isLoggedIn")
+    public boolean isUserLoggedIn() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal instanceof UserDetails; // Trả về true nếu người dùng đã đăng nhập
+    }
     @ModelAttribute("userImageURL")
     public String addUserImageURLToModel() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
