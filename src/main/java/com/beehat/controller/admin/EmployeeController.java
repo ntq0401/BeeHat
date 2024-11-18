@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,8 +110,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public String updateEmployee(@ModelAttribute Employee employee,BindingResult bindingResult) {
+    public String updateEmployee(@ModelAttribute Employee employee, BindingResult bindingResult, Principal principal) {
         Employee existingEmployee = employeeRepository.findById(employee.getId()).orElse(null);
+        // Lấy tên người dùng đang đăng nhập
+        String currentUsername = principal.getName();
 
         if (existingEmployee != null) {
             // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
@@ -121,6 +124,14 @@ public class EmployeeController {
             // Kiểm tra email đã tồn tại, nhưng bỏ qua nếu không thay đổi
             if (!existingEmployee.getEmail().equals(employee.getEmail()) && employeeRepository.existsByEmail(employee.getEmail())) {
                 bindingResult.rejectValue("email", "error.employee", "Email đã tồn tại");
+            }
+            // Kiểm tra nếu quản trị viên tự thay đổi trạng thái của chính mình
+            if (existingEmployee.getUsername().equals(currentUsername) && !existingEmployee.getStatus().equals(employee.getStatus())) {
+                bindingResult.rejectValue("status", "error.employee", "Bạn không thể tự thay đổi trạng thái của chính mình.");
+            }
+            // Kiểm tra nếu quản trị viên tự thay đổi role của chính mình
+            if (existingEmployee.getUsername().equals(currentUsername) && !existingEmployee.getRole().equals(employee.getRole())) {
+                bindingResult.rejectValue("role", "error.employee", "Bạn không thể tự thay đổi vai trò của chính mình.");
             }
         }
 
