@@ -106,7 +106,7 @@ public class ThemeTestController {
         return "test-theme/contact";
     }
     @PostMapping("/add-product-to-cart/{id}")
-    public String addProductToCart(@PathVariable Integer id, @RequestParam("username") String username, Model model) {
+    public String addProductToCart(@PathVariable Integer id, @RequestParam(value = "username",defaultValue = "") String username, Model model) {
         ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
         Customer customer = customerRepo.findByUsername(username);
         List<CartDetail> cartDetail = cartDetailRepo.findByCustomerId(customer.getId());
