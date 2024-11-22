@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/test-theme/template}">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: white;
+        }
+        .sidebar {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: black;
+            display: block;
+            padding: 10px 0;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .order-details {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .order-details h5 {
+            margin-bottom: 20px;
+        }
+        .order-details .btn {
+            background-color: #ff5722;
+            color: white;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Shop</title>
+</head>
+<body>
+<main layout:fragment="main">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <div class="text-center mb-4">
+                        <img th:src="@{/images/profile.png}" class="rounded-circle" height="100" width="100"/>
+                        <h6 class="mt-2">ntq0401 #1085</h6>
+                    </div>
+                    <a href="#">
+                        <i class="fas fa-home"></i>
+                        Trang tài khoản
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-shopping-cart"></i>
+                        Đơn hàng
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-user"></i>
+                        Tài khoản
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-users"></i>
+                        Cộng tác viên
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Thoát
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="order-details">
+                    <h5>Chi tiết đơn hàng</h5>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Sản phẩm</strong></div>
+                        <div class="col-4 text-end"><strong>Tổng</strong></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8">Mua Tài khoản Netflix Premium - 01 tháng × 1</div>
+                        <div class="col-4 text-end" >69,000đ</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Thời hạn:</strong></div>
+                        <div class="col-4 text-end">01 tháng</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Tổng số phụ:</strong></div>
+                        <div class="col-4 text-end">69,000đ</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Phương thức thanh toán:</strong></div>
+                        <div class="col-4 text-end">Thanh toán bằng ví MoMo</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Tổng cộng:</strong></div>
+                        <div class="col-4 text-end">69,000đ</div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <button class="btn">ĐẶT HÀNG LẠI</button>
+                    </div>
+                    <h5>Địa chỉ thanh toán</h5>
+                    <p>
+                        <span>Quang Thế</span><br/>
+                        <span>Địa chỉ 1</span><br/>
+                        <span>Hồ Chí Minh</span><br/>
+                        <span>0948978355</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

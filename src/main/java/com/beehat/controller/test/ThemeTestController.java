@@ -65,4 +65,16 @@ public class ThemeTestController {
     public String contact() {
         return "test-theme/contact";
     }
+    @GetMapping("/account")
+    public String account() {
+        return "test-theme/account";
+    }
+    @GetMapping("/order")
+    public String order() {
+        return "test-theme/order";
+    }
+    @GetMapping("/orderdetail")
+    public String orderdetail() {
+        return "test-theme/orderdetail";
+    }
 }
