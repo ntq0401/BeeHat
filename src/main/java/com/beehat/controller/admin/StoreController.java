@@ -66,9 +66,9 @@ public class StoreController {
 
     @ModelAttribute("listInvoice")
     List<Invoice> listOrder() {
-        return invoiceRepo.findByStatus(Byte.valueOf("0"));
+        return invoiceRepo.findByStatusAndInvoiceStatus(Byte.valueOf("0"),(byte)0);
     }
-
+    // ????
     @ModelAttribute("invoiceDetail")
     List<InvoiceDetail> listOrderDetail() {
         return invoiceDetailRepo.findAll();

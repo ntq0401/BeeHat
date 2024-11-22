@@ -52,7 +52,7 @@ public class PromotionService {
     @Scheduled(cron = "0 * * * * ?") // Cài đặt để chạy hàm mỗi giờ
     protected void resetALLInvoiceDetailPrice() {
         System.out.println("Cập nhật giá sau mỗi phút ....");
-        for (Invoice invoice : invoiceRepo.findByStatus((byte) 0)) {
+        for (Invoice invoice : invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 0)) {
             List<InvoiceDetail> allInvoiceDetails = invoiceDetailRepo.findByInvoiceId(invoice.getId());
 
             for (InvoiceDetail invoiceDetail : allInvoiceDetails) {

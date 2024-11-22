@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
-    List<Invoice> findByStatus(Byte status);
+    List<Invoice> findByStatusAndInvoiceStatus(Byte status, Byte invoiceStatus);
 }

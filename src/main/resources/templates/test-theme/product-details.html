@@ -67,13 +67,18 @@
 
                     <!--                        <div class="product__details__price">$ 75.0 <span>$ 83.0</span></div>-->
                     <div class="product__details__button">
-                        <div class="quantity">
-                            <span>Số lượng:</span>
-                            <div class="pro-qty">
-                                <input type="text" value="1">
+                        <form th:action="@{/add-product-detail-to-cart}" method="post">
+                            <div class="quantity">
+                                <span>Số lượng:</span>
+                                <div class="pro-qty">
+                                    <input type="text" name="quantity" value="1">
+                                </div>
                             </div>
-                        </div>
-                        <a href="#" class="cart-btn"><span class="icon_bag_alt"></span> Thêm vào giỏ</a>
+                            <input name="username" th:value="${username}">
+                            <input id="productId" name="productId">
+                            <a href="javascript:void(0);" onclick="this.closest('form').submit()" class="cart-btn"><span
+                                    class="icon_bag_alt"></span> Thêm vào giỏ</a>
+                        </form>
                         <ul>
                             <li><a href="#"><span class="icon_heart_alt"></span></a></li>
                             <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
@@ -105,7 +110,8 @@
                                 <span>Kích cỡ:</span>
                                 <div class="size__btn">
                                     <label th:for="${s.name}+'-btn'" th:each="s :${product.sizes}">
-                                        <input type="radio" name="size__radio" th:id="${s.name}+'-btn'" th:value="${s.id}" th:text="${s.name}">
+                                        <input type="radio" name="size__radio" th:id="${s.name}+'-btn'"
+                                               th:value="${s.id}" th:text="${s.name}">
                                     </label>
                                 </div>
                             </li>
@@ -275,9 +281,9 @@
     </section>
     <!-- Product Details Section End -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Lắng nghe sự thay đổi lựa chọn màu sắc và kích cỡ
-            $("input[name='color__radio'], input[name='size__radio']").change(function() {
+            $("input[name='color__radio'], input[name='size__radio']").change(function () {
                 updatePrice();
             });
 
@@ -286,30 +292,37 @@
                 var selectedColor = $("input[name='color__radio']:checked").val();
                 var selectedSize = $("input[name='size__radio']:checked").val();
                 var productId = $("input[name='product__id']").val();
-                console.log(productId)
-                console.log(selectedColor)
-                console.log(selectedSize)
+
                 // Nếu cả màu sắc và kích cỡ đều được chọn, gửi yêu cầu AJAX
                 if (selectedColor && selectedSize) {
                     $.ajax({
                         url: 'http://localhost:8080/getProductPrice',
                         method: 'GET',
                         data: {
-                            product : productId,
+                            product: productId,
                             color: selectedColor,
                             size: selectedSize
                         },
-                        success: function(response) {
-                            // Cập nhật giá trên giao diện
-                            $("#productPrice").text(response);
+                        success: function (response) {
+                            // Kiểm tra nếu phản hồi có chứa giá trị id và price
+                            if (response.id && response.price) {
+                                // Cập nhật giá và id trên giao diện
+                                $("#productPrice").text(response.price);
+                                $("#productId").val(response.id); // Giả sử bạn có một phần tử với id="productId" để hiển thị id
+                            } else {
+                                console.log("Product detail not found or missing response data.");
+                                $("#productPrice").text("N/A");
+                                $("#productId").val("N/A");
+                            }
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.log('Error:', error);
                         }
                     });
                 }
             }
         });
+
     </script>
 
 </main>

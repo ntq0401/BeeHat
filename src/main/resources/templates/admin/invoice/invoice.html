@@ -111,6 +111,7 @@
                             <span th:if="${hd.status == 0}" class="badge rounded-pill bg-info status-badge">Chưa thanh toán</span>
                             <span th:if="${hd.status == 1}" class="badge rounded-pill bg-danger status-badge">Bị huỷ</span>
                             <span th:if="${hd.status == 2}" class="badge rounded-pill bg-success status-badge">Đã thanh toán</span>
+                            <span th:if="${hd.status == 3}" class="badge rounded-pill bg-primary status-badge">Chờ xác nhận</span>
                         </td>
                         <td colspan="2" style="display: flex; align-items: center; justify-content: center;">
                             <a class="text-no-decoration" th:href="@{/admin/order/view-invoice/{id}(id=${hd.id})}"><i class="ph ph-info icon-large text-primary"></i></a>

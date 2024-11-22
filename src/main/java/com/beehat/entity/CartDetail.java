@@ -1,6 +1,7 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,8 +10,8 @@ import java.time.LocalDateTime;
 @Table(name = "cart_detail")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +44,13 @@ public class CartDetail {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
+
+
     @PreUpdate
     public void preUpdate() {
         updatedDate = LocalDateTime.now();
     }
+
+
 }

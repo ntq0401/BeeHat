@@ -25,7 +25,7 @@
                             <tbody>
                                 <tr th:each="cart : ${cartDetail}">
                                     <td class="cart__product__item">
-                                        <img style="height: 100px" th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
+<!--                                        <img style="height: 100px" th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">-->
                                         <div class="cart__product__item__title">
                                             <h6 th:text="${cart.productDetail.product.name}"></h6>
                                             <div class="rating">
@@ -75,12 +75,14 @@
                 </div>
                 <div class="col-lg-4 offset-lg-2">
                     <div class="cart__total__procced">
-                        <h6>Cart total</h6>
+                        <h6>Tổng tiền giỏ hàng</h6>
                         <ul>
-                            <li>Subtotal <span>$ 750.0</span></li>
-                            <li>Total <span>$ 750.0</span></li>
+                            <li>Tổng tiền : <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
+                            <li>Thực thu : <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
                         </ul>
-                        <a href="#" class="primary-btn">Proceed to checkout</a>
+                        <form method="post" th:action="@{/proceed-to-checkout}">
+                        <a href="javascript:void(0);" onclick="this.closest('form').submit()" class="primary-btn">Proceed to checkout</a>
+                        </form>
                     </div>
                 </div>
             </div>

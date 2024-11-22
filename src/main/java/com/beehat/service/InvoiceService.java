@@ -9,11 +9,14 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import java.io.ByteArrayOutputStream;
 @Service
@@ -102,5 +105,6 @@ public class InvoiceService {
         document.close();
         return baos.toByteArray();
     }
+
 
 }

@@ -1,7 +1,6 @@
 package com.beehat.controller.customer;
 
 import com.beehat.entity.Customer;
-import com.beehat.entity.Employee;
 import com.beehat.entity.Product;
 import com.beehat.repository.CustomerRepo;
 import com.beehat.repository.ProductRepo;
@@ -53,6 +52,7 @@ public class CustomerRegisterController {
         model.addAttribute("customer", new Customer());
         // Kiểm tra xem người dùng đã đăng nhập hay chưa
         if (authentication != null && authentication.isAuthenticated()) {
+
             return "redirect:/";
         }
         return "customer/customerLogin"; // Trả về tên template đăng nhập

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/test-theme/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .success-msg .block i {
+            font-size: 40px;
+            background: #1bbb1b;
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 100px;
+        }
+        .page-wrapper.success-msg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Căn giữa theo chiều dọc màn hình */
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="main">
+<!-- Page Wrapper -->
+    <section class="page-wrapper success-msg">
+        <div class="container d-flex align-items-center justify-content-center">
+            <div class="row w-100">
+                <div class="col-md-6 mx-auto">
+                    <div class="block text-center">
+                        <i style="height: 300px;width: 300px" class="ph ph-check-circle"></i>
+                        <h2 class="text-center">Đặt hàng thành công !</h2>
+                        <p>Trong thời gian chờ xác nhận đơn hàng bạn có xem tình trạng đơn hàng</p>
+                        <p>Order Tracking Number : [[${invoice.invoiceTrackingNumber}]]</p>
+                        <a th:href="@{/shop}" class="btn btn-main mt-20" style="color: white;background-color: black">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+
+</html>

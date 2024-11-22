@@ -16,12 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-
-import java.util.List;
 
 @Configuration
-public  class SecurityConfig {
+public class SecurityConfig {
     // Encoder chung cho các cấu hình
     @Bean
     public static PasswordEncoder encoder() {
@@ -58,7 +55,12 @@ public  class SecurityConfig {
     @Configuration
     @Order(2)
     public static class CustomerSecurity {
+        private final CustomAuthenticationSuccessHandlerForCustomer customAuthenticationSuccessHandlerForCustomer;
 
+        // Constructor injection cho handler
+        public CustomerSecurity(CustomAuthenticationSuccessHandlerForCustomer customAuthenticationSuccessHandlerForCustomer) {
+            this.customAuthenticationSuccessHandlerForCustomer = customAuthenticationSuccessHandlerForCustomer;
+        }
 
         @Bean
         public SecurityFilterChain customerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -71,7 +73,7 @@ public  class SecurityConfig {
                     )
                     .formLogin(form -> form
                             .loginPage("/customer/login")
-                            .defaultSuccessUrl("/", true)// Xử lý khi đăng nhập thành công
+                            .successHandler(customAuthenticationSuccessHandlerForCustomer)// Xử lý khi đăng nhập thành công
                             .failureUrl("/customer/login?error=true") // URL chuyển hướng khi đăng nhập thất bại
                             .permitAll()
 

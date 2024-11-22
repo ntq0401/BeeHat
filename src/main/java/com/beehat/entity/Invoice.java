@@ -1,10 +1,7 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
