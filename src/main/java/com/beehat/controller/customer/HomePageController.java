@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.LinkedHashSet;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -80,4 +79,8 @@ public class HomePageController {
     public String tinTuc(Model model) {
        return "online_store/tintuc";
    }
+    @GetMapping("/chitietdonhang")
+    public String chiTiet(Model model) {
+        return "orderdetail";
+    }
 }

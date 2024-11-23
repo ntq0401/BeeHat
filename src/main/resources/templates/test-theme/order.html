@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/test-theme/template}">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: white;
+        }
+        .sidebar {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: black;
+            display: block;
+            padding: 10px 0;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .order-details {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .order-details h5 {
+            margin-bottom: 20px;
+        }
+        .order-details .btn {
+            background-color: #ff5722;
+            color: white;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Shop</title>
+</head>
+<body>
+<main layout:fragment="main">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <div class="text-center mb-4">
+                        <img th:src="@{/images/profile.png}" class="rounded-circle" height="100" width="100"/>
+                        <h6 class="mt-2">ntq0401 #1085</h6>
+                    </div>
+                    <a href="#">
+                        <i class="fas fa-home"></i>
+                        Trang tài khoản
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-shopping-cart"></i>
+                        Đơn hàng
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-user"></i>
+                        Tài khoản
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-users"></i>
+                        Cộng tác viên
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Thoát
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="order-table bg-white p-4 rounded shadow-sm">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Đơn hàng</th>
+                            <th>Ngày</th>
+                            <th>Trạng thái</th>
+                            <th>Tổng</th>
+                            <th>Các thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="text-danger">#94912</td>
+                            <td>06/11/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>20,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#93097</td>
+                            <td>24/10/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>20,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#90979</td>
+                            <td>10/10/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>20,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#84032</td>
+                            <td>07/09/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>49,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#77075</td>
+                            <td>25/07/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>69,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#71386</td>
+                            <td>09/06/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>12,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#71383</td>
+                            <td>09/06/2024</td>
+                            <td>Tạm giữ</td>
+                            <td>24,000đ cho 2 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        <tr>
+                            <td class="text-danger">#67575</td>
+                            <td>05/05/2024</td>
+                            <td>Đã hoàn thành</td>
+                            <td>12,000đ cho 1 mục</td>
+                            <td><button class="btn btn-danger">XEM</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
