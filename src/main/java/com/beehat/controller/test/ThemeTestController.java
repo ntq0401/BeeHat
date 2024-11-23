@@ -63,9 +63,8 @@ public class ThemeTestController {
 //        return sum;
 //    }
     @GetMapping("/")
-    public String home(HttpServletRequest request, HttpServletResponse response) {
+    public String home(HttpServletRequest request, HttpServletResponse response,Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         // Kiểm tra nếu người dùng đã đăng nhập và có vai trò là ADMIN hoặc EMPLOYEE
         if (auth != null && (auth.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
@@ -78,6 +77,11 @@ public class ThemeTestController {
             // Sau khi đăng xuất, chuyển hướng về trang login hoặc trang khác nếu cần
             return "redirect:/";  // Điều chỉnh URL chuyển hướng nếu cần
         }
+        List<Product> productList = productRepo.findTop12ByOrderByCreatedDateDesc();
+        List<Product> productListPromotion = productRepo.findByPromotionIdNotNull();
+        model.addAttribute("productListPromotion",productListPromotion);
+        model.addAttribute("productList",productList);
+
         return "test-theme/index";
     }
     @GetMapping("/detail/{sku}")
