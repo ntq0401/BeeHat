@@ -1300,8 +1300,8 @@ ol {
 
 .product__item__text .product__price span {
 	font-size: 14px;
-	color: #b1b0b0;
-	text-decoration: line-through;
+	color: #fd011e;
+	/*text-decoration: line-through;*/
 	margin-left: 4px;
 }
 

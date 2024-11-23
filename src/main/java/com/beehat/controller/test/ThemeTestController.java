@@ -7,7 +7,12 @@ import com.beehat.service.CartService;
 import com.beehat.service.CurrencyUtil;
 import com.beehat.service.InvoiceService;
 import com.beehat.service.ProvincesService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -72,8 +77,24 @@ public class ThemeTestController {
     }
 
     @GetMapping("/")
-    public String home() {
+    public String home(HttpServletRequest request, HttpServletResponse response,Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // Kiểm tra nếu người dùng đã đăng nhập và có vai trò là ADMIN hoặc EMPLOYEE
+        if (auth != null && (auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
+                || auth.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_EMPLOYEE")))) {
 
+            // Đăng xuất nếu có quyền ADMIN hoặc EMPLOYEE
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+
+            // Sau khi đăng xuất, chuyển hướng về trang login hoặc trang khác nếu cần
+            return "redirect:/";  // Điều chỉnh URL chuyển hướng nếu cần
+        }
+        List<Product> productList = productRepo.findTop12ByOrderByCreatedDateDesc();
+        List<Product> productListPromotion = productRepo.findByPromotionIdNotNull();
+        model.addAttribute("productListPromotion",productListPromotion);
+        model.addAttribute("productList",productList);
         return "test-theme/index";
     }
 
