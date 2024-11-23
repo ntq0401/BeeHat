@@ -212,11 +212,17 @@
             </div>
             <div class="card-body" th:if="${invoice.status == 3}">
                 <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step">
+                    <div class="step completed">
                         <div class="step-icon-wrap">
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
                         <h4 class="step-title">Chờ xác nhận</h4>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
                     </div>
                     <div class="step">
                         <div class="step-icon-wrap">
@@ -268,6 +274,12 @@
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
                         <h4 class="step-title">Chờ xác nhận</h4>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
                     </div>
                     <div class="step">
                         <div class="step-icon-wrap">
@@ -326,6 +338,12 @@
                         <div class="step-icon-wrap">
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
                         <h4 class="step-title">Chờ lấy hàng</h4>
                     </div>
                     <div class="step">
@@ -367,6 +385,12 @@
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
                         <h4 class="step-title">Chờ xác nhận</h4>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
                     </div>
                     <div class="step completed">
                         <div class="step-icon-wrap">
@@ -418,6 +442,12 @@
                         <div class="step-icon-wrap">
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
                         <h4 class="step-title">Chờ lấy hàng</h4>
                     </div>
                     <div class="step completed">
@@ -459,6 +489,12 @@
                             <div class="step-icon"><i class="pe-7s-cart"></i></div>
                         </div>
                         <h4 class="step-title">Chờ xác nhận</h4>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-icon-wrap">
+                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                        </div>
+                        <h4 class="step-title">Xác nhận đơn hàng</h4>
                     </div>
                     <div class="step completed">
                         <div class="step-icon-wrap">
@@ -603,15 +639,17 @@
                             <td th:text="${#temporals.format(history.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
                             <td th:if="${history.previousStatus == null}" th:text="${history.previousStatus}"></td>
                             <td th:if="${history.previousStatus == 3}">Chờ xác nhận</td>
-                            <td th:if="${history.previousStatus == 4}">Chờ lấy hàng</td>
-                            <td th:if="${history.previousStatus == 5}">Chờ vận chuyển</td>
-                            <td th:if="${history.previousStatus == 6}">Giao hàng</td>
-                            <td th:if="${history.previousStatus == 7}">Hoàn thành</td>
+                            <td th:if="${history.previousStatus == 4}">Xác nhận</td>
+                            <td th:if="${history.previousStatus == 5}">Chờ lấy hàng</td>
+                            <td th:if="${history.previousStatus == 6}">Chờ vận chuyển</td>
+                            <td th:if="${history.previousStatus == 7}">Giao hàng</td>
+                            <td th:if="${history.previousStatus == 8}">Hoàn thành</td>
                             <td th:if="${history.newStatus == 3}">Chờ xác nhận</td>
-                            <td th:if="${history.newStatus == 4}">Chờ lấy hàng</td>
-                            <td th:if="${history.newStatus == 5}">Chờ vận chuyển</td>
-                            <td th:if="${history.newStatus == 6}">Giao hàng</td>
-                            <td th:if="${history.newStatus == 7}">Hoàn thành</td>
+                            <td th:if="${history.newStatus == 4}">Xác nhận</td>
+                            <td th:if="${history.newStatus == 5}">Chờ lấy hàng</td>
+                            <td th:if="${history.newStatus == 6}">Chờ vận chuyển</td>
+                            <td th:if="${history.newStatus == 7}">Giao hàng</td>
+                            <td th:if="${history.newStatus == 8}">Hoàn thành</td>
                             <td th:text="${history.updatedBy != null ? history.updatedBy.name : 'Hệ thống'}"></td>
                             <td th:text="${history.note != null ? history.note : 'Không có'}"></td>
                         </tr>

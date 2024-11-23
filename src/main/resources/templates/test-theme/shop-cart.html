@@ -15,33 +15,36 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Total</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Thành tiền</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:each="cart : ${cartDetail}">
                                     <td class="cart__product__item">
-<!--                                        <img style="height: 100px" th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">-->
+                                        <img style="height: 100px" th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
                                         <div class="cart__product__item__title">
                                             <h6 th:text="${cart.productDetail.product.name}"></h6>
                                             <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
+                                                <p>[[${cart.productDetail.color.name}]] - [[${cart.productDetail.size.name}]]</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="cart__price">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price)}]]</td>
                                     <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" th:value="${cart.quantity}">
+                                        <form th:action="@{/update-cart}" method="post">
+                                        <meta name="_csrf" hidden="hidden" content="${_csrf.token}">
+                                        <meta name="_csrf_header" hidden="hidden" content="${_csrf.headerName}">
+                                        <div class="pro-qty1">
+                                            <span class="dec qtybtn" onclick="checkQuantityAndSubmit(this, 'decrease')" th:data-quantity-invoice-detail="${cart.quantity}">-</span>
+                                            <input name="productId" type="hidden" th:value="${cart.productDetail.id}">
+                                            <input id="quantityInput" class="quantity-input" name="quantity" type="text" th:value="${cart.quantity}">
+                                            <span class="inc qtybtn" onclick="checkQuantityAndSubmit(this, 'increase')" th:data-quantity-invoice-detail="${cart.quantity}">+</span>
                                         </div>
+                                        </form>
                                     </td>
                                     <td class="cart__total" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price * cart.quantity)}"></td>
                                     <td class="cart__close"><span class="icon_close"></span></td>
@@ -88,8 +91,33 @@
             </div>
         </div>
     </section>
-    <!-- Shop Cart Section End -->
+    <script>
+        function checkQuantityAndSubmit(inputElement, action) {
 
+            const form = inputElement.closest('form'); // Lấy form tương ứng
+            let quantity = parseInt(document.getElementById('quantityInput').value);
+            const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
+            const quantityInput = inputElement.closest('form').querySelector('.quantity-input');
+            if (action === 'increase') {
+                quantity += 1; // Tăng số lượng
+            } else if (action === 'decrease' && quantity > 1) {
+                quantity -= 1; // Giảm số lượng, nhưng không để nhỏ hơn 1
+            }
+            quantityInput.value = quantity;
+            if (isNaN(quantity) ||quantity <= 0) {
+                alert("Số lượng sản phẩm không hợp lệ !")
+                inputElement.value = lastQuantity;
+                form.onsubmit = function () {
+                    return false; // Ngăn không cho form được submit
+                };
+                return;
+            }
+
+
+            // Nếu số lượng hợp lệ, cho phép form submit
+            form.submit();
+        }
+    </script>
 </main>
 </body>
 

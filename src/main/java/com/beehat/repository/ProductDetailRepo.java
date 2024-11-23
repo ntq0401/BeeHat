@@ -23,4 +23,23 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
 
     ProductDetail findTopByProductIdOrderByPriceDesc(int id);
     ProductDetail findByProductIdAndColorIdAndSizeId(Integer productId,Integer colorId, Integer sizeId);
+    @Query("SELECT pd FROM ProductDetail pd " +
+            "JOIN pd.product p " +
+            "WHERE pd.status = 1 AND(:categoryId IS NULL OR p.category.id = :categoryId) " +
+            "AND (:materialId IS NULL OR p.material.id = :materialId) " +
+            "AND (:colorId IS NULL OR pd.color.id = :colorId) " +
+            "AND (:sizeId IS NULL OR pd.size.id = :sizeId) " +
+            "AND (:styleId IS NULL OR p.style.id = :styleId) " +
+            "AND (:liningId IS NULL OR p.lining.id = :liningId) " +
+            "AND (:beltId IS NULL OR p.belt.id = :beltId)")
+    Page<ProductDetail> findByCriteria(
+            @Param("categoryId") Integer categoryId,
+            @Param("materialId") Integer materialId,
+            @Param("colorId") Integer colorId,
+            @Param("sizeId") Integer sizeId,
+            @Param("styleId") Integer styleId,
+            @Param("liningId") Integer liningId,
+            @Param("beltId") Integer beltId
+            , Pageable pageable
+    );
 }

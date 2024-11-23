@@ -29,4 +29,5 @@ public interface CustomerRepo extends JpaRepository<Customer, Integer> {
                                    @Param("status") Byte status,
                                    @Param("fromDate") LocalDateTime fromDate,
                                    @Param("toDate") LocalDateTime toDate);
+    List<Customer> findByStatus(Byte status);
 }

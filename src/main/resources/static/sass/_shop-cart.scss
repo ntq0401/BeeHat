@@ -88,6 +88,22 @@
                         color: #444444;
                     }
                 }
+                //sửa ở đây
+                .pro-qty1 {
+                    border: none;
+                    padding: 0;
+                    width: 110px;
+                    border-radius: 0;
+
+                    input {
+                        color: #444444;
+                    }
+
+                    .qtybtn {
+                        font-size: 16px;
+                        color: #444444;
+                    }
+                }
             }
 
             .cart__total {

@@ -45,7 +45,20 @@ public class StoreController {
     EmployeeRepo employeeRepo;
     @Autowired
     PaymentHistoryRepo paymentHistoryRepo;
-
+    @Autowired
+    ColorRepo colorRepo;
+    @Autowired
+    SizeRepo sizeRepo;
+    @Autowired
+    MaterialRepo materialRepo;
+    @Autowired
+    CategoryRepo categoryRepo;
+    @Autowired
+    BeltRepo beltRepo;
+    @Autowired
+    LiningRepo liningRepo;
+    @Autowired
+    StyleRepo styleRepo;
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-basket fs-3";
@@ -58,9 +71,16 @@ public class StoreController {
 
     @ModelAttribute("productDetails")
     public Page<ProductDetail> detail(@RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(required = false) Integer categoryId,
+                                      @RequestParam(required = false) Integer materialId,
+                                      @RequestParam(required = false) Integer colorId,
+                                      @RequestParam(required = false) Integer sizeId,
+                                      @RequestParam(required = false) Integer styleId,
+                                      @RequestParam(required = false) Integer liningId,
+                                      @RequestParam(required = false) Integer beltId,
                                       Model model) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<ProductDetail> productDetailsPage = productDetailRepo.findByStatus((byte) 1, pageable);
+        Page<ProductDetail> productDetailsPage = productDetailRepo.findByCriteria(categoryId, materialId, colorId, sizeId, styleId, liningId, beltId, pageable);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productDetailsPage.getTotalPages());
         model.addAttribute("totalItems", productDetailsPage.getTotalElements());
@@ -85,12 +105,46 @@ public class StoreController {
 
     @ModelAttribute("listCustomer")
     List<Customer> listCustomer() {
-        return customerRepo.findAll();
+        return customerRepo.findByStatus((byte) 1);
     }
 
     @ModelAttribute("listVoucher")
     List<Voucher> listVoucher() {
-        return voucherRepo.findAll();
+        return voucherRepo.findByStatus((byte) 1);
+    }
+    @ModelAttribute("listCate")
+    List<Category> listCategory() {
+        return categoryRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listBelt")
+    List<Belt> listBelt() {
+        return beltRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listLining")
+    List<Lining> listLining() {
+        return liningRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listStyle")
+    List<Style> listStyle() {
+        return styleRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listMater")
+    List<Material> listMaterial() {
+        return materialRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listColor")
+    List<Color> listColor() {
+        return colorRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listSize")
+    List<Size> listSize() {
+        return sizeRepo.findByStatus(Byte.valueOf("1"));
     }
 
     @GetMapping("/index")

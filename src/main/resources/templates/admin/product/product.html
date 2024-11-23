@@ -24,39 +24,46 @@
             Tìm kiếm sản phẩm
         </div>
         <div class="card-body">
-            <form class="row g-3">
+            <form class="row g-3" method="get">
                 <div class="col-md-4">
                     <label for="invoiceCode" class="form-label">Tên sản phẩm</label>
-                    <input type="text" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
+                    <input type="text" name="name" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Kiểu dáng</label>
-                    <select class="form-select">
-                        <option>Chọn kiểu dáng</option>
+                    <select class="form-select" name="styleId">
+                        <option value="" disabled selected>Chọn kiểu dáng</option>
+                        <option th:each=" style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
+
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Chất liệu</label>
-                    <select class="form-select">
-                        <option>Chọn chất liệu</option>
+                    <select class="form-select" name="materialId">
+                        <option value="" disabled selected>Chọn chất liệu</option>
+                        <option th:each=" m : ${listMaterial}" th:value="${m.id}" th:text="${m.name}"></option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Danh mục</label>
-                    <select class="form-select">
-                        <option>Chọn danh mục</option>
+                    <select class="form-select" name="categoryId">
+                        <option value="" disabled selected>Chọn danh mục</option>
+                        <option th:each=" cate : ${listCategory}" th:value="${cate.id}" th:text="${cate.name}"></option>
+
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Vải lót</label>
-                    <select class="form-select">
-                        <option>Chọn vải lót</option>
+                    <select class="form-select" name="liningId">
+                        <option value="" disabled selected>Chọn vải lót</option>
+                        <option th:each=" lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Đai mũ</label>
-                    <select class="form-select">
-                        <option>Chọn đai mũ</option>
+                    <select class="form-select" name="beltId">
+                        <option value="" disabled selected>Chọn đai mũ</option>
+                        <option th:each=" belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
                     </select>
                 </div>
                 <div class="col-md-12">
@@ -90,7 +97,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="p,stt : ${product}">
+                <tr th:each="p,stt : ${listProduct.content}">
                     <td>[[${stt.index + 1}]]</td>
                     <td th:if="${p.images.size() > 0}">
                         <img th:src="${p.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 100px; height: auto;">
@@ -122,6 +129,23 @@
                 </tr>
                 </tbody>
             </table>
+            <!-- Hiển thị nút phân trang -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link"
+                                             th:href="@{/admin/product/index(page=${currentPage - 1}, size=${size})}">Previous</a>
+                    </li>
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'"><a
+                            class="page-link"
+                            th:href="@{/admin/product/index(page=${i}, size=${size})}">[[${i
+                        + 1}]]</a></li>
+                    <li class="page-item"><a class="page-link"
+                                             th:href="@{/admin/product/index(page=${currentPage + 1}, size=${size})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </main>

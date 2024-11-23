@@ -74,8 +74,8 @@
                                     <input type="text" name="quantity" value="1">
                                 </div>
                             </div>
-                            <input name="username" th:value="${username}">
-                            <input id="productId" name="productId">
+                            <input type="hidden" name="username" th:value="${username}">
+                            <input type="hidden" id="productId" name="productId">
                             <a href="javascript:void(0);" onclick="this.closest('form').submit()" class="cart-btn"><span
                                     class="icon_bag_alt"></span> Thêm vào giỏ</a>
                         </form>
@@ -86,16 +86,16 @@
                     </div>
                     <div class="product__details__widget">
                         <ul>
-                            <li>
-                                <span>Số lượng hàng :</span>
-                                <div class="stock__checkbox">
-                                    <label for="stockin">
-                                        In Stock
-                                        <input type="checkbox" id="stockin">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </li>
+<!--                            <li>-->
+<!--                                <span>Số lượng hàng :</span>-->
+<!--                                <div class="stock__checkbox">-->
+<!--                                    <label for="stockin">-->
+<!--                                        In Stock-->
+<!--                                        <input type="checkbox" id="stockin">-->
+<!--                                        <span class="checkmark"></span>-->
+<!--                                    </label>-->
+<!--                                </div>-->
+<!--                            </li>-->
                             <input type="hidden" name="product__id" th:value="${product.id}">
                             <li>
                                 <span>Màu sắc:</span>

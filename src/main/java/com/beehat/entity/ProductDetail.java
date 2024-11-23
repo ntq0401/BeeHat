@@ -33,6 +33,7 @@ public class ProductDetail {
     @JoinColumn(name = "size_id")
     private Size size;
     @NotNull(message = "Không được bỏ trống giá!")
+    @Min(value = 0,message = "Giá sản phẩm phải lớn hơn 0")
     private Integer price;
     @NotNull(message = "Không được bỏ trống số lượng!")
     @Min(value = 0,message = "Số lượng phải lớn hơn 0")

@@ -10,6 +10,7 @@ import com.beehat.service.ProvincesService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -361,5 +362,31 @@ public class ThemeTestController {
     @GetMapping("/orderdetail")
     public String orderdetail() {
         return "test-theme/orderdetail";
+    }
+    @GetMapping("/look-up")
+    public String lookup() {
+        return "test-theme/look-up";
+    }
+    @PostMapping("/update-cart")
+    public String updateCart(@RequestParam("productId") int id,
+                             @RequestParam("quantity") int quantity,
+                             Principal principal) {
+        if (principal != null) {
+            Customer customer = customerRepo.findByUsername(principal.getName());
+            CartDetail cartDetails = cartDetailRepo.findByCustomerIdAndStatusAndProductDetailId(customer.getId(),(byte) 1,id);
+            if (cartDetails != null) {
+                if (cartDetails.getQuantity() > quantity) {
+                    cartDetails.setQuantity(quantity);
+                    cartDetailRepo.save(cartDetails);
+                }
+                if (cartDetails.getQuantity() < quantity) {
+                    cartDetails.setQuantity(quantity);
+                    cartDetailRepo.save(cartDetails);
+                }
+            }
+        }else{
+            cartService.update(id, quantity);
+        }
+            return "redirect:/shop-cart";
     }
 }

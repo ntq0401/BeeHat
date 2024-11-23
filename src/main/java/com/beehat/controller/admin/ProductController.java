@@ -93,7 +93,25 @@ public class ProductController {
     List<Size> listSize() {
         return sizeRepo.findByStatus(Byte.valueOf("1"));
     }
+    @ModelAttribute("listProduct")
+    public Page<Product> products(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer materialId,
+            @RequestParam(required = false) Integer styleId,
+            @RequestParam(required = false) Integer liningId,
+            @RequestParam(required = false) Integer beltId,
+            @RequestParam(required = false) String name,
+            Model model) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Product> productsPage = productRepo.findByCriteria(
+                categoryId, materialId, styleId, liningId, beltId, name, pageable);
 
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("totalItems", productsPage.getTotalElements());
+        return productsPage;
+    }
     @GetMapping("/index")
     public String product(Model model) {
         model.addAttribute("p", new Product());

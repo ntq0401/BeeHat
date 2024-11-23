@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/test-theme/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop</title>
+</head>
+<body>
+<main layout:fragment="main">
+<div class="container">
+    <div class="footer__newslatter" style="padding-top: 200px">
+        <h6>Order tracking number</h6>
+        <form th:action="@{/look-up}" method="post">
+            <input type="text" name="orderId" placeholder="Nhập mã đơn hàng...">
+            <button type="submit" class="site-btn">Tra cứu</button>
+        </form>
+
+    </div>
+</div>
+</main>
+</body>
+
+</html>
