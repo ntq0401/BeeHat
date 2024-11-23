@@ -6,14 +6,18 @@ import com.beehat.repository.*;
 import com.beehat.service.CartService;
 import com.beehat.service.CurrencyUtil;
 import com.beehat.service.InvoiceService;
+import com.beehat.service.ProvincesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -34,35 +38,39 @@ public class ThemeTestController {
     InvoiceDetailRepo invoiceDetailRepo;
     @Autowired
     InvoiceService invoiceService;
-//    @ModelAttribute("cartSum")
-//    public int getSum(Principal principal) {
-//        if (principal == null) {
-//            // Handle null principal (e.g., user not logged in)
-//            return 0;
-//        }
-//
-//        Customer customer = customerRepo.findByUsername(principal.getName());
+    @Autowired
+    private ProvincesService provincesService;
+    @Autowired
+    PaymentHistoryRepo paymentHistoryRepo;
+    @Autowired
+    PaymentMethodRepo paymentMethodRepo;
+    @Autowired
+    InvoiceHistoryStatusRepo invoiceHistoryStatusRepo;
+    @ModelAttribute("cartSum")
+    public long getSum(Principal principal) {
+        if (principal == null) {
+            return cartService.getTotal();
+        }
 
-    /// /        String name = principal.getName();
-    /// /        if (name.equals("user")){
-    /// /            return 0;
-    /// /        }
-//        if (customer == null) {
-//            // Handle case where customer is not found
-//            return 0;
-//        }
-//
-//        List<CartDetail> cartDetails = cartDetailRepo.findByCustomerId(customer.getId());
-//        if (cartDetails == null || cartDetails.isEmpty()) {
-//            // Handle case where no cart details are found
-//            return 0;
-//        }
-//
-//        // Sum up quantities from cart details
-//        int sum = cartDetails.stream().mapToInt(CartDetail::getQuantity).sum();
-//        System.out.println(sum);
-//        return sum;
-//    }
+        Customer customer = customerRepo.findByUsername(principal.getName());
+
+        //trường hợp dùng tài khoản admin employ đăng nhập vào thì return -1
+        if (customer == null) {
+            return -1;
+        }
+
+        // trường hợp giỏ hàng của user không có sản phẩm
+        List<CartDetail> cartDetails = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(),(byte) 1);
+        if (cartDetails == null || cartDetails.isEmpty()) {
+            // Handle case where no cart details are found
+            return 0;
+        }
+
+        // trường hợp có sản phẩm trong giỏ tài khoản user
+        long sum = cartDetails.stream().map(CartDetail::getProductDetail).distinct().count();
+        return sum;
+    }
+
     @GetMapping("/")
     public String home() {
 
@@ -98,7 +106,6 @@ public class ThemeTestController {
         if (principal != null) {
             Customer customer = customerRepo.findByUsername(principal.getName());
             List<CartDetail> cartDetail = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
-            cartService.addAllCart(cartDetail);
             model.addAttribute("cartDetail", cartDetail);
             model.addAttribute("totalPrice", cartDetail.stream().mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice()).sum());
             return "test-theme/shop-cart";
@@ -125,22 +132,29 @@ public class ThemeTestController {
         if (principal != null) {
             // Khách hàng đã đăng nhập
             Customer customer = customerRepo.findByUsername(principal.getName());
-            cartService.createTemporaryInvoice(customer);
+            List<CartDetail> cartDetail = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
+            cartService.createTemporaryInvoice(customer, cartDetail);
         } else {
             // Khách hàng chưa đăng nhập
-            cartService.createTemporaryInvoice(null);
+            cartService.createTemporaryInvoice(null, cartService.getCartDetails());
         }
         return "redirect:/checkout";
     }
 
     @GetMapping("/checkout")
-    public String checkout( Model model) {
+    public String checkout(Model model,Principal principal) {
+        model.addAttribute("provinces", provincesService.getProvinces());
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
             return "redirect:/shop-cart"; // Nếu không có hóa đơn tạm thời, quay lại giỏ hàng
         }
         model.addAttribute("invoice", temporaryInvoice);
-        model.addAttribute("cartDetails", cartService.getCartDetails());
+        if (principal != null) {
+            Customer customer = customerRepo.findByUsername(principal.getName());
+            model.addAttribute("cartDetails", cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1));
+        }else{
+            model.addAttribute("cartDetails", cartService.getCartDetails());
+        }
         return "test-theme/checkout";
     }
 
@@ -148,6 +162,7 @@ public class ThemeTestController {
     public String contact() {
         return "test-theme/contact";
     }
+
     //tạm thời thêm nhanh ở trang shop
     @PostMapping("/add-product-to-cart/{id}")
     public String addProductToCart(@PathVariable Integer id, @RequestParam(value = "username", defaultValue = "") String username) {
@@ -167,6 +182,7 @@ public class ThemeTestController {
                 CartDetail cartDetail1 = new CartDetail();
                 cartDetail1.setProductDetail(productDetail);
                 cartDetail1.setCustomer(customer);
+                cartDetail1.setQuantity(1);
                 cartDetailRepo.save(cartDetail1);
             }
             return "redirect:/shop";
@@ -232,26 +248,43 @@ public class ThemeTestController {
                            @RequestParam("cityInv") String cityInv,
                            @RequestParam("districtInv") String districtInv,
                            @RequestParam("wardInv") String wardInv,
-                           @RequestParam("phoneInv") String phoneInv)
-            {
+                           @RequestParam("phoneInv") String phoneInv,
+                           @RequestParam("paymentInv") Integer idPayment) {
+        PaymentMethod paymentMethod = paymentMethodRepo.findById(idPayment).orElse(null);
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
-                temporaryInvoice.setShippingCountry(countryInv);
-                temporaryInvoice.setShippingAddress(addressInv);
-                temporaryInvoice.setShippingCity(cityInv);
-                temporaryInvoice.setShippingDistrict(districtInv);
-                temporaryInvoice.setShippingWard(wardInv);
-                temporaryInvoice.setPhone(phoneInv);
-                if (temporaryInvoice != null) {
-                    // Lưu hóa đơn vào cơ sở dữ liệu (logic lưu vào database)
-                    Invoice savedInvoice = saveInvoice(temporaryInvoice, cartService.getCartDetails());
-                    // Xóa hóa đơn tạm thời và giỏ hàng
-                    cartService.clearTemporaryInvoice();
-                    return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
+        temporaryInvoice.setShippingCountry(countryInv);
+        temporaryInvoice.setShippingAddress(addressInv);
+        temporaryInvoice.setShippingCity(cityInv);
+        temporaryInvoice.setShippingDistrict(districtInv);
+        temporaryInvoice.setShippingWard(wardInv);
+        temporaryInvoice.setPhone(phoneInv);
+        temporaryInvoice.setPaymentMethod(paymentMethod);
+        if (temporaryInvoice != null) {
+            // Lưu hóa đơn vào cơ sở dữ liệu (logic lưu vào database)
+            Invoice savedInvoice = new Invoice();
+            //trường hợp giỏ hàng này có user đã đăng nhập thì phải chuyển trạng thái giỏ hàng thành đã thanh toán
+            //còn với giỏ chưa đăng nhập thì dùng clear là xong
+            if (temporaryInvoice.getCustomer() != null) {
+                List<CartDetail> listCart = cartDetailRepo.findByCustomerIdAndStatus(temporaryInvoice.getCustomer().getId(), (byte) 1);
+                 savedInvoice = saveInvoice(temporaryInvoice, listCart);
+                for (CartDetail cart : listCart) {
+                    cart.setStatus((byte) 2);
+                    cartDetailRepo.save(cart);
                 }
-                return "redirect:/cart"; // Quay lại giỏ hàng nếu không có hóa đơn tạm thời
+            }else{
+                savedInvoice = saveInvoice(temporaryInvoice,cartService.getCartDetails());
+                cartService.clear();
+            }
+            // Xóa hóa đơn tạm thời và giỏ hàng
+            cartService.clearTemporaryInvoice();
+            return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
+        }
+        return "redirect:/cart"; // Quay lại giỏ hàng nếu không có hóa đơn tạm thời
     }
+
     private Invoice saveInvoice(Invoice invoice, List<CartDetail> cartDetails) {
         // Lưu hóa đơn và các chi tiết hóa đơn vào database
+        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         Invoice savedInvoice = invoiceRepo.save(invoice);
         for (CartDetail cartDetail : cartDetails) {
             InvoiceDetail invoiceDetail = new InvoiceDetail();
@@ -264,11 +297,36 @@ public class ThemeTestController {
         }
         savedInvoice.setStatus((byte) 3);
         invoiceRepo.save(savedInvoice);
+        InvoiceStatusHistory invoiceStatusHistory = new InvoiceStatusHistory();
+        PaymentHistory paymentHistory = new PaymentHistory();
+        invoiceStatusHistory.setInvoice(savedInvoice);
+        invoiceStatusHistory.setNewStatus((byte) 3);
+        invoiceStatusHistory.setUpdatedAt(LocalDateTime.now());
+        paymentHistory.setInvoice(savedInvoice);
+        paymentHistory.setPaymentDate(LocalDateTime.now());
+        paymentHistory.setTransactionCode(randomUUID + "-" + savedInvoice.getInvoiceTrackingNumber());
+        paymentHistory.setAmountPaid(savedInvoice.getTotalPrice());
+        paymentHistory.setPaymentMethod(savedInvoice.getPaymentMethod());
+        paymentHistoryRepo.save(paymentHistory);
+        invoiceHistoryStatusRepo.save(invoiceStatusHistory);
         return savedInvoice;
     }
+
     @GetMapping("/confirmation")
     public String confirmation(@RequestParam("invoiceId") Integer id, Model model) {
         model.addAttribute("invoice", invoiceRepo.findById(id).orElse(null));
         return "test-theme/confirmation";
+    }
+
+    @GetMapping("/districts")
+    @ResponseBody
+    public List<Map<String, Object>> getDistricts(@RequestParam("provinceId") int provinceId) {
+        return provincesService.getDistricts(provinceId);
+    }
+
+    @GetMapping("/wards")
+    @ResponseBody
+    public List<Map<String, Object>> getWards(@RequestParam("districtId") int districtId) {
+        return provincesService.getWards(districtId);
     }
 }

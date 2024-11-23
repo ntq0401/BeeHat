@@ -63,6 +63,20 @@
         color: #666666;
       }
     }
+    select {
+      height: 50px;
+      width: 100%;
+      border: 1px solid #e1e1e1;
+      border-radius: 2px;
+      margin-bottom: 25px;
+      font-size: 14px;
+      padding-left: 20px;
+      color: #666666;
+
+      &::placeholder {
+        color: #666666;
+      }
+    }
   }
 
   .checkout__form__checkbox {

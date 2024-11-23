@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -42,6 +43,8 @@ public class StoreController {
     InvoiceService invoiceService;
     @Autowired
     EmployeeRepo employeeRepo;
+    @Autowired
+    PaymentHistoryRepo paymentHistoryRepo;
 
     @ModelAttribute("iconTitle")
     String iconTitle() {
@@ -57,7 +60,7 @@ public class StoreController {
     public Page<ProductDetail> detail(@RequestParam(defaultValue = "0") int page,
                                       Model model) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<ProductDetail> productDetailsPage = productDetailRepo.findByStatus((byte) 1,pageable);
+        Page<ProductDetail> productDetailsPage = productDetailRepo.findByStatus((byte) 1, pageable);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productDetailsPage.getTotalPages());
         model.addAttribute("totalItems", productDetailsPage.getTotalElements());
@@ -66,8 +69,9 @@ public class StoreController {
 
     @ModelAttribute("listInvoice")
     List<Invoice> listOrder() {
-        return invoiceRepo.findByStatusAndInvoiceStatus(Byte.valueOf("0"),(byte)0);
+        return invoiceRepo.findByStatusAndInvoiceStatus(Byte.valueOf("0"), (byte) 0);
     }
+
     // ????
     @ModelAttribute("invoiceDetail")
     List<InvoiceDetail> listOrderDetail() {
@@ -99,7 +103,7 @@ public class StoreController {
 
     @PostMapping("/add-invoice")
     public String addInvoice(@ModelAttribute("i") Invoice invoice
-        ,@RequestParam(name = "username") String username){
+            , @RequestParam(name = "username") String username) {
         Employee employee = employeeRepo.findByUsername(username);
         invoice.setEmployee(employee);
         invoice.setInvoiceStatus(Byte.valueOf("0"));
@@ -242,6 +246,7 @@ public class StoreController {
 
     }
 
+    //???
     @GetMapping("/{id}/view")
     public String viewInvoice(@PathVariable Integer id, Model model) {
         model.addAttribute("invoiceId", id);
@@ -380,8 +385,13 @@ public class StoreController {
                       @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
                       @RequestParam(name = "methodPayment") int paymentMethod) {
         System.out.println("Voucher ID received: " + voucherPayment);  // Log giá trị voucherPayment
-
+        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setInvoice(invoice);
+        paymentHistory.setAmountPaid(totalPayment);
+        paymentHistory.setPaymentDate(LocalDateTime.now());
+        paymentHistory.setTransactionCode(randomUUID+"-"+invoice.getInvoiceTrackingNumber());
         Voucher voucher = voucherRepo.findById(voucherPayment).orElse(null);
         if (voucher != null) {
             invoice.setVoucher(voucher);
@@ -390,12 +400,13 @@ public class StoreController {
         PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod).orElse(null);
         if (paymentMethod1 != null) {
             invoice.setPaymentMethod(paymentMethod1);
+            paymentHistory.setPaymentMethod(paymentMethod1);
         }
 
         invoice.setFinalPrice(totalPayment);
         invoice.setStatus(Byte.valueOf("2"));
         invoiceRepo.save(invoice);
-
+        paymentHistoryRepo.save(paymentHistory);
         return "redirect:/admin/store/index";
     }
 }

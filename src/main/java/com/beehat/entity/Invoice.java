@@ -76,7 +76,12 @@ public class Invoice {
 
     @Column(name = "status", insertable = false)
     private Byte status;
+    // Relationships with history tables
+    @OneToMany(mappedBy = "invoice")
+    private List<InvoiceStatusHistory> statusHistories;
 
+    @OneToMany(mappedBy = "invoice")
+    private List<PaymentHistory> paymentHistories;
     @Column(name = "created_date", insertable = false, updatable = false)
     private LocalDateTime createdDate;
     @Column(name = "updated_date")

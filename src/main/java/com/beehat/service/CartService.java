@@ -37,11 +37,11 @@ public class CartService {
         cartDetails.clear();
         this.cartDetails = newCartDetails;
     }
-    public void createTemporaryInvoice(Customer customer) {
+    public void createTemporaryInvoice(Customer customer,List<CartDetail> carts) {
         Invoice invoice = new Invoice();
         invoice.setCustomer(customer);
         invoice.setInvoiceStatus((byte) 1);
-        invoice.setTotalPrice(cartDetails.stream()
+        invoice.setTotalPrice(carts.stream()
                 .mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice())
                 .sum());
         invoice.setFinalPrice(invoice.getTotalPrice());
@@ -91,11 +91,11 @@ public class CartService {
         }
     }
 
-    public int getTotal() {
-        int total = 0;
-        for (CartDetail item : cartDetails) {
-            total += item.getQuantity();
-        }
+    public long getTotal() {
+        long total = cartDetails.stream()
+                .map(CartDetail::getProductDetail)  // Lấy ra đối tượng ProductDetail từ mỗi CartDetail
+                .distinct()  // Loại bỏ sản phẩm trùng lặp (nếu cần)
+                .count();  // Đếm số lượng các sản phẩm
         return total;
     }
 

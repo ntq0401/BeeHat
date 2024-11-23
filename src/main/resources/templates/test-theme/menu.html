@@ -75,7 +75,7 @@
                         <input type="hidden" id="username" th:value="${username}">
                         <li><span class="icon_search search-switch"></span></li>
                         <li><a href="javascript:void(0);" id="userDropdownToggle">
-                            <span class="fa fa-user"></span>
+                            <span class="ph ph-user" style="font-size:21px "></span>
                         </a>
                         </li>
                         <div class="drop-down" id="userMenu" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111;"  >
@@ -91,13 +91,27 @@
                                 </form>
                             </div>
                         </div>
-                        <li><a href="/shop-cart" ><span class="icon_bag_alt"></span>
-<!--                            <div class="tip" th:text="${cartSum}"></div>-->
+                        <li><a th:href="@{/shop-cart}"><span  class="icon_bag_alt" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"></span>
+                            <div class="tip" th:text="${cartSum}"></div>
                         </a></li>
                     </ul>
                 </div>
             </div>
         </div>
+
+        <!-- Search End -->
+        <script>
+            // Function to open the offcanvas
+            function openOffCanvas() {
+                document.getElementById("offcanvas").classList.add("open");
+            }
+
+            // Function to close the offcanvas
+            function closeOffCanvas() {
+                document.getElementById("offcanvas").classList.remove("open");
+            }
+
+        </script>
 
 
         <script>
@@ -343,5 +357,3 @@
         </form>
     </div>
 </div>
-
-<!-- Search End -->

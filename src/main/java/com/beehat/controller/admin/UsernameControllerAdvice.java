@@ -1,28 +1,21 @@
 package com.beehat.controller.admin;
 
-import com.beehat.entity.CartDetail;
-import com.beehat.entity.Customer;
 import com.beehat.entity.Employee;
-import com.beehat.repository.CartDetailRepo;
-import com.beehat.repository.CustomerRepo;
 import com.beehat.repository.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.security.Principal;
-import java.util.List;
-
 @ControllerAdvice
 public class UsernameControllerAdvice {
     @Autowired
     EmployeeRepo employeeRepo;
+
     @ModelAttribute("username")
-    public String getUserName(){
+    public String getUserName() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             return ((UserDetails) principal).getUsername();
@@ -30,11 +23,13 @@ public class UsernameControllerAdvice {
             return principal.toString();
         }
     }
+
     @ModelAttribute("isLoggedIn")
     public boolean isUserLoggedIn() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return principal instanceof UserDetails; // Trả về true nếu người dùng đã đăng nhập
     }
+
     @ModelAttribute("userImageURL")
     public String addUserImageURLToModel() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
