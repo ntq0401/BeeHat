@@ -36,6 +36,86 @@
             color: white;
         }
     </style>
+    <script>
+        const apiBase = 'https://provinces.open-api.vn/api/';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const customerElement = document.getElementById('customerData');
+            const customer = {
+                id: customerElement.getAttribute('data-id'),
+                city: customerElement.getAttribute('data-city'),
+                district: customerElement.getAttribute('data-district'),
+                ward: customerElement.getAttribute('data-ward')
+            };
+
+            const cityValue = customer.city;
+            const districtValue = customer.district;
+            const wardValue = customer.ward;
+
+            // Fetch danh sách tỉnh
+            fetch(apiBase + 'p')
+                .then(response => response.json())
+                .then(data => {
+                    const citySelect = document.getElementById('city');
+                    data.forEach(city => {
+                        const selected = city.code == cityValue ? 'selected' : ''; // so sánh kiểu số
+                        citySelect.innerHTML += `<option value="${city.code}" ${selected}>${city.name}</option>`;
+                    });
+
+                    // Nếu có thông tin về tỉnh trong khách hàng, lấy thông tin huyện
+                    if (cityValue) {
+                        fetchDistricts(cityValue);
+                    }
+                })
+                .catch(error => console.error('Error fetching cities:', error));
+
+            // Lắng nghe sự kiện thay đổi của tỉnh
+            document.getElementById('city').addEventListener('change', function() {
+                const cityCode = this.value;
+                fetchDistricts(cityCode);
+            });
+
+            // Lắng nghe sự kiện thay đổi của huyện
+            document.getElementById('district').addEventListener('change', function() {
+                const districtCode = this.value;
+                fetchWards(districtCode);
+            });
+
+            function fetchDistricts(cityCode) {
+                fetch(`${apiBase}p/${cityCode}?depth=2`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const districtSelect = document.getElementById('district');
+                        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                        data.districts.forEach(district => {
+                            const selected = district.code == districtValue ? 'selected' : ''; // so sánh kiểu số
+                            districtSelect.innerHTML += `<option value="${district.code}" ${selected}>${district.name}</option>`;
+                        });
+
+                        // Nếu có thông tin về huyện trong khách hàng, lấy thông tin xã
+                        if (districtValue) {
+                            fetchWards(districtValue);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching districts:', error));
+            }
+
+            function fetchWards(districtCode) {
+                fetch(`${apiBase}d/${districtCode}?depth=2`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const wardSelect = document.getElementById('ward');
+                        wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                        data.wards.forEach(ward => {
+                            const selected = ward.code == wardValue ? 'selected' : ''; // so sánh kiểu số
+                            wardSelect.innerHTML += `<option value="${ward.code}" ${selected}>${ward.name}</option>`;
+                        });
+                    })
+                    .catch(error => console.error('Error fetching wards:', error));
+            }
+        });
+
+    </script>
     <meta charset="UTF-8">
     <title>Shop</title>
 </head>
@@ -46,64 +126,77 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="text-center mb-4">
-                        <img th:src="@{/images/profile.png}" class="rounded-circle" height="100" width="100"/>
-                        <h6 class="mt-2">ntq0401 #1085</h6>
+                        <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle" height="100" width="100"/>
+                        <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
                     </div>
-                    <a href="#">
+                    <a href="/account">
                         <i class="fas fa-home"></i>
                         Trang tài khoản
                     </a>
-                    <a href="#">
+                    <a href="/order">
                         <i class="fas fa-shopping-cart"></i>
                         Đơn hàng
                     </a>
-                    <a href="#">
+                    <a href="/change-pass">
                         <i class="fas fa-user"></i>
-                        Tài khoản
+                        Đổi mật khẩu
                     </a>
-                    <a href="#">
-                        <i class="fas fa-users"></i>
-                        Cộng tác viên
-                    </a>
-                    <a href="#">
+                    <a href="/">
                         <i class="fas fa-sign-out-alt"></i>
                         Thoát
                     </a>
                 </div>
             </div>
             <div class="col-md-9">
-            <form>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="firstName" class="form-label">Tên *</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName">
+            <form th:action="@{/account/update}" th:object="${customer}" method="post">
+                <input type="hidden" name="id" th:value="${customer.id}" />
+                <div id="customerData"
+                     th:data-id="${customer.id}"
+                     th:data-city="${customer.city}"
+                     th:data-district="${customer.district}"
+                     th:data-ward="${customer.ward}">
+                </div>
+                <div class="mb-3">
+                        <label for="fullName" class="form-label">Họ tên *</label>
+                        <input type="text" class="form-control" id="fullname" name="fullname" th:value="${customer.fullname}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ email *</label>
+                    <input type="email" name="email" th:value="${customer.email}" class="form-control" required/>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại *</label>
+                    <input type="text" name="phone" th:value="${customer.phone}" class="form-control" maxlength="10" pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0" required/>
+                    <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
+                </div>
+                <div class=" mb-3 row">
+                    <!-- Dropdown chọn tỉnh/thành phố -->
+                    <div class="form-group col-md-4">
+                        <label>Tỉnh/Thành phố</label>
+                        <select id="city" name="city" class="form-control" required>
+                            <option value="">Chọn tỉnh/thành phố</option>
+                        </select>
                     </div>
-                    <div class="col">
-                        <label for="lastName" class="form-label">Họ *</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName">
+                    <!-- Dropdown chọn quận/huyện -->
+                    <div class="form-group col-md-4">
+                        <label>Quận/Huyện</label>
+                        <select id="district" name="district" class="form-control"  required>
+                            <option value="">Chọn quận/huyên</option>
+                        </select>
+                    </div>
+
+                    <!-- Dropdown chọn phường/xã -->
+                    <div class="form-group col-md-4">
+                        <label>Phường/Xã</label>
+                        <select id="ward" name="ward" class="form-control"  required>
+                            <option value="">Chọn phường/xã</option>
+                        </select>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="displayName" class="form-label">Tên hiển thị *</label>
-                    <input type="text" class="form-control" id="displayName" name="displayName">
-                    <div class="form-text">Tên này sẽ hiển thị trong trang Tài khoản và phần Đánh giá sản phẩm</div>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Địa chỉ email *</label>
-                    <input type="email" class="form-control" id="email" name="email">
-                </div>
-                <div class="section-title">THAY ĐỔI MẬT KHẨU</div>
-                <div class="mb-3">
-                    <label for="currentPassword" class="form-label">Mật khẩu hiện tại (bỏ trống nếu không đổi)</label>
-                    <input type="password" class="form-control" id="currentPassword" name="currentPassword">
-                </div>
-                <div class="mb-3">
-                    <label for="newPassword" class="form-label">Mật khẩu mới (bỏ trống nếu không đổi)</label>
-                    <input type="password" class="form-control" id="newPassword" name="newPassword">
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                    <label class="form-label">Địa chỉ *</label>
+                    <input type="text" name="address" th:value="${customer.address}" class="form-control" required/>
                 </div>
                 <button type="submit" class="btn btn-primary">Cập nhật</button>
             </form>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/test-theme/template}">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .sidebar {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: black;
+            display: block;
+            padding: 10px 0;
+        }
+
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .order-details {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .order-details h5 {
+            margin-bottom: 20px;
+        }
+
+        .order-details .btn {
+            background-color: #ff5722;
+            color: white;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <title>Shop</title>
+</head>
+<body>
+<main layout:fragment="main">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <div class="text-center mb-4">
+                        <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle" height="100"
+                             width="100"/>
+                        <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
+                    </div>
+                    <a href="/account">
+                        <i class="fas fa-home"></i>
+                        Trang tài khoản
+                    </a>
+                    <a href="/order">
+                        <i class="fas fa-shopping-cart"></i>
+                        Đơn hàng
+                    </a>
+                    <a href="/change-pass">
+                        <i class="fas fa-user"></i>
+                        Đổi mật khẩu
+                    </a>
+                    <a href="/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Thoát
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div th:if="${message}" class="alert alert-success">
+                    <p th:text="${message}"></p>
+                </div>
+                <!-- Hiển thị thông báo lỗi -->
+                <div th:if="${error}" class="alert alert-danger">
+                    <p th:text="${error}"></p>
+                </div>
+
+                <form th:action="@{/change-pass}" method="post">
+                    <div class="section-title">THAY ĐỔI MẬT KHẨU</div>
+
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại </label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Mật khẩu mới </label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

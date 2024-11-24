@@ -3,6 +3,7 @@ package com.beehat.controller.admin;
 import com.beehat.entity.Customer;
 import com.beehat.entity.Employee;
 import com.beehat.repository.CustomerRepo;
+import com.beehat.service.AddressService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -37,6 +38,8 @@ import java.util.List;
 @RequestMapping("/admin/customer")
 public class CustomerController {
     @Autowired
+    AddressService addressService;
+    @Autowired
     CustomerRepo customerRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -60,9 +63,9 @@ public class CustomerController {
         List<Customer> customers = customerPage.getContent();
         for (Customer customer : customers) {
             // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
-            customer.setProvinceName(getProvinceNameByCode(customer.getCity()));
-            customer.setDistrictName(getDistrictNameByCode(customer.getDistrict()));
-            customer.setWardName(getWardNameByCode(customer.getWard()));
+            customer.setProvinceName(addressService.getProvinceNameByCode(customer.getCity()));
+            customer.setDistrictName(addressService.getDistrictNameByCode(customer.getDistrict()));
+            customer.setWardName(addressService.getWardNameByCode(customer.getWard()));
         }
         model.addAttribute("customer", new Customer());
         model.addAttribute("customers", customers);
@@ -116,48 +119,13 @@ public class CustomerController {
             customer.setCity(customer.getCity());
             customer.setDistrict(customer.getDistrict());
             customer.setWard(customer.getWard());
-            customer.setCountry("Việt Nam");
+            customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
             customer.setCreatedDate(LocalDateTime.now());
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerRepo.save(customer);
             return new ModelAndView("redirect:/admin/customer");
     }
 
-    private String getProvinceNameByCode(String provinceCode) {
-        return getNameFromApi("https://provinces.open-api.vn/api/p/" + provinceCode);
-    }
-
-    private String getDistrictNameByCode(String districtCode) {
-        return getNameFromApi("https://provinces.open-api.vn/api/d/" + districtCode);
-    }
-
-    private String getWardNameByCode(String wardCode) {
-        return getNameFromApi("https://provinces.open-api.vn/api/w/" + wardCode);
-    }
-
-    private String getNameFromApi(String url) {
-        String name = "";
-        try {
-            // Gửi request tới API và lấy kết quả
-            URL apiUrl = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-            connection.setRequestMethod("GET");
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            // Phân tích cú pháp JSON và lấy tên
-            JSONObject jsonResponse = new JSONObject(response.toString());
-            name = jsonResponse.optString("name", "");
-        } catch (IOException e) {
-            System.err.println("Không thể truy cập API: " + e.getMessage());
-        }
-        return name;
-    }
     @GetMapping("/detail/{id}")
     public String editcustomer(@PathVariable("id") Integer id, Model model) {
         Customer customer = customerRepo.findeById(id);
@@ -187,6 +155,7 @@ public class CustomerController {
         if (bindingResult.hasErrors()) {
             return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
         }
+        customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
         customer.setUpdatedDate(LocalDateTime.now());
         customerRepo.save(customer);
         return "redirect:/admin/customer";
@@ -211,9 +180,9 @@ public class CustomerController {
         customers = customerRepo.searchCustomers(searchValue, statusValue, fromDate, toDate);
         for (Customer customer : customers) {
             // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
-            customer.setProvinceName(getProvinceNameByCode(customer.getCity()));
-            customer.setDistrictName(getDistrictNameByCode(customer.getDistrict()));
-            customer.setWardName(getWardNameByCode(customer.getWard()));
+            customer.setProvinceName(addressService.getProvinceNameByCode(customer.getCity()));
+            customer.setDistrictName(addressService.getDistrictNameByCode(customer.getDistrict()));
+            customer.setWardName(addressService.getWardNameByCode(customer.getWard()));
         }
         model.addAttribute("customers",customers);
         return "/admin/customer/customer";
