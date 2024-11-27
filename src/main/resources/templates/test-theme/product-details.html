@@ -292,11 +292,11 @@
                 var selectedColor = $("input[name='color__radio']:checked").val();
                 var selectedSize = $("input[name='size__radio']:checked").val();
                 var productId = $("input[name='product__id']").val();
-
+                console.log(productId)
                 // Nếu cả màu sắc và kích cỡ đều được chọn, gửi yêu cầu AJAX
                 if (selectedColor && selectedSize) {
                     $.ajax({
-                        url: 'http://localhost:8080/getProductPrice',
+                        url: 'http://localhost:8000/getProductPrice',
                         method: 'GET',
                         data: {
                             product: productId,

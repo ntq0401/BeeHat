@@ -101,14 +101,14 @@ public class ThemeTestController {
             Customer customer = customerRepo.findByUsername(username); // Tìm thông tin Customer theo username
             if (customer != null) {
                 customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
-                System.out.println("đã set: "+customer.getCountry());
                 customerRepo.save(customer);
             }
         }
         List<Product> productList = productRepo.findTop12ByOrderByCreatedDateDesc();
-        List<Product> productListPromotion = productRepo.findByPromotionIdNotNull();
-        model.addAttribute("productListPromotion",productListPromotion);
-        model.addAttribute("productList",productList);
+        List<ProductDTO> productDTOs = productList.stream()
+                .map(ProductDTO::new)  // Tạo DTO cho từng sản phẩm
+                .collect(Collectors.toList());  // Collect các DTO vào danh sách
+        model.addAttribute("productList",productDTOs);
         return "test-theme/index";
     }
 
@@ -412,9 +412,15 @@ public class ThemeTestController {
     public String orderdetail(@PathVariable("id") Integer id, Model model) {
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
         Customer customer = customerRepo.findeById(invoice.getCustomer().getId());
+
         model.addAttribute("customer",customer);
         model.addAttribute("invoice",invoice);
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
+        int totalDiscount = listInvoiceDetail.stream()
+                .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
+                .sum(); // Tính tổng các giảm giá từ sản phẩm
+        totalDiscount += invoice.getVoucherDiscount();
+        model.addAttribute("totalDiscount", totalDiscount);
         model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         return "test-theme/orderdetail";
     }

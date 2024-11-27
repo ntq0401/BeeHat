@@ -90,8 +90,12 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-8"><strong>Tổng số phụ:</strong></div>
-                        <div class="col-4 text-end">69,000đ</div>
+                        <div class="col-8"><strong>Phí giao hàng:</strong></div>
+                        <div class="col-4 text-end">30,000đ</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-8"><strong>Giảm giá:</strong></div>
+                        <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(totalDiscount)}" ></div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-8"><strong>Phương thức thanh toán:</strong></div>
