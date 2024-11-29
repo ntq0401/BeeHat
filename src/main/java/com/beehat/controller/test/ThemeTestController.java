@@ -3,19 +3,19 @@ package com.beehat.controller.test;
 import com.beehat.DTO.ProductDTO;
 import com.beehat.entity.*;
 import com.beehat.repository.*;
-import com.beehat.service.CartService;
-import com.beehat.service.CurrencyUtil;
-import com.beehat.service.InvoiceService;
-import com.beehat.service.ProvincesService;
+import com.beehat.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 
 @Controller
 public class ThemeTestController {
+    @Autowired
+    AddressService addressService;
     @Autowired
     ProductRepo productRepo;
     @Autowired
@@ -53,7 +55,7 @@ public class ThemeTestController {
     InvoiceHistoryStatusRepo invoiceHistoryStatusRepo;
     @Autowired
     private VoucherRepo voucherRepo;
-
+    PasswordEncoder passwordEncoder;
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
         if (principal == null) {
@@ -94,10 +96,20 @@ public class ThemeTestController {
             // Sau khi đăng xuất, chuyển hướng về trang login hoặc trang khác nếu cần
             return "redirect:/";  // Điều chỉnh URL chuyển hướng nếu cần
         }
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            String username = auth.getName();
+            System.out.println(username);// Lấy tên người dùng đăng nhập (username)
+            Customer customer = customerRepo.findByUsername(username); // Tìm thông tin Customer theo username
+            if (customer != null) {
+                customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
+                customerRepo.save(customer);
+            }
+        }
         List<Product> productList = productRepo.findTop12ByOrderByCreatedDateDesc();
-        List<Product> productListPromotion = productRepo.findByPromotionIdNotNull();
-        model.addAttribute("productListPromotion",productListPromotion);
-        model.addAttribute("productList",productList);
+        List<ProductDTO> productDTOs = productList.stream()
+                .map(ProductDTO::new)  // Tạo DTO cho từng sản phẩm
+                .collect(Collectors.toList());  // Collect các DTO vào danh sách
+        model.addAttribute("productList",productDTOs);
         return "test-theme/index";
     }
 
@@ -429,19 +441,68 @@ public class ThemeTestController {
         return provincesService.getWards(districtId);
     }
     @GetMapping("/account")
-    public String account() {
+    public String account(Principal principal,Model model) {
+        String username= principal.getName();
+        Customer customer = customerRepo.findByUsername(username);
+        model.addAttribute("customer",customer);
         return "test-theme/account";
     }
+    @PostMapping("/account/update")
+    public String updateCustomer(@ModelAttribute Customer customer, BindingResult bindingResult) {
+        Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
+        if (existingCustomer != null) {
+            // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
+                bindingResult.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
+            }
+            // Kiểm tra email đã tồn tại, nhưng bỏ qua nếu không thay đổi
+            if (!existingCustomer.getEmail().equals(customer.getEmail()) && customerRepo.existsByEmail(customer.getEmail())) {
+                bindingResult.rejectValue("email", "error.customer", "Email đã tồn tại");
+            }
+        }
+
+        // Kiểm tra có lỗi không
+        if (bindingResult.hasErrors()) {
+            return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
+        }
+        // Sao chép các trường không có trong form\
+        customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
+        customer.setStatus(existingCustomer.getStatus());
+        customer.setPassword(existingCustomer.getPassword());
+        customer.setUsername(existingCustomer.getUsername());
+        customer.setUpdatedDate(LocalDateTime.now());
+        customer.setPhoto(existingCustomer.getPhoto());
+        customerRepo.save(customer);
+        return "redirect:/account";
+    }
     @GetMapping("/order")
-    public String order() {
+    public String order(Principal principal,Model model) {
+        String username= principal.getName();
+        Customer customer = customerRepo.findByUsername(username);
+        List<Invoice> invoiceList = invoiceRepo.findByCustomerId(customer.getId());
+        model.addAttribute("customer",customer);
+        model.addAttribute("invoiceList",invoiceList);
         return "test-theme/order";
     }
-    @GetMapping("/orderdetail")
-    public String orderdetail() {
+    @GetMapping("/orderDetail/{id}")
+    public String orderdetail(@PathVariable("id") Integer id, Model model) {
+        Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        Customer customer = customerRepo.findeById(invoice.getCustomer().getId());
+
+        model.addAttribute("customer",customer);
+        model.addAttribute("invoice",invoice);
+        List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
+        int totalDiscount = listInvoiceDetail.stream()
+                .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
+                .sum(); // Tính tổng các giảm giá từ sản phẩm
+        totalDiscount += invoice.getVoucherDiscount();
+        model.addAttribute("totalDiscount", totalDiscount);
+        model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         return "test-theme/orderdetail";
     }
+
     @GetMapping("/look-up")
-    public String lookup() {
+    public String lookUp() {
         return "test-theme/look-up";
     }
     @PostMapping("/update-cart")
@@ -470,9 +531,38 @@ public class ThemeTestController {
     public String deleteCart(@PathVariable("id") Integer id,Principal principal) {
         if (principal != null) {
             cartDetailRepo.deleteById(id);
-        }else {
+        } else {
             cartService.remove(id);
         }
         return "redirect:/shop-cart";
+    }
+    @GetMapping("/change-pass")
+    public String changePass(Model model,Principal principal){
+        String username = principal.getName();
+        Customer customer = customerRepo.findByUsername(username);
+        model.addAttribute("customer",customer);
+        return "test-theme/change-pass";
+    }
+    @PostMapping("/change-pass")
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Principal principal,
+                                 RedirectAttributes redirectAttributes){
+        String username = principal.getName();
+        Customer customer = customerRepo.findByUsername(username);
+        System.out.println("pass:"+currentPassword+"passnew:"+newPassword+":"+confirmPassword+":"+username);
+        if(!passwordEncoder.matches(currentPassword,customer.getPassword())){
+            redirectAttributes.addFlashAttribute("error","Mật khẩu hiện tại không chính xác !");
+            return "redirect:/change-pass";
+        }
+        if(!newPassword.equals(confirmPassword)){
+            redirectAttributes.addFlashAttribute("error","Mật khẩu xác nhận không khớp với mật khẩu mới !");
+            return "redirect:/change-pass";
+        }
+        customer.setPassword(passwordEncoder.encode(newPassword));
+        customerRepo.save(customer);
+        redirectAttributes.addFlashAttribute("message","Thay đổi thành công !");
+        return "redirect:/change-pass";
     }
 }

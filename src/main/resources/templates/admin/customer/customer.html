@@ -158,7 +158,6 @@
           <th scope="col">City</th>
           <th scope="col">District</th>
           <th scope="col">Ward</th>
-          <th scope="col">Country</th>
           <th scope="col">Phone</th>
           <th scope="col">Created Date</th>
           <th scope="col">Status</th>
@@ -175,7 +174,6 @@
           <td th:text="${customer.provinceName}"></td>
           <td th:text="${customer.districtName}"></td>
           <td th:text="${customer.wardName}"></td>
-          <td th:text="${customer.country}"></td>
           <td th:text="${customer.phone}"></td>
           <td th:text="${#temporals.format(customer.createdDate, 'dd-MM-yyyy')}"></td>
           <td>

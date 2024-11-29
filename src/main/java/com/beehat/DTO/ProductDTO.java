@@ -27,7 +27,7 @@ public class ProductDTO {
     private int totalStock;
     private List<Color> colors;
     private List<Size> sizes;
-
+    private Promotion promotion;
     // Constructor
     public ProductDTO(Product product) {
         this.id = product.getId();
@@ -46,6 +46,7 @@ public class ProductDTO {
         this.totalStock = product.getTotalStock();
         this.colors = getColors(product.getProductDetail());
         this.sizes = getSizes(product.getProductDetail());
+        this.promotion = product.getPromotion();
     }
 
     // Method to calculate lowest price

@@ -43,26 +43,22 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="text-center mb-4">
-                        <img th:src="@{/images/profile.png}" class="rounded-circle" height="100" width="100"/>
-                        <h6 class="mt-2">ntq0401 #1085</h6>
+                        <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle" height="100" width="100"/>
+                        <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
                     </div>
-                    <a href="#">
+                    <a href="/account">
                         <i class="fas fa-home"></i>
                         Trang tài khoản
                     </a>
-                    <a href="#">
+                    <a href="/order">
                         <i class="fas fa-shopping-cart"></i>
                         Đơn hàng
                     </a>
-                    <a href="#">
+                    <a href="/change-pass">
                         <i class="fas fa-user"></i>
-                        Tài khoản
+                        Đổi mật khẩu
                     </a>
-                    <a href="#">
-                        <i class="fas fa-users"></i>
-                        Cộng tác viên
-                    </a>
-                    <a href="#">
+                    <a href="/">
                         <i class="fas fa-sign-out-alt"></i>
                         Thoát
                     </a>
@@ -81,62 +77,23 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td class="text-danger">#94912</td>
-                            <td>06/11/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>20,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
+                        <tr th:each="invoice, stat : ${invoiceList}">
+                            <td class="text-danger" th:text="'#'+${invoice.id}"></td>
+                            <td th:text="${#temporals.format(invoice.createdDate, 'dd-MM-yyyy')}"></td>
+                            <td>
+                                <span th:if="${invoice.status == 0}" class="badge rounded-pill bg-info status-badge">Chưa thanh toán</span>
+                                <span th:if="${invoice.status == 1}" class="badge rounded-pill bg-danger status-badge">Bị huỷ</span>
+                                <span th:if="${invoice.status == 2}" class="badge rounded-pill bg-success status-badge">Đã thanh toán</span>
+                                <span th:if="${invoice.status == 3}" class="badge rounded-pill bg-primary status-badge">Chờ xác nhận</span>
+                                <span th:if="${invoice.status == 4}" class="badge rounded-pill bg-primary status-badge">Chờ lấy hàng</span>
+                                <span th:if="${invoice.status == 5}" class="badge rounded-pill bg-primary status-badge">Chờ vận chuyển</span>
+                                <span th:if="${invoice.status == 6}" class="badge rounded-pill bg-primary status-badge">Giao hàng</span>
+                                <span th:if="${invoice.status == 7}" class="badge rounded-pill bg-primary status-badge">Hoàn thành</span>
+                            </td>
+                            <td th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}"></td>
+                            <td><a th:href="@{/orderDetail/{id}(id=${invoice.id})}" class="btn btn-danger">XEM</a></td>
                         </tr>
-                        <tr>
-                            <td class="text-danger">#93097</td>
-                            <td>24/10/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>20,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#90979</td>
-                            <td>10/10/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>20,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#84032</td>
-                            <td>07/09/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>49,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#77075</td>
-                            <td>25/07/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>69,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#71386</td>
-                            <td>09/06/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>12,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#71383</td>
-                            <td>09/06/2024</td>
-                            <td>Tạm giữ</td>
-                            <td>24,000đ cho 2 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
-                        <tr>
-                            <td class="text-danger">#67575</td>
-                            <td>05/05/2024</td>
-                            <td>Đã hoàn thành</td>
-                            <td>12,000đ cho 1 mục</td>
-                            <td><button class="btn btn-danger">XEM</button></td>
-                        </tr>
+
                         </tbody>
                     </table>
                 </div>
