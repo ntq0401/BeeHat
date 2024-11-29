@@ -22,6 +22,14 @@ public class Econtroller {
     EmployeeRepo employeeRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @ModelAttribute("iconTitle")
+    String iconTitle() {
+        return "ph ph-house-simple fs-3";
+    }
+    @ModelAttribute("pageTitle")
+    String pageTitle() {
+        return "Trang chủ";
+    }
     @GetMapping("/dashboard")
     public String getdashboard(){
         return "/employee/dashboard";
