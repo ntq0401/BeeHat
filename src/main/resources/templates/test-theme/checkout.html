@@ -130,14 +130,37 @@
                                         <span class="top__text">Sản phẩm</span>
                                         <span class="top__text__right">Thành tiền</span>
                                     </li>
-                                    <li th:each="c : ${cartDetails}">[[${c.productDetail.product.name}]] <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(c.productDetail.price * c.quantity)}]]</span></li>
+                                    <li th:each="c,stt : ${cartDetails}">
+                                        [[${stt.index+1}]]. [[${c.productDetail.product.name}]] x [[${c.quantity}]]
+                                        <br>
+                                        [[${c.productDetail.color.name}]] / [[${c.productDetail.size.name}]]
+                                        <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(c.productDetail.price * c.quantity)}]]</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="checkout__order__total" style="padding-bottom: 25px;margin-bottom: 5px">
+                                <ul>
+                                    <li>
+                                        Voucher giảm giá
+                                        <form >
+                                            <div class="d-flex">
+                                                <select class="form-control" style="margin-right: 5px" placeholder="Nhập mã giảm giá" name="code" onchange="updatePriceBasedOnVoucher(this)">
+                                                    <option value="">Chọn voucher</option>
+                                                    <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:text="${v.code}"></option>
+                                                </select>
+                                                <button th:formaction="@{/add-voucher}" class="btn btn-danger" type="submit" style="background-color: #ca1515;font-weight: 600">Apply</button>
+                                            </div>
+                                        </form>
+                                    </li>
 
                                 </ul>
                             </div>
                             <div class="checkout__order__total">
                                 <ul>
-                                    <li>Subtotal <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</span></li>
-                                    <li>Total <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</span></li>
+                                    <li>Tổng tiền  <span id="totalPrice" th:data-total-price="${invoice.totalPrice}">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</span></li>
+                                    <li>Phí vận chuyển <span>30.000đ</span></li>
+                                    <li>Giảm giá <span id="discountedPrice">0đ</span></li>
+                                    <li>Thực thu <span id="finalPrice">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice+30000)}]]</span></li>
                                 </ul>
                             </div>
                             <div class="checkout__order__widget">
@@ -149,17 +172,17 @@
 <!--                                <p>Create am acount by entering the information below. If you are a returing customer-->
 <!--                                    login at the top of the page.</p>-->
                                 <label for="check-payment">
-                                    Tiền mặt
+                                    Thanh toán khi nhận hàng
                                     <input type="radio" id="check-payment" name="paymentInv" value="1" required>
                                     <span class="checkmark"></span>
                                 </label>
                                 <label for="paypal">
-                                    Mobile banking
+                                    VNPay
                                     <input type="radio" id="paypal" name="paymentInv" value="2" required>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
-                            <button type="submit" class="site-btn">Place oder</button>
+                            <button type="submit" class="site-btn">Hoàn tất đơn hàng</button>
                         </div>
                     </div>
                 </div>
@@ -206,6 +229,26 @@
             }
         });
     });
+    function updatePriceBasedOnVoucher(selectElement) {
+        // Lấy phần tử chứa tổng giá và giá sau giảm
+        const totalPriceElement = document.getElementById("totalPrice");
+        const finalPriceElement = document.getElementById("finalPrice");
+        const discountedPriceElement = document.getElementById("discountedPrice");
+
+        // Lấy giá trị tổng giá từ giao diện (giả định đã được cập nhật trước đó)
+        const totalPrice = parseInt(totalPriceElement.getAttribute('data-total-price')) || 0;
+        // Lấy phần trăm giảm giá từ thuộc tính data-discount của option được chọn
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const discountPercent = parseInt(selectedOption.getAttribute("data-discount")) || 0;
+
+        // Tính toán giá sau khi giảm
+        const discountAmount = (totalPrice * discountPercent) / 100;
+        discountedPriceElement.textContent = discountAmount.toLocaleString() +"đ";
+        const discountedPrice = totalPrice - discountAmount;
+
+        // Cập nhật giá trị trên giao diện
+        finalPriceElement.textContent = discountedPrice.toLocaleString()+"đ";
+    }
 </script>
 </main>
 </body>

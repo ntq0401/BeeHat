@@ -27,43 +27,46 @@
             <form class="row g-3" method="get">
                 <div class="col-md-4">
                     <label for="invoiceCode" class="form-label">Tên sản phẩm</label>
-                    <input type="text" name="name" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
+                    <input type="text" name="name" th:value="${param.name}" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Kiểu dáng</label>
                     <select class="form-select" name="styleId">
-                        <option value="" disabled selected>Chọn kiểu dáng</option>
-                        <option th:each=" style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
-
+                        <option value="">Tất cả</option>
+                        <option th:each="style : ${listStyle}"
+                                th:value="${style.id}"
+                                th:text="${style.name}"
+                                th:selected="${param.styleId != null and param.styleId.toString() == style.id.toString()}">
+                        </option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Chất liệu</label>
                     <select class="form-select" name="materialId">
-                        <option value="" disabled selected>Chọn chất liệu</option>
-                        <option th:each=" m : ${listMaterial}" th:value="${m.id}" th:text="${m.name}"></option>
+                        <option value="">Tất cả</option>
+                        <option th:each=" m : ${listMaterial}" th:value="${m.id}" th:text="${m.name}" th:selected="${param.materialId != null and param.materialId.toString() == m.id.toString()}"></option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Danh mục</label>
                     <select class="form-select" name="categoryId">
-                        <option value="" disabled selected>Chọn danh mục</option>
-                        <option th:each=" cate : ${listCategory}" th:value="${cate.id}" th:text="${cate.name}"></option>
+                        <option value="">Tất cả</option>
+                        <option th:each=" cate : ${listCategory}" th:value="${cate.id}" th:text="${cate.name}" th:selected="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}"></option>
 
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Vải lót</label>
                     <select class="form-select" name="liningId">
-                        <option value="" disabled selected>Chọn vải lót</option>
-                        <option th:each=" lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
+                        <option value="">Tất cả</option>
+                        <option th:each=" lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}" th:selected="${param.liningId != null and param.liningId.toString() == lining.id.toString()}"></option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Đai mũ</label>
                     <select class="form-select" name="beltId">
-                        <option value="" disabled selected>Chọn đai mũ</option>
-                        <option th:each=" belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
+                        <option value="">Tất cả</option>
+                        <option th:each=" belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}" th:selected="${param.beltId != null and param.beltId.toString() == belt.id.toString()}"></option>
                     </select>
                 </div>
                 <div class="col-md-12">

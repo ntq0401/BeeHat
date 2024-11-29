@@ -81,6 +81,9 @@
     <button class="btn btn-outline-success ml-5" type="button"
             onclick="window.location.href='/admin/customer/export'">Xuất file</button>
     <form id="importForm" action="/admin/customer/import" method="POST" enctype="multipart/form-data">
+      <input type="hidden"
+             th:name="${_csrf.parameterName}"
+             th:value="${_csrf.token}"/>
       <input type="file" name="file" id="fileInput" required style="display: none;">
       <button class="btn btn-outline-success" type="button" onclick="document.getElementById('fileInput').click();">Nhập file</button>
     </form>
@@ -92,6 +95,7 @@
     <div class="card-body">
       <div class="row d-flex justify-content-center align-items-center">
         <form th:action="@{/admin/customer/search}" method="get">
+
           <div class="row">
             <div class="form-group col-md-10">
               <label for="search">Tìm kiếm:</label>

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface VoucherRepo extends JpaRepository<Voucher, Integer> {
     List<Voucher> findByStatus(byte status);
+    Voucher findByCode(String code);
 }

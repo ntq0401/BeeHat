@@ -1,12 +1,10 @@
 package com.beehat.service;
 
-import com.beehat.entity.CartDetail;
-import com.beehat.entity.Customer;
-import com.beehat.entity.Invoice;
-import com.beehat.entity.ProductDetail;
+import com.beehat.entity.*;
 import com.beehat.repository.CartDetailRepo;
 import com.beehat.repository.ProductDetailRepo;
 import com.beehat.repository.ProductRepo;
+import com.beehat.repository.VoucherRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +21,8 @@ public class CartService {
     ProductDetailRepo productDetailRepo;
     @Autowired
     CartDetailRepo cartDetailRepo;
+    @Autowired
+    VoucherRepo voucherRepo;
     private List<CartDetail> cartDetails = new ArrayList<>();
     private Invoice temporaryInvoice;
 
@@ -48,22 +48,25 @@ public class CartService {
         this.temporaryInvoice = invoice;
     }
 
+
+
     public void clearTemporaryInvoice() {
         this.temporaryInvoice = null;
         this.cartDetails.clear();
     }
-    public void add(int id) {
-        CartDetail cartDetail = cartDetails.stream()
+    public void add(int id,int quantity) {
+        CartDetail cartDetail = cartDetails.
+                stream()
                 .filter(prd -> prd.getProductDetail().getId() == id)
                 .findFirst().orElse(null);
         if (cartDetail != null) {
-            cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+            cartDetail.setQuantity(cartDetail.getQuantity() + quantity);
             return;
         }
         ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
         if (productDetail != null) {
             cartDetails.add(
-                    new CartDetail(null, productDetail, null, 1, null, null, null, null, null, null, null)
+                    new CartDetail(null, productDetail, null, quantity, null, null, null, null, null, null, null)
             );
         }
     }

@@ -10,7 +10,6 @@ import com.beehat.service.ProvincesService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -52,6 +51,9 @@ public class ThemeTestController {
     PaymentMethodRepo paymentMethodRepo;
     @Autowired
     InvoiceHistoryStatusRepo invoiceHistoryStatusRepo;
+    @Autowired
+    private VoucherRepo voucherRepo;
+
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
         if (principal == null) {
@@ -132,6 +134,13 @@ public class ThemeTestController {
             model.addAttribute("totalPrice", cartDetail.stream().mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice()).sum());
             return "test-theme/shop-cart";
         } else {
+            List<CartDetail> cartDetails = cartService.getCartDetails();
+            for (CartDetail cartDetail : cartDetails) {
+                ProductDetail latestProductDetail = productDetailRepo.findById(cartDetail.getProductDetail().getId()).orElse(null);
+                if (latestProductDetail != null) {
+                    cartDetail.setProductDetail(latestProductDetail);
+                }
+            }
             model.addAttribute("cartDetail", cartService.getCartDetails());
             model.addAttribute("totalPrice", cartService.getCartDetails().stream().mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice()).sum());
             return "test-theme/shop-cart";
@@ -162,9 +171,9 @@ public class ThemeTestController {
         }
         return "redirect:/checkout";
     }
-
     @GetMapping("/checkout")
     public String checkout(Model model,Principal principal) {
+        model.addAttribute("voucherList",voucherRepo.findByStatus((byte) 1));
         model.addAttribute("provinces", provincesService.getProvinces());
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
@@ -187,7 +196,8 @@ public class ThemeTestController {
 
     //tạm thời thêm nhanh ở trang shop
     @PostMapping("/add-product-to-cart/{id}")
-    public String addProductToCart(@PathVariable Integer id, @RequestParam(value = "username", defaultValue = "") String username) {
+    public String addProductToCart(@PathVariable Integer id,
+                                   @RequestParam(value = "username", defaultValue = "") String username) {
         ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
         Customer customer = customerRepo.findByUsername(username);
         if (customer != null) {
@@ -209,27 +219,47 @@ public class ThemeTestController {
             }
             return "redirect:/shop";
         } else {
-            cartService.add(id);
+            cartService.add(id,1);
             return "redirect:/shop";
         }
     }
 
     @GetMapping("/getProductPrice")
     @ResponseBody
-    public Map<String, Object> getProductPrice(@RequestParam Integer product, @RequestParam Integer color, @RequestParam Integer size) {
+    public Map<String, Object> getProductPrice(@RequestParam Integer product, @RequestParam Integer color, @RequestParam Integer size,Principal principal) {
         Map<String, Object> response = new HashMap<>();
+        List<CartDetail> cartDetails;
+        if (principal != null) {
+            Customer customer = customerRepo.findByUsername(principal.getName());
+            cartDetails = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
+        }else {
+            cartDetails = cartService.getCartDetails();
+            for (CartDetail cartDetail : cartDetails) {
+                ProductDetail latestProductDetail = productDetailRepo.findById(cartDetail.getProductDetail().getId()).orElse(null);
+                if (latestProductDetail != null) {
+                    cartDetail.setProductDetail(latestProductDetail);
+                }
+            }
+        }
         try {
             ProductDetail productDetail = productDetailRepo.findByProductIdAndColorIdAndSizeId(product, color, size);
             if (productDetail != null) {
                 response.put("id", productDetail.getId());
                 response.put("price", CurrencyUtil.formatCurrency(productDetail.getPrice()));
+                response.put("stock", productDetail.getStock()); // Thêm số lượng tồn kho
+                response.put("stockInCart", cartDetails.stream()
+                        .filter(cartDetail -> cartDetail.getProductDetail().getId().equals(productDetail.getId()))
+                        .mapToInt(CartDetail::getQuantity)
+                        .findFirst()
+                        .orElse(0));
             } else {
                 throw new RuntimeException("ProductDetail not found for color: " + color + " and size: " + size);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("id", -1);  // Giá trị id lỗi
-            response.put("price", "-1");  // Giá trị price lỗi
+            response.put("id", -1);   // Giá trị id lỗi
+            response.put("price", "-1"); // Giá trị price lỗi
+            response.put("stock", "-1"); // Giá trị stock lỗi
         }
         return response;
     }
@@ -258,7 +288,7 @@ public class ThemeTestController {
                 cartDetailRepo.save(cartDetail1);
             }
         } else {
-            cartService.add(id);
+            cartService.add(id,quantity);
             return "redirect:/shop";
         }
         return "redirect:/shop";
@@ -271,9 +301,24 @@ public class ThemeTestController {
                            @RequestParam("districtInv") String districtInv,
                            @RequestParam("wardInv") String wardInv,
                            @RequestParam("phoneInv") String phoneInv,
-                           @RequestParam("paymentInv") Integer idPayment) {
+                           @RequestParam("paymentInv") Integer idPayment
+                           //thêm voucher
+                           //@RequestParam("code") String code
+    ) {
+        // Lấy phương thức thanh toán
         PaymentMethod paymentMethod = paymentMethodRepo.findById(idPayment).orElse(null);
+        if (paymentMethod == null) {
+            return "redirect:/cart";
+        }
+
+        // Lấy hóa đơn tạm thời
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
+        if (temporaryInvoice == null) {
+            return "redirect:/cart";
+        }
+        //thêm voucher
+       // Voucher voucher = voucherRepo.findByCode(code);
+        // Cập nhật thông tin vận chuyển và thanh toán cho hóa đơn tạm
         temporaryInvoice.setShippingCountry(countryInv);
         temporaryInvoice.setShippingAddress(addressInv);
         temporaryInvoice.setShippingCity(cityInv);
@@ -281,34 +326,56 @@ public class ThemeTestController {
         temporaryInvoice.setShippingWard(wardInv);
         temporaryInvoice.setPhone(phoneInv);
         temporaryInvoice.setPaymentMethod(paymentMethod);
-        if (temporaryInvoice != null) {
-            // Lưu hóa đơn vào cơ sở dữ liệu (logic lưu vào database)
-            Invoice savedInvoice = new Invoice();
-            //trường hợp giỏ hàng này có user đã đăng nhập thì phải chuyển trạng thái giỏ hàng thành đã thanh toán
-            //còn với giỏ chưa đăng nhập thì dùng clear là xong
-            if (temporaryInvoice.getCustomer() != null) {
-                List<CartDetail> listCart = cartDetailRepo.findByCustomerIdAndStatus(temporaryInvoice.getCustomer().getId(), (byte) 1);
-                 savedInvoice = saveInvoice(temporaryInvoice, listCart);
-                for (CartDetail cart : listCart) {
-                    cart.setStatus((byte) 2);
-                    cartDetailRepo.save(cart);
-                }
-            }else{
-                savedInvoice = saveInvoice(temporaryInvoice,cartService.getCartDetails());
-                cartService.clear();
-            }
-            // Xóa hóa đơn tạm thời và giỏ hàng
-            cartService.clearTemporaryInvoice();
-            return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
+        //thêm voucher
+       // temporaryInvoice.setVoucher(voucher);
+        // Kiểm tra giỏ hàng
+        List<CartDetail> cartDetails;
+        if (temporaryInvoice.getCustomer() != null) {
+            cartDetails = cartDetailRepo.findByCustomerIdAndStatus(
+                    temporaryInvoice.getCustomer().getId(), (byte) 1);
+        } else {
+            cartDetails = cartService.getCartDetails();
         }
-        return "redirect:/cart"; // Quay lại giỏ hàng nếu không có hóa đơn tạm thời
+
+        if (cartDetails == null || cartDetails.isEmpty()) {
+            return "redirect:/cart";
+        }
+
+        // Lưu hóa đơn
+        Invoice savedInvoice = saveInvoice(temporaryInvoice, cartDetails);
+
+        // Cập nhật trạng thái giỏ hàng
+        if (temporaryInvoice.getCustomer() != null) {
+            for (CartDetail cart : cartDetails) {
+                cart.setStatus((byte) 2); // Đánh dấu là đã thanh toán
+                cartDetailRepo.save(cart);
+            }
+        } else {
+            cartService.clear(); // Xóa giỏ hàng nếu người dùng không đăng nhập
+        }
+
+        // Xóa hóa đơn tạm thời
+        cartService.clearTemporaryInvoice();
+
+        // Chuyển đến trang xác nhận
+        return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
     }
 
     private Invoice saveInvoice(Invoice invoice, List<CartDetail> cartDetails) {
-        // Lưu hóa đơn và các chi tiết hóa đơn vào database
+        // Tạo mã giao dịch duy nhất
         String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+
+        // Lưu hóa đơn vào cơ sở dữ liệu
         Invoice savedInvoice = invoiceRepo.save(invoice);
+
+        // Lưu chi tiết hóa đơn và cập nhật số lượng sản phẩm
         for (CartDetail cartDetail : cartDetails) {
+            if (cartDetail.getProductDetail().getStock() < cartDetail.getQuantity()) {
+                throw new IllegalArgumentException("Không đủ hàng cho sản phẩm  : "
+                        + cartDetail.getProductDetail().getId());
+            }
+
+            // Tạo chi tiết hóa đơn
             InvoiceDetail invoiceDetail = new InvoiceDetail();
             invoiceDetail.setInvoice(savedInvoice);
             invoiceDetail.setProductDetail(cartDetail.getProductDetail());
@@ -316,21 +383,31 @@ public class ThemeTestController {
             invoiceDetail.setUnitPrice(cartDetail.getProductDetail().getPrice());
             invoiceDetail.setFinalPrice(cartDetail.getProductDetail().getPrice() * cartDetail.getQuantity());
             invoiceDetailRepo.save(invoiceDetail);
+
+            // Cập nhật số lượng trong kho
+            ProductDetail productDetail = cartDetail.getProductDetail();
+            productDetail.setStock(productDetail.getStock() - cartDetail.getQuantity());
+            productDetailRepo.save(productDetail);
         }
+        //Set trạng thái hoá đơn đã thanh toán
         savedInvoice.setStatus((byte) 3);
         invoiceRepo.save(savedInvoice);
+
+        // Lưu lịch sử trạng thái hóa đơn
         InvoiceStatusHistory invoiceStatusHistory = new InvoiceStatusHistory();
-        PaymentHistory paymentHistory = new PaymentHistory();
         invoiceStatusHistory.setInvoice(savedInvoice);
         invoiceStatusHistory.setNewStatus((byte) 3);
         invoiceStatusHistory.setUpdatedAt(LocalDateTime.now());
+        invoiceHistoryStatusRepo.save(invoiceStatusHistory);
+
+        // Lưu lịch sử thanh toán
+        PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.setInvoice(savedInvoice);
         paymentHistory.setPaymentDate(LocalDateTime.now());
         paymentHistory.setTransactionCode(randomUUID + "-" + savedInvoice.getInvoiceTrackingNumber());
         paymentHistory.setAmountPaid(savedInvoice.getTotalPrice());
         paymentHistory.setPaymentMethod(savedInvoice.getPaymentMethod());
         paymentHistoryRepo.save(paymentHistory);
-        invoiceHistoryStatusRepo.save(invoiceStatusHistory);
         return savedInvoice;
     }
 
@@ -388,5 +465,14 @@ public class ThemeTestController {
             cartService.update(id, quantity);
         }
             return "redirect:/shop-cart";
+    }
+    @GetMapping("/delete-cart/{id}")
+    public String deleteCart(@PathVariable("id") Integer id,Principal principal) {
+        if (principal != null) {
+            cartDetailRepo.deleteById(id);
+        }else {
+            cartService.remove(id);
+        }
+        return "redirect:/shop-cart";
     }
 }

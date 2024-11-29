@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Shop</title>
+    <style>
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none; /* Ẩn nút trên trình duyệt Webkit */
+            margin: 0; /* Đảm bảo không có khoảng trống */
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Ẩn nút trên trình duyệt Firefox */
+        }
+    </style>
 </head>
 <body>
 <main layout:fragment="main">
@@ -14,41 +25,69 @@
                     <div class="shop__cart__table">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th>Giá</th>
-                                    <th>Số lượng</th>
-                                    <th>Thành tiền</th>
-                                    <th></th>
-                                </tr>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                                <th></th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="cart : ${cartDetail}">
-                                    <td class="cart__product__item">
-                                        <img style="height: 100px" th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
-                                        <div class="cart__product__item__title">
+                            <tr th:each="cart : ${cartDetail}">
+                                <td th:if="${cart.productDetail.stock == 0}" class="cart__product__item" th:data-stock="${cart.productDetail.stock}">
+
+                                        <img th:if="${cart.customer != null}" style="height: 100px"
+                                             th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
+                                        <div class="cart__product__item__title"><del>
                                             <h6 th:text="${cart.productDetail.product.name}"></h6>
                                             <div class="rating">
-                                                <p>[[${cart.productDetail.color.name}]] - [[${cart.productDetail.size.name}]]</p>
+                                                <p>[[${cart.productDetail.color.name}]] -
+                                                    [[${cart.productDetail.size.name}]]</p>
                                             </div>
+                                        </del>
+                                            <p class="cart__price" th:text="${'Hết hàng'}"></p>
                                         </div>
-                                    </td>
-                                    <td class="cart__price">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price)}]]</td>
-                                    <td class="cart__quantity">
-                                        <form th:action="@{/update-cart}" method="post">
+
+                                </td>
+                                <td th:if="${cart.productDetail.stock > 0}" class="cart__product__item">
+                                    <img th:if="${cart.customer != null}" style="height: 100px"
+                                         th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
+                                    <div class="cart__product__item__title">
+                                        <h6 th:text="${cart.productDetail.product.name}"></h6>
+                                        <div class="rating">
+                                            <p>[[${cart.productDetail.color.name}]] -
+                                                [[${cart.productDetail.size.name}]]</p>
+                                            <p th:text="${'Số lượng sản phẩm còn : '+cart.productDetail.stock}"></p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="cart__price">
+                                    [[${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price)}]]
+                                </td>
+                                <td class="cart__quantity">
+                                    <form th:action="@{/update-cart}" method="post">
                                         <meta name="_csrf" hidden="hidden" content="${_csrf.token}">
                                         <meta name="_csrf_header" hidden="hidden" content="${_csrf.headerName}">
                                         <div class="pro-qty1">
-                                            <span class="dec qtybtn" onclick="checkQuantityAndSubmit(this, 'decrease')" th:data-quantity-invoice-detail="${cart.quantity}">-</span>
+                                            <span class="dec qtybtn" onclick="checkQuantityAndSubmit(this, 'decrease')"
+                                                  th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}" >-</span>
                                             <input name="productId" type="hidden" th:value="${cart.productDetail.id}">
-                                            <input id="quantityInput" class="quantity-input" name="quantity" type="text" th:value="${cart.quantity}">
-                                            <span class="inc qtybtn" onclick="checkQuantityAndSubmit(this, 'increase')" th:data-quantity-invoice-detail="${cart.quantity}">+</span>
+                                            <input id="quantityInput" class="quantity-input" name="quantity" type="number" pattern="\d+"
+                                                   th:value="${cart.quantity}"  th:data-stock="${cart.productDetail.stock}" oninput="validateQuantityInput(this)">
+                                            <span class="inc qtybtn" onclick="checkQuantityAndSubmit(this, 'increase')"
+                                                  th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}">+</span>
                                         </div>
-                                        </form>
-                                    </td>
-                                    <td class="cart__total" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price * cart.quantity)}"></td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
+                                    </form>
+                                </td>
+                                <td class="cart__total"
+                                    th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price * cart.quantity)}">
+
+                                </td>
+                                <td class="cart__close"><a
+                                        th:href="@{/delete-cart/{id}(id=${cart.id})}"><span
+                                        class="icon_close"></span></a></td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -57,7 +96,7 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="cart__btn">
-                        <a href="#">Continue Shopping</a>
+                        <a href="/shop">Continue Shopping</a>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
@@ -68,23 +107,19 @@
             </div>
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="discount__content">
-                        <h6>Discount codes</h6>
-                        <form action="#">
-                            <input type="text" placeholder="Enter your coupon code">
-                            <button type="submit" class="site-btn">Apply</button>
-                        </form>
-                    </div>
+
                 </div>
                 <div class="col-lg-4 offset-lg-2">
                     <div class="cart__total__procced">
                         <h6>Tổng tiền giỏ hàng</h6>
                         <ul>
-                            <li>Tổng tiền : <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
-                            <li>Thực thu : <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
+                            <li>Tổng tiền :
+                                <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
+                            <li>Thực thu :
+                                <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
                         </ul>
                         <form method="post" th:action="@{/proceed-to-checkout}">
-                        <a href="javascript:void(0);" onclick="this.closest('form').submit()" class="primary-btn">Proceed to checkout</a>
+                            <a href="javascript:void(0);" onclick="checkCartBeforeCheckout(this)" class="primary-btn">Thanh toán</a>
                         </form>
                     </div>
                 </div>
@@ -93,30 +128,95 @@
     </section>
     <script>
         function checkQuantityAndSubmit(inputElement, action) {
-
             const form = inputElement.closest('form'); // Lấy form tương ứng
-            let quantity = parseInt(document.getElementById('quantityInput').value);
-            const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
+            const stock = parseInt(inputElement.getAttribute('data-stock')); // Số lượng tồn kho hiện tại
             const quantityInput = inputElement.closest('form').querySelector('.quantity-input');
+            let quantity = parseInt(quantityInput.value); // Số lượng sản phẩm hiện tại trong ô input
+            const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
+
+            // Tăng hoặc giảm số lượng dựa trên hành động
             if (action === 'increase') {
-                quantity += 1; // Tăng số lượng
+                if (quantity < stock) {
+                    quantity += 1;
+                } else {
+                    showToast("error","Số lượng yêu cầu vượt quá số lượng tồn kho hiện tại!")
+                    return; // Không tăng số lượng và thoát hàm nếu vượt quá tồn kho
+                }
             } else if (action === 'decrease' && quantity > 1) {
-                quantity -= 1; // Giảm số lượng, nhưng không để nhỏ hơn 1
+                quantity -= 1;
             }
+
+            // Cập nhật lại giá trị của ô input với số lượng mới
             quantityInput.value = quantity;
-            if (isNaN(quantity) ||quantity <= 0) {
-                alert("Số lượng sản phẩm không hợp lệ !")
-                inputElement.value = lastQuantity;
-                form.onsubmit = function () {
-                    return false; // Ngăn không cho form được submit
-                };
+
+            // Kiểm tra điều kiện số lượng hợp lệ
+            if (isNaN(quantity) || quantity <= 0) {
+                showToast("error","Số lượng sản phẩm không hợp lệ!")
+                quantityInput.value = lastQuantity; // Khôi phục lại số lượng ban đầu nếu không hợp lệ
                 return;
             }
 
-
-            // Nếu số lượng hợp lệ, cho phép form submit
+            // Nếu số lượng hợp lệ và không vượt quá tồn kho, cho phép form submit
             form.submit();
         }
+
+        function checkCartBeforeCheckout(element) {
+            // Lấy tất cả các sản phẩm trong giỏ hàng
+            const form = element.closest('form')
+            const cartItems = document.querySelectorAll('.cart__product__item');
+
+            // Kiểm tra xem có sản phẩm nào hết hàng không
+            let hasOutOfStockItem = false;
+            cartItems.forEach(item => {
+                if (item.getAttribute('data-stock') === '0') {
+                    hasOutOfStockItem = true;
+                }
+            });
+
+            // Nếu có sản phẩm hết hàng, hiển thị thông báo và ngăn thanh toán
+            if (hasOutOfStockItem) {
+                showToast("error","Giỏ hàng của bạn có sản phẩm hết hàng. Vui lòng xoá sản phẩm hết hàng trươc khi thanh toán")
+            } else {
+                form.submit();
+            }
+        }
+        function validateQuantityInput(inputElement) {
+            const stock = parseInt(inputElement.getAttribute('data-stock')); // Số lượng tồn kho hiện tại
+            let quantity = parseInt(inputElement.value); // Số lượng sản phẩm người dùng nhập
+
+            // Kiểm tra nếu số lượng là NaN hoặc nhỏ hơn 1, đặt lại số lượng thành 1
+            if (isNaN(quantity) || quantity <= 0) {
+                showToast("error","Số lượng sản phẩm không hợp lệ!")
+                inputElement.value = 1; // Đặt về 1 nếu nhập không hợp lệ
+                return;
+            }
+
+            // Kiểm tra nếu số lượng vượt quá tồn kho
+            if (quantity > stock) {
+                showToast("error","Số lượng yêu cầu vượt quá số lượng tồn kho hiện tại!")
+                inputElement.value = stock; // Đặt về tồn kho tối đa
+            }
+        }
+
+        // Hàm hiển thị SweetAlert Toast
+        function showToast(icon, message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+            });
+            Toast.fire({
+                icon: icon,
+                title: message,
+            });
+        }
+
     </script>
 </main>
 </body>

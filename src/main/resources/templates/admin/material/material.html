@@ -23,6 +23,9 @@
                 <div class="modal-body">
                     <!-- Form thêm mới chất liệu -->
                     <form th:object="${m}" method="post">
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}"/>
                         <div class="mb-3">
                             <label class="form-label">Tên chất liệu</label>
                             <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên chất liệu">

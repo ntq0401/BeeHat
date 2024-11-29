@@ -2295,11 +2295,11 @@ ol {
 	color: #444444;
 }
 
-.discount__content form button {
-	position: absolute;
-	right: 4px;
-	top: 4px;
-}
+/*.discount__content form button {*/
+/*	position: absolute;*/
+/*	right: 4px;*/
+/*	top: 4px;*/
+/*}*/
 
 .cart__total__procced {
 	background: #f5f5f5;

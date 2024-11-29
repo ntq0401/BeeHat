@@ -30,21 +30,15 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Product findBySku(String sku);
     List<Product> findTop12ByOrderByCreatedDateDesc();
     List<Product> findByPromotionIdNotNull();
-    @Query("SELECT pd FROM Product pd " +
-            "WHERE (:categoryId IS NULL OR pd.category.id = :categoryId) " +
-            "AND (:materialId IS NULL OR pd.material.id = :materialId) " +
-            "AND (:styleId IS NULL OR pd.style.id = :styleId) " +
-            "AND (:liningId IS NULL OR pd.lining.id = :liningId) " +
-            "AND (:beltId IS NULL OR pd.belt.id = :beltId) " +
-            "AND (:name IS NULL OR LOWER(pd.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+    @Query("SELECT P FROM Product P " +
+            "WHERE (:name IS NULL OR P.name LIKE CONCAT('%', :name, '%')) " +
+            "AND (:categoryId IS NULL OR P.category.id = :categoryId) " +
+            "AND (:materialId IS NULL OR P.material.id = :materialId) " +
+            "AND (:styleId IS NULL OR P.style.id = :styleId) " +
+            "AND (:liningId IS NULL OR P.lining.id = :liningId) " +
+            "AND (:beltId IS NULL OR P.belt.id = :beltId)")
     Page<Product> findByCriteria(
-            @Param("categoryId") Integer categoryId,
-            @Param("materialId") Integer materialId,
-            @Param("styleId") Integer styleId,
-            @Param("liningId") Integer liningId,
-            @Param("beltId") Integer beltId,
-            @Param("name") String name,
-            Pageable pageable
+            String name ,Integer categoryId, Integer materialId, Integer styleId, Integer liningId, Integer beltId,Pageable pageable
     );
 
 }

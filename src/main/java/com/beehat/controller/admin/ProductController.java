@@ -103,9 +103,10 @@ public class ProductController {
             @RequestParam(required = false) Integer beltId,
             @RequestParam(required = false) String name,
             Model model) {
+
         Pageable pageable = PageRequest.of(page, 10);
         Page<Product> productsPage = productRepo.findByCriteria(
-                categoryId, materialId, styleId, liningId, beltId, name, pageable);
+                name,categoryId, materialId, styleId, liningId, beltId, pageable);
 
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
@@ -114,18 +115,9 @@ public class ProductController {
     }
     @GetMapping("/index")
     public String product(Model model) {
-        model.addAttribute("p", new Product());
-        model.addAttribute("isAdd", true);
         model.addAttribute("product", productRepo.findAll());
         return "admin/product/product";
     }
-
-    @GetMapping("/search")
-    public String search(@RequestParam(defaultValue = " ") String keyword, Model model) {
-        model.addAttribute("product", productRepo.findByName("%" + keyword + "%"));
-        return "admin/product/product";
-    }
-
     @GetMapping("/add-product")
     public String addProduct(Model model) {
         model.addAttribute("p", new Product());

@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Shop</title>
+    <style>
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none; /* Ẩn nút trên trình duyệt Webkit */
+            margin: 0; /* Đảm bảo không có khoảng trống */
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Ẩn nút trên trình duyệt Firefox */
+        }
+    </style>
 </head>
 <body>
 <main layout:fragment="main">
@@ -71,12 +82,12 @@
                             <div class="quantity">
                                 <span>Số lượng:</span>
                                 <div class="pro-qty">
-                                    <input type="text" name="quantity" value="1">
+                                    <input type="number" oninput="validateQuantityInput(this)" name="quantity" id="quantityInput" value="1" data-stock="" min="1" step="1" max="1000000" data-stock-in-cart="" pattern="\d+">
                                 </div>
                             </div>
                             <input type="hidden" name="username" th:value="${username}">
                             <input type="hidden" id="productId" name="productId">
-                            <a href="javascript:void(0);" onclick="this.closest('form').submit()" class="cart-btn"><span
+                            <a href="javascript:void(0);" onclick="showStockWarning(this)" class="cart-btn"><span
                                     class="icon_bag_alt"></span> Thêm vào giỏ</a>
                         </form>
                         <ul>
@@ -116,8 +127,8 @@
                                 </div>
                             </li>
                             <li>
-                                <span>Khuyến mãi:</span>
-                                <p>Free shipping</p>
+                                <span>Sản phẩm có sẵn : </span>
+                                <p id="productStock">[[${product.totalStock}]]</p>
                             </li>
                         </ul>
                     </div>
@@ -288,11 +299,11 @@
             });
 
             function updatePrice() {
+                console.log("hi")
                 // Lấy giá trị ID màu sắc và kích cỡ đã chọn
                 var selectedColor = $("input[name='color__radio']:checked").val();
                 var selectedSize = $("input[name='size__radio']:checked").val();
                 var productId = $("input[name='product__id']").val();
-
                 // Nếu cả màu sắc và kích cỡ đều được chọn, gửi yêu cầu AJAX
                 if (selectedColor && selectedSize) {
                     $.ajax({
@@ -306,13 +317,17 @@
                         success: function (response) {
                             // Kiểm tra nếu phản hồi có chứa giá trị id và price
                             if (response.id && response.price) {
-                                // Cập nhật giá và id trên giao diện
+                                // Cập nhật giá, id và số lượng tồn kho trên giao diện
                                 $("#productPrice").text(response.price);
-                                $("#productId").val(response.id); // Giả sử bạn có một phần tử với id="productId" để hiển thị id
+                                $("#productId").val(response.id); // Cập nhật ID sản phẩm
+                                $("#productStock").text(response.stock); // Hiển thị số lượng tồn kho
+                                $("#quantityInput").attr("data-stock", response.stock);
+                                $("#quantityInput").attr("data-stock-in-cart", response.stockInCart);
                             } else {
                                 console.log("Product detail not found or missing response data.");
                                 $("#productPrice").text("N/A");
                                 $("#productId").val("N/A");
+                                $("#productStock").text("Không xác định");
                             }
                         },
                         error: function (error) {
@@ -322,6 +337,98 @@
                 }
             }
         });
+        function checkSelection() {
+            const selectedColor = $("input[name='color__radio']:checked").val();
+            const selectedSize = $("input[name='size__radio']:checked").val();
+
+            if (!selectedColor || !selectedSize) {
+                showToast("error", "Vui lòng chọn đầy đủ màu sắc và kích cỡ!");
+                return false; // Ngăn hành động tiếp theo
+            }
+            return true; // Cho phép thực hiện tiếp
+        }
+
+        function showStockWarning(element) {
+            // Gọi hàm kiểm tra lựa chọn trước
+            if (!checkSelection()) return;
+
+            const form = element.closest('form'); // Lấy form gần nhất
+            const stockElement = document.getElementById("productStock");
+            const stockInput = document.getElementById("quantityInput"); // Lấy ô input số lượng
+            const stockValue = parseInt(stockElement?.innerText || stockElement?.textContent || -1); // Lấy giá trị tồn kho (-1 nếu không tồn tại)
+            const requestedQuantity = parseInt(stockInput?.value || 0); // Lấy số lượng yêu cầu từ input
+            const stockInCart = stockInput.getAttribute('data-stock-in-cart')
+            // Trường hợp số lượng tồn kho = -1 (không tồn tại sản phẩm với lựa chọn)
+            if (stockValue === -1) {
+                showToast("error", "Sản phẩm không tồn tại với lựa chọn này!");
+                return;
+            }
+
+            // Trường hợp số lượng tồn kho = 0
+            if (stockValue === 0) {
+                showToast("error", "Sản phẩm đã hết hàng với lựa chọn này!");
+                return;
+            }
+
+            // Kiểm tra số lượng yêu cầu có hợp lệ hay không
+            if (isNaN(requestedQuantity) || requestedQuantity <= 0) {
+                showToast("error", "Vui lòng nhập số lượng hợp lệ!");
+                stockInput.focus(); // Đưa con trỏ vào ô input
+                return;
+            }
+
+            // Nếu số lượng yêu cầu vượt quá tồn kho
+            if (requestedQuantity > stockValue) {
+                showToast("error", "Số lượng trong kho không đủ để thêm!");
+                stockInput.value = stockValue; // Đặt lại giá trị input về tối đa có thể
+                stockInput.focus();
+                return;
+            }
+            if (requestedQuantity > stockValue - stockInCart){
+                showToast("error","Số lượng sản phẩm bạn mua đã đạt tối đa !")
+                stockInput.focus(); // Đưa con trỏ vào ô input
+                return;
+            }
+
+            // Nếu mọi thứ hợp lệ, submit form
+            form.submit();
+        }
+        function validateQuantityInput(inputElement) {
+            const stock = parseInt(inputElement.getAttribute('data-stock')); // Số lượng tồn kho hiện tại
+            let quantity = parseInt(inputElement.value); // Số lượng sản phẩm người dùng nhập
+
+            // Kiểm tra nếu số lượng là NaN hoặc nhỏ hơn 1, đặt lại số lượng thành 1
+            if (isNaN(quantity) || quantity <= 0) {
+                showToast("error","Số lượng sản phẩm không hợp lệ!")
+                inputElement.value = 1; // Đặt về 1 nếu nhập không hợp lệ
+                return;
+            }
+
+            // Kiểm tra nếu số lượng vượt quá tồn kho
+            if (quantity > stock) {
+                showToast("error","Số lượng yêu cầu vượt quá số lượng tồn kho hiện tại!")
+                inputElement.value = stock; // Đặt về tồn kho tối đa
+            }
+        }
+        // Hàm hiển thị SweetAlert Toast
+        function showToast(icon, message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+            });
+            Toast.fire({
+                icon: icon,
+                title: message,
+            });
+        }
+
 
     </script>
 

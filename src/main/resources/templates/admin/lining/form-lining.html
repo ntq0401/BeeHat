@@ -8,6 +8,9 @@
 <main class="content px-3 py-4" layout:fragment="main">
     <h1>Quản lí vải lót</h1>
     <form th:object="${l}" method="post">
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
         <p>Id :
             <input type="text" class="form-control" th:field="*{id}" disabled>
         </p>

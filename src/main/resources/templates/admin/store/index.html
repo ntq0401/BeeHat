@@ -83,11 +83,10 @@
                             <div class="d-flex">
                                 <div class="d-flex align-items-center">
                                     <div class="search-container d-flex align-items-center">
-                                        <input type="text" class="form-control flex-grow-1"
-                                               id="product-search" placeholder="Tìm kiếm sản phẩm..."
-                                               oninput="showSuggestions()">
-                                        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
-                                                data-bs-target="#productModal">+
+<!--                                        <input type="text" class="form-control flex-grow-1"-->
+<!--                                               id="product-search" placeholder="Tìm kiếm sản phẩm..."-->
+<!--                                               oninput="showSuggestions()">-->
+                                        <button type="button" id="selectProductButton" class="btn btn-primary ms-2">Chọn sản phẩm
                                         </button>
                                         <div id="suggestions" class="suggestions-list"
                                              th:each="detail : ${productDetails.content}"></div>
@@ -107,63 +106,92 @@
                                                 <div class="modal-body">
                                                     <div class="card-body">
                                                         <form class="row g-3" method="get">
-                                                            <div class="col-md-3">
-                                                                <label class="form-label">Màu sắc</label>
-                                                                <select class="form-select" name="colorId">
-                                                                    <option value="" disabled selected>Chọn màu sắc</option>
-                                                                    <option th:each=" c : ${listColor}" th:value="${c.id}" th:text="${c.name}"></option>
-                                                                </select>
+                                                            <!-- Input tìm kiếm -->
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">Từ khóa</label>
+                                                                <input type="text" class="form-control" name="keyword" placeholder="Nhập tên sản phẩm...">
                                                             </div>
-                                                            <div class="col-md-3">
-                                                                <label class="form-label">Kích cỡ</label>
-                                                                <select class="form-select" name="sizeId">
-                                                                    <option value="" disabled selected>Chọn kích cỡ</option>
-                                                                    <option th:each=" size : ${listSize}" th:value="${size.id}" th:text="${size.name}"></option>
-                                                                </select>
+
+                                                            <!-- Khoảng giá -->
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">Sắp xếp theo</label>
+                                                                <div class="d-flex align-items-center">
+                                                                    <select class="form-select" name="sort">
+                                                                        <option value="" disabled selected>Sắp xếp</option>
+                                                                        <option value="Giá tăng dần">Giá tăng dần</option>
+                                                                        <option value="Giá giảm dần">Giá giảm dần</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
-                                                            <div class="col-md-3">
-                                                                <label class="form-label">Kiểu dáng</label>
-                                                                <select class="form-select" name="styleId">
-                                                                    <option value="" disabled selected>Chọn kiểu dáng</option>
-                                                                    <option th:each=" style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-3">
-                                                                <label class="form-label">Chất liệu</label>
-                                                                <select class="form-select" name="materialId">
-                                                                    <option value="" disabled selected>Chọn chất liệu</option>
-                                                                    <option th:each=" m : ${listMater}" th:value="${m.id}" th:text="${m.name}"></option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-3">
+                                                            <!-- Danh mục -->
+                                                            <div class="col-md-4">
                                                                 <label class="form-label">Danh mục</label>
                                                                 <select class="form-select" name="categoryId">
                                                                     <option value="" disabled selected>Chọn danh mục</option>
-                                                                    <option th:each=" cate : ${listCate}" th:value="${cate.id}" th:text="${cate.name}"></option>
-
+                                                                    <option th:each="cate : ${listCate}" th:value="${cate.id}" th:text="${cate.name}"></option>
                                                                 </select>
                                                             </div>
-                                                            <div class="col-md-3">
+                                                            <!-- Màu sắc -->
+                                                            <div class="col-md-2">
+                                                                <label class="form-label">Màu sắc</label>
+                                                                <select class="form-select" name="colorId">
+                                                                    <option value="" disabled selected>Chọn màu sắc</option>
+                                                                    <option th:each="c : ${listColor}" th:value="${c.id}" th:text="${c.name}"></option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Kích cỡ -->
+                                                            <div class="col-md-2">
+                                                                <label class="form-label">Kích cỡ</label>
+                                                                <select class="form-select" name="sizeId">
+                                                                    <option value="" disabled selected>Chọn kích cỡ</option>
+                                                                    <option th:each="size : ${listSize}" th:value="${size.id}" th:text="${size.name}"></option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Kiểu dáng -->
+                                                            <div class="col-md-2">
+                                                                <label class="form-label">Kiểu dáng</label>
+                                                                <select class="form-select" name="styleId">
+                                                                    <option value="" disabled selected>Chọn kiểu dáng</option>
+                                                                    <option th:each="style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Chất liệu -->
+                                                            <div class="col-md-2">
+                                                                <label class="form-label">Chất liệu</label>
+                                                                <select class="form-select" name="materialId">
+                                                                    <option value="" disabled selected>Chọn chất liệu</option>
+                                                                    <option th:each="m : ${listMater}" th:value="${m.id}" th:text="${m.name}"></option>
+                                                                </select>
+                                                            </div>
+
+
+                                                            <!-- Vải lót -->
+                                                            <div class="col-md-2">
                                                                 <label class="form-label">Vải lót</label>
                                                                 <select class="form-select" name="liningId">
                                                                     <option value="" disabled selected>Chọn vải lót</option>
-                                                                    <option th:each=" lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
+                                                                    <option th:each="lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
                                                                 </select>
                                                             </div>
-                                                            <div class="col-md-3">
+
+                                                            <!-- Đai mũ -->
+                                                            <div class="col-md-2">
                                                                 <label class="form-label">Đai mũ</label>
                                                                 <select class="form-select" name="beltId">
                                                                     <option value="" disabled selected>Chọn đai mũ</option>
-                                                                    <option th:each=" belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
-
+                                                                    <option th:each="belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
                                                                 </select>
                                                             </div>
-                                                            <div class="col-md-3">
-                                                                <button type="submit" class="btn btn-primary mt-3">Tìm
-                                                                    kiếm
-                                                                </button>
+
+                                                            <!-- Nút tìm kiếm -->
+                                                            <div class="col-md-12 d-flex justify-content-center mt-3">
+                                                                <button type="submit" class="btn btn-primary w-auto">Tìm kiếm</button>
                                                             </div>
                                                         </form>
+
                                                     </div>
 
                                                     <table class="table">
@@ -1234,6 +1262,31 @@
                 }
             });
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectProductButton = document.getElementById("selectProductButton");
+            const invoiceIdInput = document.getElementById("invoiceId"); // Giả sử bạn có input chứa id hóa đơn
+            const productModal = new bootstrap.Modal(document.getElementById('productModal')); // Tạo instance modal Bootstrap
+
+            selectProductButton.addEventListener("click", function (event) {
+                // Kiểm tra xem đã chọn hóa đơn hay chưa
+                if (!invoiceIdInput || !invoiceIdInput.value.trim()) {
+                    showAlert(); // Hiển thị thông báo SweetAlert
+                } else {
+                    productModal.show(); // Mở modal nếu hợp lệ
+                }
+            });
+
+            // Hàm hiển thị thông báo SweetAlert
+            function showAlert() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Vui lòng chọn hóa đơn trước!',
+                    text: 'Bạn cần chọn hóa đơn trước khi thêm sản phẩm.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
         // $(document).ready(function() {
         //     // Khi modal mở, thêm padding vào body nếu cần
         //     $('#paymentModal').on('shown.bs.modal', function() {

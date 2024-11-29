@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
@@ -78,9 +79,20 @@ public class StoreController {
                                       @RequestParam(required = false) Integer styleId,
                                       @RequestParam(required = false) Integer liningId,
                                       @RequestParam(required = false) Integer beltId,
+                                      @RequestParam(required = false) String keyword, // Nhận giá trị tìm kiếm theo tên
+                                      @RequestParam(required = false) String sort,
                                       Model model) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<ProductDetail> productDetailsPage = productDetailRepo.findByCriteria(categoryId, materialId, colorId, sizeId, styleId, liningId, beltId, pageable);
+        // Xử lý sắp xếp theo giá
+        Sort sortOrder = Sort.by("price"); // Mặc định sắp xếp theo price
+        if ("Giá giảm dần".equals(sort)) {
+            sortOrder = Sort.by("price").descending();
+        } else if ("Giá tăng dần".equals(sort)) {
+            sortOrder = Sort.by("price").ascending();
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, sortOrder);
+        Page<ProductDetail> productDetailsPage = productDetailRepo.findByCriteria(categoryId, materialId, colorId, sizeId, styleId, liningId, beltId, keyword, pageable);
+
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productDetailsPage.getTotalPages());
         model.addAttribute("totalItems", productDetailsPage.getTotalElements());

@@ -36,7 +36,6 @@ public class CustomAuthenticationSuccessHandlerForCustomer implements Authentica
         Customer customer = customerRepo.findByUsername(username);
         // Thực hiện gộp giỏ hàng cho Customer
         cartService.mergeCartWithUserCart(customer);
-        cartService.addAllCart(cartDetailRepo.findByCustomerIdAndStatus(customer.getId(),(byte) 1));
         // Điều hướng về trang chủ hoặc trang giỏ hàng sau khi đăng nhập thành công
         response.sendRedirect("/");
     }
