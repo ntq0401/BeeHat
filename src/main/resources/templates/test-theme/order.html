@@ -85,11 +85,11 @@
                                 <span th:if="${invoice.status == 1}" class="badge rounded-pill bg-danger status-badge">Bị huỷ</span>
                                 <span th:if="${invoice.status == 2}" class="badge rounded-pill bg-success status-badge">Đã thanh toán</span>
                                 <span th:if="${invoice.status == 3}" class="badge rounded-pill bg-primary status-badge">Chờ xác nhận</span>
-                                <span th:if="${invoice.status == 4}" class="badge rounded-pill bg-primary status-badge">Chờ lấy hàng</span>
-                                <span th:if="${invoice.status == 5}" class="badge rounded-pill bg-primary status-badge">Chờ vận chuyển</span>
-                                <span th:if="${invoice.status == 6}" class="badge rounded-pill bg-primary status-badge">Giao hàng</span>
-                                <span th:if="${invoice.status == 7}" class="badge rounded-pill bg-primary status-badge">Hoàn thành</span>
-                            </td>
+                                <span th:if="${invoice.status == 4}" class="badge rounded-pill bg-primary status-badge">Xác nhận</span>
+                                <span th:if="${invoice.status == 5}" class="badge rounded-pill bg-primary status-badge">Chờ lấy hàng</span>
+                                <span th:if="${invoice.status == 6}" class="badge rounded-pill bg-primary status-badge">Chờ vận chuyển</span>
+                                <span th:if="${invoice.status == 7}" class="badge rounded-pill bg-primary status-badge">Giao hàng</span>
+                                <span th:if="${invoice.status == 8}" class="badge rounded-pill bg-primary status-badge">Hoàn thành</span>                            </td>
                             <td th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}"></td>
                             <td><a th:href="@{/orderDetail/{id}(id=${invoice.id})}" class="btn btn-danger">XEM</a></td>
                         </tr>
