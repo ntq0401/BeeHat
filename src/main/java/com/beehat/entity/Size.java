@@ -19,6 +19,7 @@ public class Size {
     private Integer id;
 
     @NotBlank(message = "Tên không được bỏ trống !")
+    @jakarta.validation.constraints.Size(max = 50, message = "Tên không được dài quá 50 ký tự")
     @Column(name = "name", nullable = false)
     private String name;
 

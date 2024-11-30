@@ -128,13 +128,18 @@ public class ProductController {
     @PostMapping("/add-product")
     public String addProduct(@Valid @ModelAttribute("p") Product p, BindingResult rs,
                              Model model, @RequestParam(value = "file") MultipartFile[] files) {
-        if (rs.hasErrors() || files[0].getOriginalFilename().equals("")) {
+        if (rs.hasErrors()) {
+            model.addAttribute("isAdd", true);
+            return "admin/product/add-product";
+        }
+        // Kiểm tra nếu không có ảnh được tải lên
+        if (files == null || files.length == 0 || files[0].getOriginalFilename().isEmpty() || files[0].getOriginalFilename().equals("")) {
             model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
             model.addAttribute("isAdd", true);
             return "admin/product/add-product";
         }
         // Kiểm tra trùng tên sản phẩm (ngoại trừ sản phẩm hiện tại)
-        if (productRepo.existsByName(p.getName())) {
+        if (productRepo.existsByName(p.getName().trim().toLowerCase())) {
             rs.rejectValue("name", "error.p", "Tên sản phẩm đã tồn tại!");
             model.addAttribute("isAdd", true);
             return "admin/product/add-product";
@@ -210,6 +215,8 @@ public class ProductController {
             pd.setProduct(productRepo.findById(id).orElse(null));
             model.addAttribute("pd", pd);
             model.addAttribute("product", productRepo.findById(id).orElse(null));
+            model.addAttribute("selectedColors", colorIds);
+            model.addAttribute("selectedSizes", sizeIds);
             return "admin/product/add-product-detail";
         }
 
@@ -223,6 +230,8 @@ public class ProductController {
 
         // Nếu có lỗi, trả về trang thêm mới với thông báo lỗi
         if (rs.hasErrors()) {
+            model.addAttribute("selectedColors", colorIds);
+            model.addAttribute("selectedSizes", sizeIds);
             return "admin/product/add-product-detail";
         }
 

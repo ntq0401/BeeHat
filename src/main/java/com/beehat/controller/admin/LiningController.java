@@ -63,7 +63,16 @@ public class LiningController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") int id) {
-        liningRepo.deleteById(id);
+        Lining lining = liningRepo.findById(id).orElse(null);
+        lining.setStatus((byte) 0);
+        liningRepo.save(lining);
+        return "redirect:/admin/lining/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable("id") int id) {
+        Lining lining = liningRepo.findById(id).orElse(null);
+        lining.setStatus((byte) 1);
+        liningRepo.save(lining);
         return "redirect:/admin/lining/index";
     }
 }

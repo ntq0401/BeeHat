@@ -62,7 +62,16 @@ public class StyleController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
-        styleRepo.deleteById(id);
+        Style style = styleRepo.findById(id).orElse(null);
+        style.setStatus((byte) 0);
+        styleRepo.save(style);
+        return "redirect:/admin/style/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable int id) {
+        Style style = styleRepo.findById(id).orElse(null);
+        style.setStatus((byte) 1);
+        styleRepo.save(style);
         return "redirect:/admin/style/index";
     }
 }

@@ -62,7 +62,16 @@ public class SizeController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") int id) {
-        sizeRepo.deleteById(id);
+        Size size = sizeRepo.findById(id).orElse(null);
+        size.setStatus((byte) 0);
+        sizeRepo.save(size);
+        return "redirect:/admin/size/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable("id") int id) {
+        Size size = sizeRepo.findById(id).orElse(null);
+        size.setStatus((byte) 1);
+        sizeRepo.save(size);
         return "redirect:/admin/size/index";
     }
 }

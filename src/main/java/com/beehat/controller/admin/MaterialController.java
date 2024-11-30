@@ -62,7 +62,16 @@ public class MaterialController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
-        materialRepo.deleteById(id);
+        Material material = materialRepo.findById(id).orElse(null);
+        material.setStatus((byte) 0);
+        materialRepo.save(material);
+        return "redirect:/admin/material/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable int id) {
+        Material material = materialRepo.findById(id).orElse(null);
+        material.setStatus((byte) 1);
+        materialRepo.save(material);
         return "redirect:/admin/material/index";
     }
 }

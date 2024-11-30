@@ -62,7 +62,16 @@ public class ColorController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
-        colorRepo.deleteById(id);
+        Color color = colorRepo.findById(id).orElse(null);
+        color.setStatus((byte) 0);
+        colorRepo.save(color);
+        return "redirect:/admin/color/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable int id) {
+        Color color = colorRepo.findById(id).orElse(null);
+        color.setStatus((byte) 1);
+        colorRepo.save(color);
         return "redirect:/admin/color/index";
     }
 }

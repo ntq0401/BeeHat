@@ -44,8 +44,6 @@ public class ThemeTestController {
     @Autowired
     InvoiceDetailRepo invoiceDetailRepo;
     @Autowired
-    InvoiceService invoiceService;
-    @Autowired
     private ProvincesService provincesService;
     @Autowired
     PaymentHistoryRepo paymentHistoryRepo;
@@ -55,6 +53,21 @@ public class ThemeTestController {
     InvoiceHistoryStatusRepo invoiceHistoryStatusRepo;
     @Autowired
     private VoucherRepo voucherRepo;
+    @Autowired
+    private CategoryRepo categoryRepo;
+    @Autowired
+    private BeltRepo beltRepo;
+    @Autowired
+    private LiningRepo liningRepo;
+    @Autowired
+    private MaterialRepo materialRepo;
+    @Autowired
+    private StyleRepo styleRepo;
+    @Autowired
+    private SizeRepo sizeRepo;
+    @Autowired
+    private ColorRepo colorRepo;
+    @Autowired
     PasswordEncoder passwordEncoder;
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
@@ -79,6 +92,40 @@ public class ThemeTestController {
         // trường hợp có sản phẩm trong giỏ tài khoản user
         long sum = cartDetails.stream().map(CartDetail::getProductDetail).distinct().count();
         return sum;
+    }
+    @ModelAttribute("listCate")
+    List<Category> listCategory() {
+        return categoryRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listBelt")
+    List<Belt> listBelt() {
+        return beltRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listLining")
+    List<Lining> listLining() {
+        return liningRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listStyle")
+    List<Style> listStyle() {
+        return styleRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listMater")
+    List<Material> listMaterial() {
+        return materialRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listColor")
+    List<Color> listColor() {
+        return colorRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listSize")
+    List<Size> listSize() {
+        return sizeRepo.findByStatus(Byte.valueOf("1"));
     }
 
     @GetMapping("/")
@@ -185,7 +232,7 @@ public class ThemeTestController {
     }
     @GetMapping("/checkout")
     public String checkout(Model model,Principal principal) {
-        model.addAttribute("voucherList",voucherRepo.findByStatus((byte) 1));
+        model.addAttribute("voucherList",voucherRepo.findByStatusAndEndDate((byte) 1,LocalDateTime.now()));
         model.addAttribute("provinces", provincesService.getProvinces());
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
@@ -492,11 +539,13 @@ public class ThemeTestController {
         model.addAttribute("customer",customer);
         model.addAttribute("invoice",invoice);
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
-        int totalDiscount = listInvoiceDetail.stream()
-                .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
-                .sum(); // Tính tổng các giảm giá từ sản phẩm
-        totalDiscount += invoice.getVoucherDiscount();
-        model.addAttribute("totalDiscount", totalDiscount);
+        if (invoice.getVoucher() != null) {
+            int totalDiscount = listInvoiceDetail.stream()
+                    .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
+                    .sum(); // Tính tổng các giảm giá từ sản phẩm
+            totalDiscount += invoice.getVoucherDiscount();
+            model.addAttribute("totalDiscount", totalDiscount);
+        }
         model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         return "test-theme/orderdetail";
     }

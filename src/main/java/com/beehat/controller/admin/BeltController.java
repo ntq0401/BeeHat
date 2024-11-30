@@ -64,7 +64,16 @@ public class BeltController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") Integer id) {
-        beltRepo.deleteById(id);
+        Belt belt = beltRepo.findById(id).orElse(null);
+        belt.setStatus((byte) 0);
+        beltRepo.save(belt);
+        return "redirect:/admin/belt/index";
+    }
+    @GetMapping("/on/{id}")
+    public String turnOn(@PathVariable("id") Integer id) {
+        Belt belt = beltRepo.findById(id).orElse(null);
+        belt.setStatus((byte) 1);
+        beltRepo.save(belt);
         return "redirect:/admin/belt/index";
     }
 }

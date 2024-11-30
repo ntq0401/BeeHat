@@ -86,7 +86,7 @@ public class Product {
     // Phương thức sinh SKU
     private String generateSKU() {
         // Sử dụng 3 ký tự đầu tiên của tên sản phẩm (đã bỏ khoảng trắng)
-        String productCode = this.name.replaceAll("\\s+", "").substring(0, 3).toUpperCase();
+        String productCode = UUID.randomUUID().toString().substring(0, 3).toUpperCase();
 
         // Thời gian hiện tại dưới dạng yyyyMMddHHmmss
         String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));

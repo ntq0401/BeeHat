@@ -57,11 +57,15 @@
             <td>[[${belt.createdDate.toString().substring(0,10)}]]</td>
             <td colspan="2">
                 <a th:href="@{/admin/belt/update/{id}(id=${belt.id})}">
-                    <button class="btn btn-warning">Update</button>
+                    <button class="btn btn-warning"><i class="ph ph-pencil"></i></button>
                 </a>
-                <a th:href="@{/admin/belt/delete/{id}(id=${belt.id})}"
-                   onclick="return confirm('Bạn có muốn xoá ?')">
-                    <button class="btn btn-danger" id="deleteButton">Delete</button>
+                <a th:if="${belt.status == 1}" th:href="@{/admin/belt/delete/{id}(id=${belt.id})}"
+                   onclick="return confirm('Bạn có chắc là muốn tắt hoạt động ?')">
+                    <button class="btn btn-danger"><i class="ph ph-power"></i></button>
+                </a>
+                <a th:if="${belt.status == 0}" th:href="@{/admin/belt/on/{id}(id=${belt.id})}"
+                   onclick="return confirm('Bạn có chắc là muốn bật hoạt động ?')">
+                    <button class="btn btn-success"><i class="ph ph-power"></i></button>
                 </a>
             </td>
         </tr>

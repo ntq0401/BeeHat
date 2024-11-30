@@ -57,11 +57,15 @@
             <td>[[${size.createdDate.toString().substring(0,10)}]]</td>
             <td colspan="2">
                 <a th:href="@{/admin/size/update/{id}(id=${size.id})}">
-                    <button class="btn btn-warning">Update</button>
+                    <button class="btn btn-warning"><i class="ph ph-pencil"></i></button>
                 </a>
-                <a th:href="@{/admin/size/delete/{id}(id=${size.id})}"
-                   onclick="return confirm('Bạn có chắc là muốn xoá ?')">
-                    <button class="btn btn-danger">Delete</button>
+                <a th:if="${size.status == 1}" th:href="@{/admin/size/delete/{id}(id=${size.id})}"
+                   onclick="return confirm('Bạn có chắc là muốn tắt hoạt động ?')">
+                    <button class="btn btn-danger"><i class="ph ph-power"></i></button>
+                </a>
+                <a th:if="${size.status == 0}" th:href="@{/admin/size/on/{id}(id=${size.id})}"
+                   onclick="return confirm('Bạn có chắc là muốn bật hoạt động ?')">
+                    <button class="btn btn-success"><i class="ph ph-power"></i></button>
                 </a>
             </td>
         </tr>

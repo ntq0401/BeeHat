@@ -164,7 +164,12 @@
             // Lấy tất cả các sản phẩm trong giỏ hàng
             const form = element.closest('form')
             const cartItems = document.querySelectorAll('.cart__product__item');
+            console.log(cartItems)
 
+            if(cartItems.length == 0){
+                showToast("error","Không thể thanh toán giỏ hàng trống !");
+                return;
+            }
             // Kiểm tra xem có sản phẩm nào hết hàng không
             let hasOutOfStockItem = false;
             cartItems.forEach(item => {

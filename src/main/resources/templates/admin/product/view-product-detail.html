@@ -263,7 +263,7 @@
                 <div class="def-number-input number-input safari_only">
                 <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
                         class="minus"></button>
-                <input class="quantity fw-bold bg-body-tertiary text-body" min="0" name="quantity" th:value="${variant.stock}"
+                <input class="quantity fw-bold bg-body-tertiary text-body" min="0" max="100000000" name="quantity" th:value="${variant.stock}"
                        type="number" required>
                 <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
                         class="plus"></button>
@@ -272,7 +272,7 @@
             </td>
             <td>
                 <div class="d-flex align-items-center justify-content-center">
-                    <input class="form-control me-1" type="number" min="0" th:value="${variant.price}" name="price" style="max-width: 100px;" required>
+                    <input class="form-control me-1" type="number" min="0" max="100000000" th:value="${variant.price}" name="price" style="max-width: 100px;" required>
                     <p class="mb-0">VND</p>
                 </div>
             </td>

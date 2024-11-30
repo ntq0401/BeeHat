@@ -122,7 +122,7 @@ public class StoreController {
 
     @ModelAttribute("listVoucher")
     List<Voucher> listVoucher() {
-        return voucherRepo.findByStatus((byte) 1);
+        return voucherRepo.findByStatusAndEndDate((byte) 1,LocalDateTime.now());
     }
     @ModelAttribute("listCate")
     List<Category> listCategory() {

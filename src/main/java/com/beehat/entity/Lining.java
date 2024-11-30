@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class Lining {
     private Integer id;
     // Validate name to not be null, with length between 1 and 50 characters
     @NotBlank(message = "Tên không được bỏ trống !")
+    @Size(max = 50, message = "Tên không được dài quá 50 kí tự !")
     @Column(name = "name", nullable = false)
     private String name;
 
