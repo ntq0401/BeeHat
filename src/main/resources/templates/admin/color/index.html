@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lí màu sắc</title>
+    <style>
+        th, td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+            vertical-align: middle; /* Căn dọc giữa */
+        }
+    </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-    <h1>Quản lí màu sắc</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addColorModal">
-        Thêm mới
-    </button>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Màu sắc</li>
+        </ol>
+    </nav>
+
 
     <!-- Modal -->
     <div class="modal fade" id="addColorModal" tabindex="-1" aria-labelledby="addColorModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addColorModalLabel">Thêm mới màu sắc</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
                 <div class="modal-body">
                     <!-- Form thêm mới đai nón -->
                     <form th:object="${c}" method="post">
@@ -45,7 +50,35 @@
             </div>
         </div>
     </div>
-    <table class="table">
+    <!-- Card tìm kiếm hóa đơn -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Tìm kiếm màu sắc
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="mb-3">
+                    <label for="invoiceCode" class="form-label fw-bold">Tên màu sắc</label>
+                    <div class="input-group">
+                        <input type="text" name="name" th:value="${param.name}" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
+                        <button type="submit" class="btn btn-success">
+                            <i class="ph-magnifying-glass"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <!-- Tiêu đề với nút chỉnh sửa bên phải -->
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><strong>Danh sách màu sắc</strong></h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addColorModal">
+                    Thêm mới
+                </button>
+            </div>
+            <table class="table table-bordered table-hover mt-3">
         <tr>
             <th>STT</th>
             <th>Id</th>
@@ -78,6 +111,8 @@
             </td>
         </tr>
     </table>
+        </div>
+    </div>
 </main>
 </body>
 </html>

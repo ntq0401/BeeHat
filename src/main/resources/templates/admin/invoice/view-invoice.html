@@ -126,6 +126,24 @@
         th, td {
             text-align: center; /* Căn giữa theo chiều ngang */
         }
+        .card {
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        }
+        .text-reset {
+            --bs-text-opacity: 1;
+            color: inherit!important;
+        }
+        a {
+            text-decoration: none;
+        }
+        tfoot tr td {
+            text-align: right; /* Đảm bảo text trong footer căn phải */
+            font-weight: bold; /* Tăng độ đậm nếu cần */
+        }
+        .divider-row td {
+            border-top: 1px solid #ddd; /* Tùy chỉnh độ dày và màu sắc của đường kẻ */
+        }
+
     </style>
 </head>
 <body>
@@ -150,8 +168,13 @@
                 <div class="w-100 text-center py-1 px-2"><span class="text-medium">Trạng thái : <span
                         th:if="${invoice.status == 0}">Chưa thanh toán</span>
                         <span th:if="${invoice.status == 1}">Bị huỷ</span>
-                    <span th:if="${invoice.status == 2}">Đã thanh toán</span>
+                        <span th:if="${invoice.status == 2}">Đã thanh toán</span>
                         <span th:if="${invoice.status == 3}">Chờ xác nhận</span>
+                        <span th:if="${invoice.status == 4}">Xác nhận</span>
+                        <span th:if="${invoice.status == 5}">Chờ lấy hàng</span>
+                        <span th:if="${invoice.status == 6}">Chờ vận chuyển</span>
+                        <span th:if="${invoice.status == 7}">Giao hàng</span>
+                        <span th:if="${invoice.status == 8}">Hoàn thành</span>
                 </span>
                 </div>
                 <div class="w-100 text-center py-1 px-2"><span class="text-medium">Ngày tạo hoá đơn:</span>
@@ -173,9 +196,20 @@
                         <h4 class="step-title">Hoàn thành</h4>
                     </div>
                 </div>
-                <a th:href="@{/admin/order/canceled-invoice/{id}(id=${invoice.id})}">
-                    <button class="btn btn-danger">Huỷ</button>
-                </a>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button th:if="${invoice.status == 0 || invoice.invoiceStatus == 0}" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            Huỷ đơn hàng
+                        </button>
+
+                    </div>
+                    <div>
+                        <button class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target='#historyModal'>Lịch sử
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="card-body" th:if="${invoice.status == 1}">
                 <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
@@ -191,7 +225,10 @@
                         </div>
                         <h4 class="step-title">Huỷ hoá đơn</h4>
                     </div>
-
+                    <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target='#historyModal'>Lịch sử
+                    </button>
                 </div>
             </div>
             <div class="card-body" th:if="${invoice.status == 2}">
@@ -210,7 +247,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body" th:if="${invoice.status == 3}">
+            <div class="card-body" th:if="${invoice.status >= 3}">
                 <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
                     <div class="step completed">
                         <div class="step-icon-wrap">
@@ -218,31 +255,31 @@
                         </div>
                         <h4 class="step-title">Chờ xác nhận</h4>
                     </div>
-                    <div class="step">
+                    <div class="step" th:classappend="${invoice.status >= 4 ? 'completed' : ''}">
                         <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            <div class="step-icon"><i class="pe-7s-like2"></i></div>
                         </div>
                         <h4 class="step-title">Xác nhận đơn hàng</h4>
                     </div>
-                    <div class="step">
+                    <div class="step" th:classappend="${invoice.status >= 5 ? 'completed' : ''}">
                         <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            <div class="step-icon"><i class="pe-7s-box1"></i></div>
                         </div>
                         <h4 class="step-title">Chờ lấy hàng</h4>
                     </div>
-                    <div class="step">
+                    <div class="step" th:classappend="${invoice.status >= 6 ? 'completed' : ''}">
                         <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
+                            <div class="step-icon"><i class="pe-7s-car"></i></div>
                         </div>
                         <h4 class="step-title">Chờ vận chuyển</h4>
                     </div>
-                    <div class="step">
+                    <div class="step" th:classappend="${invoice.status >= 7 ? 'completed' : ''}">
                         <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
+                            <div class="step-icon"><i class="pe-7s-bicycle"></i></div>
                         </div>
                         <h4 class="step-title">Giao hàng</h4>
                     </div>
-                    <div class="step">
+                    <div class="step" th:classappend="${invoice.status >= 8 ? 'completed' : ''}">
                         <div class="step-icon-wrap">
                             <div class="step-icon"><i class="pe-7s-check"></i></div>
                         </div>
@@ -251,288 +288,60 @@
                 </div>
                 <div class="d-flex justify-content-between">
                     <div>
-                        <a th:href="@{/admin/order/confirm-invoice/{id}(id=${invoice.id})}">
-                            <button th:if="${invoice.status == 3}" class="btn btn-primary">Xác nhận</button>
-                        </a>
-                        <a th:href="@{/admin/order/canceled-invoice/{id}(id=${invoice.id})}">
-                            <button th:if="${invoice.status == 3 || invoice.status == 4}" class="btn btn-danger">Huỷ
-                            </button>
-                        </a>
+                        <button th:if="${invoice.status == 3}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                            Xác nhận
+                        </button>
+                        <button th:if="${invoice.status == 4}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                            Lấy hàng
+                        </button>
+                        <button th:if="${invoice.status == 5}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                            Vận chuyển
+                        </button>
+                        <button th:if="${invoice.status == 6}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                            Giao hàng
+                        </button>
+                        <button th:if="${invoice.status == 7}" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#descriptionModal">
+                            Hoàn thành
+                        </button>
+                        <button th:if="${invoice.status == 3 || invoice.status == 4}" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            Huỷ đơn hàng
+                        </button>
+
                     </div>
                     <div>
-                        <button th:if="${invoice.status == 3 || invoice.status == 4}" class="btn btn-primary"
+                        <button class="btn btn-primary"
                                 data-bs-toggle="modal"
                                 data-bs-target='#historyModal'>Lịch sử
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="card-body" th:if="${invoice.status == 4}">
-                <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ xác nhận</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Xác nhận đơn hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ lấy hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ vận chuyển</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Giao hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Hoàn thành</h4>
-                    </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">Xác nhận thay đổi trạng thái</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a th:href="@{/admin/order/canceled-invoice/{id}(id=${invoice.id})}">
-                            <button th:if="${invoice.status == 3 || invoice.status == 4}" class="btn btn-danger">Huỷ
-                            </button>
-                        </a>
-                        <a th:href="@{/admin/order/pick-up/{id}(id=${invoice.id})}">
-                            <button th:if="${invoice.status == 3 || invoice.status == 4}" class="btn btn-primary">Lấy
-                                hàng
-                            </button>
-                        </a>
-                    </div>
-                    <div>
-                        <button th:if="${invoice.status == 3 || invoice.status == 4}" class="btn btn-primary"
-                                data-bs-toggle="modal"
-                                data-bs-target='#historyModal'>Lịch sử
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" th:if="${invoice.status == 5}">
-                <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                <!-- Modal Body -->
+                <form method="post" th:action="@{/admin/order/cancel-invoice}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="cancelDescription" class="form-label" >Mô tả</label>
+                            <input type="hidden" th:value="${invoice.id}" name="idINV">
+                            <input id="cancelDescription" class="form-control" name="cancelDescription" placeholder="Nhập mô tả..." value="Chuyển trạng thái">
                         </div>
-                        <h4 class="step-title">Chờ xác nhận</h4>
                     </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Xác nhận đơn hàng</h4>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary" >Xác nhận</button>
                     </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ lấy hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ vận chuyển</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Giao hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Hoàn thành</h4>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a th:href="@{/admin/order/shipping/{id}(id=${invoice.id})}">
-                            <button class="btn btn-primary">Vận chuyển</button>
-                        </a>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target='#historyModal'>Lịch sử
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" th:if="${invoice.status == 6}">
-                <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ xác nhận</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Xác nhận đơn hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ lấy hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ vận chuyển</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Giao hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Hoàn thành</h4>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a th:href="@{/admin/order/delivery/{id}(id=${invoice.id})}">
-                            <button class="btn btn-primary">Giao hàng</button>
-                        </a>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target='#historyModal'>Lịch sử
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" th:if="${invoice.status == 7}">
-                <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ xác nhận</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Xác nhận đơn hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ lấy hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ vận chuyển</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Giao hàng</h4>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Hoàn thành</h4>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a th:href="@{/admin/order/completed/{id}(id=${invoice.id})}">
-                            <button class="btn btn-primary">Hoàn thành</button>
-                        </a>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target='#historyModal'>Lịch sử
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" th:if="${invoice.status == 8}">
-                <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ xác nhận</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Xác nhận đơn hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-cart"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ lấy hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Chờ vận chuyển</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Giao hàng</h4>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-icon-wrap">
-                            <div class="step-icon"><i class="pe-7s-check"></i></div>
-                        </div>
-                        <h4 class="step-title">Hoàn thành</h4>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a>
-                            <button class="btn btn-primary">Trả hàng</button>
-                        </a>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target='#historyModal'>Lịch sử
-                        </button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -557,7 +366,7 @@
                     <td>[[${stt.index+1}]]</td>
                     <td>[[${historyPayment.transactionCode}]]</td>
                     <td>[[${historyPayment.paymentMethod.name}]]</td>
-                    <td>[[${historyPayment.amountPaid}]]</td>
+                    <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(historyPayment.amountPaid)}]]</td>
                     <td>[[${#temporals.format(historyPayment.paymentDate, 'dd/MM/yyyy HH:mm')}]]</td>
                     <td>[[${historyPayment.note}]]</td>
                 </tr>
@@ -565,55 +374,148 @@
             </table>
         </div>
     </div>
-    <!-- Card hiển thị danh sách hóa đơn -->
-    <div class="card" style="margin-top: 13px">
-        <div class="card-header bg-white">
-            <h4>Thông tin sản phẩm</h4>
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-9">
+            <div class="accordion" id="accordionPayment">
+                <div class="card detail mb-4">
+                    <h6 class="card-title mt-3" style="margin-left: 15px">Chi tiết hoá đơn #[[${invoice.id}]]</h6>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="detail, stt : ${invoiceDetail}">
+                                <td th:text="${stt.index + 1}"></td>
+                                <td>
+                                    <div class="flex-shrink-0">
+                                        <img th:src="${detail.productDetail.product.images.size() > 0 ? detail.productDetail.product.images[0].imageUrl : '/default-image.jpg'}"
+                                             alt="Ảnh sản phẩm" width="35" class="img-fluid"/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex-lg-grow-1 ms-3">
+                                        <h6 class="small mb-0"><a href="#" class="text-reset">[[${detail.productDetail.product.name}]]</a></h6>
+                                        <span class="small">Màu sắc: [[${detail.productDetail.color.name}]],</span>
+                                        <span class="small">Kích cỡ: [[${detail.productDetail.size.name}]]</span>
+                                    </div>
+                                </td>
+                                <td>[[${detail.quantity}]]</td>
+                                <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.unitPrice)}]]</td>
+                                <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.finalPrice)}]]</td>
+                            </tr>
+                            </tbody>
+                            <!-- Divider row -->
+                            <tr class="divider-row" >
+                                <td colspan="6"></td>
+                            </tr>
+                            <tfoot>
+                            <tr>
+                                <td colspan="5" class="text-end">Tổng tiền</td>
+                                <td class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</td>
+                            </tr>
+                            <tr th:if="${invoice.invoiceStatus == 1}">
+                                <td colspan="5" class="text-end">Phí ship</td>
+                                <td class="text-end">30.000VND</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="text-end">Giảm giá</td>
+                                <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td colspan="5" class="text-end">Thực thu</td>
+                                <td class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}]]</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Số lượng</th>
-                    <th>Đơn giá</th>
-                    <th>Thành tiền</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="detail, stt : ${invoiceDetail}">
-                    <td th:text="${stt.index + 1}"></td>
-                    <td th:if="${detail.productDetail.product.images.size() > 0}">
-                        <div class="flex-shrink-0">
-                            <img th:src="${detail.productDetail.product.images[0].imageUrl}"
-                                 alt="Ảnh sản phẩm" width="35"
-                                 class="img-fluid"/>
-                        </div>
-                    </td>
-                    <td th:if="${detail.productDetail.product.images.size() <= 0}">
-                        <div class="flex-shrink-0">
-                            <img src="" alt="Ảnh mặc định" width="35" class="img-fluid"/>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-lg-grow-1 ms-3">
-                            <h6 class="small mb-0"><a href="#" class="text-reset">[[${detail.productDetail.product.name}]]</a>
-                            </h6>
-                            <span class="small">Màu sắc: [[${detail.productDetail.color.name}]],</span>
-                            <span class="small">Kích cỡ: [[${detail.productDetail.size.name}]]</span>
-                        </div>
-                    </td>
-                    <td>[[${detail.quantity}]]</td>
-                    <td>[[${detail.unitPrice}]]</td>
-                    <td>[[${detail.finalPrice}]]</td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- Right Column -->
+        <div class="col-lg-3">
+            <div class="card position-sticky top-0">
+                <div class="p-3 bg-light bg-opacity-10">
+                    <h6 class="card-title mb-3">Thông tin hoá đơn</h6>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Khách hàng :</span> <span th:if="${invoice.customer != null}">[[${invoice.customer.fullname}]]</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Số điện thoại :</span> <span th:if="${invoice.customer != null}">[[${invoice.customer.phone}]]</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Địa chỉ giao hàng : </span> <span class="text-danger" th:if="${invoice.customer != null}">[[${invoice.customer.allAddress}]]</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Ngày tạo đơn hàng : </span> <span class="text-danger">[[${#temporals.format(invoice.createdDate, 'dd/MM/yyyy HH:mm')}]]</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Loại hoá đơn : </span> <span class="text-danger">[[${invoice.invoiceStatus == 0 ? 'Tại quầy' : 'Online'}]]</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span>Trạng thái : </span> <span class="text-danger"><span th:if="${invoice.status == 0}" class="badge rounded-pill bg-info status-badge">Chưa thanh toán</span>
+                            <span th:if="${invoice.status == 1}" class="badge rounded-pill bg-danger status-badge">Bị huỷ</span>
+                            <span th:if="${invoice.status == 2}" class="badge rounded-pill bg-success status-badge">Đã thanh toán</span>
+                            <span th:if="${invoice.status == 3}" class="badge rounded-pill bg-primary status-badge">Chờ xác nhận</span>
+                            <span th:if="${invoice.status == 4}" class="badge rounded-pill bg-primary status-badge">Xác nhận</span>
+                            <span th:if="${invoice.status == 5}" class="badge rounded-pill bg-primary status-badge">Chờ lấy hàng</span>
+                            <span th:if="${invoice.status == 6}" class="badge rounded-pill bg-primary status-badge">Chờ vận chuyển</span>
+                            <span th:if="${invoice.status == 7}" class="badge rounded-pill bg-primary status-badge">Giao hàng</span>
+                            <span th:if="${invoice.status == 8}" class="badge rounded-pill bg-primary status-badge">Hoàn thành</span>
+                        </span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4 small">
+                        <span>Tổng cộng : </span> <strong class="text-dark">[[${invoice.finalPrice}]]</strong>
+                    </div>
+
+                    <button class="btn btn-secondary w-100 mt-2">In hoá đơn</button>
+                </div>
+            </div>
         </div>
     </div>
-
+    <!-- Modal -->
+    <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="descriptionModalLabel">Xác nhận thay đổi trạng thái</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Modal Body -->
+                <form method="post">
+                    <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="description" class="form-label" >Mô tả</label>
+                            <input type="hidden" th:value="${invoice.id}" name="idINV">
+                            <input id="description" class="form-control" name="description" placeholder="Nhập mô tả..." value="Chuyển trạng thái">
+                        </div>
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button th:if="${invoice.status == 3}" type="submit" th:formaction="@{/admin/order/confirm-invoice}" class="btn btn-primary" >Xác nhận</button>
+                        <button th:if="${invoice.status == 4}" type="submit" th:formaction="@{/admin/order/pick-up}" class="btn btn-primary">Xác nhận</button>
+                        <button th:if="${invoice.status == 5}" type="submit" th:formaction="@{/admin/order/shipping}" class="btn btn-primary">Xác nhận</button>
+                        <button th:if="${invoice.status == 6}" type="submit" th:formaction="@{/admin/order/delivery}" class="btn btn-primary">Xác nhận</button>
+                        <button th:if="${invoice.status == 7}" type="submit" th:formaction="@{/admin/order/completed}" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- Modal hiển thị lịch sử -->
     <div id="historyModal" class="modal fade" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -644,6 +546,7 @@
                             <td th:if="${history.previousStatus == 6}">Chờ vận chuyển</td>
                             <td th:if="${history.previousStatus == 7}">Giao hàng</td>
                             <td th:if="${history.previousStatus == 8}">Hoàn thành</td>
+                            <td th:if="${history.newStatus == 1}">Huỷ đơn</td>
                             <td th:if="${history.newStatus == 3}">Chờ xác nhận</td>
                             <td th:if="${history.newStatus == 4}">Xác nhận</td>
                             <td th:if="${history.newStatus == 5}">Chờ lấy hàng</td>

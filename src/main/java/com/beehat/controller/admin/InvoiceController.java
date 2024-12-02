@@ -55,91 +55,83 @@ public class InvoiceController {
         model.addAttribute("invoiceDetail", invoiceDetail);
         return "admin/invoice/view-invoice";
     }
-    @GetMapping("/confirm-invoice/{id}")
-    public String confirmInvoice(@PathVariable int id) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 4);
-        invoiceRepo.save(invoice);
-        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,(byte) 3);
-        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
-        newHistory.setInvoice(invoice);
-        newHistory.setPreviousStatus(oldHistory.getNewStatus());
-        newHistory.setNewStatus((byte) 4);
-        newHistory.setUpdatedAt(LocalDateTime.now());
-        invoiceHistoryStatusRepo.save(newHistory);
-        return "redirect:/admin/order/view-invoice/" + id;
-    }
-    @GetMapping("/pick-up/{id}")
-    public String pickUpInvoice(@PathVariable int id, Model model) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 5);
-        invoiceRepo.save(invoice);
-        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,(byte) 4);
-        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
-        newHistory.setInvoice(invoice);
-        newHistory.setPreviousStatus(oldHistory.getNewStatus());
-        newHistory.setNewStatus((byte) 5);
-        newHistory.setUpdatedAt(LocalDateTime.now());
-        invoiceHistoryStatusRepo.save(newHistory);
-        return "redirect:/admin/order/view-invoice/" + id;
-
-    }
-    @GetMapping("/shipping/{id}")
-    public String shippingInvoice(@PathVariable int id, Model model) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 6);
-        invoiceRepo.save(invoice);
-        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,(byte) 5);
-        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
-        newHistory.setInvoice(invoice);
-        newHistory.setPreviousStatus(oldHistory.getNewStatus());
-        newHistory.setNewStatus((byte) 6);
-        newHistory.setUpdatedAt(LocalDateTime.now());
-        invoiceHistoryStatusRepo.save(newHistory);
-        return "redirect:/admin/order/view-invoice/" + id;
-
-    }
-    @GetMapping("/delivery/{id}")
-    public String deliveryInvoice(@PathVariable int id, Model model) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 7);
-        invoiceRepo.save(invoice);
-        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,(byte) 6);
-        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
-        newHistory.setInvoice(invoice);
-        newHistory.setPreviousStatus(oldHistory.getNewStatus());
-        newHistory.setNewStatus((byte) 7);
-        newHistory.setUpdatedAt(LocalDateTime.now());
-        invoiceHistoryStatusRepo.save(newHistory);
-        return "redirect:/admin/order/view-invoice/" + id;
-
-    }
-    @GetMapping("/completed/{id}")
-    public String completedInvoice(@PathVariable int id, Model model) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 8);
-        invoiceRepo.save(invoice);
-        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,(byte) 7);
-        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
-        newHistory.setInvoice(invoice);
-        newHistory.setPreviousStatus(oldHistory.getNewStatus());
-        newHistory.setNewStatus((byte) 8);
-        newHistory.setUpdatedAt(LocalDateTime.now());
-        invoiceHistoryStatusRepo.save(newHistory);
-        return "redirect:/admin/order/view-invoice/" + id;
-
-    }
-    @GetMapping("/canceled-invoice/{id}")
-    public String canceledInvoice(@PathVariable int id) {
-        Invoice invoice = invoiceRepo.findById(id).get();
-        invoice.setStatus((byte) 1);
-        invoiceRepo.save(invoice);
-        List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByInvoiceId(id);
-        for (InvoiceDetail invoiceDetail : invoiceDetails) {
-            ProductDetail productDetail = invoiceDetail.getProductDetail();
-            productDetail.setStock(productDetail.getStock() + invoiceDetail.getQuantity());
+    @PostMapping("/confirm-invoice")
+    public String confirmInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
+        updateInvoiceStatus(id, (byte) 4, description, (byte) 3);
+        List<InvoiceDetail> invoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
+        for(InvoiceDetail invoiceDetail1 : invoiceDetail) {
+            // Cập nhật số lượng trong kho
+            ProductDetail productDetail = invoiceDetail1.getProductDetail();
+            productDetail.setStock(productDetail.getStock() - invoiceDetail1.getQuantity());
             productDetailRepo.save(productDetail);
         }
         return "redirect:/admin/order/view-invoice/" + id;
     }
+    @PostMapping("/pick-up")
+    public String pickUpInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
+        updateInvoiceStatus(id, (byte) 5, description, (byte) 4);
+        return "redirect:/admin/order/view-invoice/" + id;
+
+    }
+    @PostMapping("/shipping")
+    public String shippingInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
+        updateInvoiceStatus(id, (byte) 6, description, (byte) 5);
+        return "redirect:/admin/order/view-invoice/" + id;
+
+    }
+    @PostMapping("/delivery")
+    public String deliveryInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
+        updateInvoiceStatus(id, (byte) 7, description, (byte) 6);
+        return "redirect:/admin/order/view-invoice/" + id;
+
+    }
+    @PostMapping("/completed")
+    public String completedInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
+        updateInvoiceStatus(id, (byte) 8, description, (byte) 7);
+        return "redirect:/admin/order/view-invoice/" + id;
+
+    }
+    @PostMapping("/cancel-invoice")
+    public String canceledInvoice(@RequestParam("idINV") int id,@RequestParam("cancelDescription") String description) {
+        Invoice invoice = invoiceRepo.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found"));
+        if(invoice.getInvoiceStatus() == (byte) 0 || invoice.getStatus() == (byte) 4) {
+            List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByInvoiceId(id);
+            if (!invoiceDetails.isEmpty()) {
+                for (InvoiceDetail invoiceDetail : invoiceDetails) {
+                    ProductDetail productDetail = invoiceDetail.getProductDetail();
+                    productDetail.setStock(productDetail.getStock() + invoiceDetail.getQuantity());
+                    productDetailRepo.save(productDetail);
+                }
+            }
+        }
+        if (invoice.getInvoiceStatus() == (byte) 1) {
+            InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,invoice.getStatus());
+            InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
+            newHistory.setInvoice(invoice);
+            newHistory.setPreviousStatus(oldHistory.getNewStatus());
+            newHistory.setNewStatus((byte) 1);
+            newHistory.setUpdatedAt(LocalDateTime.now());
+            newHistory.setNote(description);
+            invoiceHistoryStatusRepo.save(newHistory);
+        }
+        invoice.setStatus((byte) 1);
+        invoiceRepo.save(invoice);
+
+        return "redirect:/admin/order/view-invoice/" + id;
+    }
+    private void updateInvoiceStatus(int id, byte newStatus, String description, byte previousStatus) {
+        Invoice invoice = invoiceRepo.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found"));
+        invoice.setStatus(newStatus);
+        invoiceRepo.save(invoice);
+
+        InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id, previousStatus);
+        InvoiceStatusHistory newHistory = new InvoiceStatusHistory();
+        newHistory.setInvoice(invoice);
+        newHistory.setPreviousStatus(oldHistory.getNewStatus());
+        newHistory.setNewStatus(newStatus);
+        newHistory.setUpdatedAt(LocalDateTime.now());
+        newHistory.setNote(description);
+        invoiceHistoryStatusRepo.save(newHistory);
+    }
+
 }

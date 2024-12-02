@@ -71,5 +71,8 @@ public class Customer {
         this.phone = phone;
         this.status = status;
     }
+    public String allAddress() {
+        return address + "," + city + "," + district + "," + ward;
+    }
 }
 

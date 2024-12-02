@@ -122,7 +122,7 @@ public class StoreController {
 
     @ModelAttribute("listVoucher")
     List<Voucher> listVoucher() {
-        return voucherRepo.findByStatusAndEndDate((byte) 1,LocalDateTime.now());
+        return voucherRepo.findByStatus((byte) 1);
     }
     @ModelAttribute("listCate")
     List<Category> listCategory() {
@@ -291,7 +291,7 @@ public class StoreController {
 
     @PostMapping("/add-new-customer")
     public String addCustomer(@ModelAttribute("kh") Customer customer,
-                              @RequestParam("invoiceId") int invoiceId) {
+                              @RequestParam(value = "invoiceId") int invoiceId) {
         customerRepo.save(customer);
         return "redirect:/admin/store/invoice-detail/" + invoiceId;
     }

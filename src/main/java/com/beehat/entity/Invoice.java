@@ -62,7 +62,7 @@ public class Invoice {
     @Column(name = "shipping_ward")
     private String shippingWard;
 
-    @Column(name = "shipping_country")
+    @Column(name = "shipping_country",insertable = false, updatable = false)
     private String shippingCountry;
 
     @Column(name = "phone")

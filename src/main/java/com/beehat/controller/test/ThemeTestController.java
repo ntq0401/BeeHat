@@ -354,8 +354,7 @@ public class ThemeTestController {
     }
 
     @PostMapping("/check-out")
-    public String checkOut(@RequestParam("countryInv") String countryInv,
-                           @RequestParam("addressInv") String addressInv,
+    public String checkOut(@RequestParam("addressInv") String addressInv,
                            @RequestParam("cityInv") String cityInv,
                            @RequestParam("districtInv") String districtInv,
                            @RequestParam("wardInv") String wardInv,
@@ -378,7 +377,6 @@ public class ThemeTestController {
         //thêm voucher
        // Voucher voucher = voucherRepo.findByCode(code);
         // Cập nhật thông tin vận chuyển và thanh toán cho hóa đơn tạm
-        temporaryInvoice.setShippingCountry(countryInv);
         temporaryInvoice.setShippingAddress(addressInv);
         temporaryInvoice.setShippingCity(cityInv);
         temporaryInvoice.setShippingDistrict(districtInv);
@@ -442,11 +440,6 @@ public class ThemeTestController {
             invoiceDetail.setUnitPrice(cartDetail.getProductDetail().getPrice());
             invoiceDetail.setFinalPrice(cartDetail.getProductDetail().getPrice() * cartDetail.getQuantity());
             invoiceDetailRepo.save(invoiceDetail);
-
-            // Cập nhật số lượng trong kho
-            ProductDetail productDetail = cartDetail.getProductDetail();
-            productDetail.setStock(productDetail.getStock() - cartDetail.getQuantity());
-            productDetailRepo.save(productDetail);
         }
         //Set trạng thái hoá đơn đã thanh toán
         savedInvoice.setStatus((byte) 3);

@@ -77,7 +77,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="invoice, stat : ${invoiceList}">
+                        <tr th:each="invoice, stat : ${invoiceList}" th:if="${invoice.invoiceStatus == 1}">
                             <td class="text-danger" th:text="'#'+${invoice.id}"></td>
                             <td th:text="${#temporals.format(invoice.createdDate, 'dd-MM-yyyy')}"></td>
                             <td>

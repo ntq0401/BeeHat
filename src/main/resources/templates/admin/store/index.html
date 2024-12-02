@@ -438,7 +438,7 @@
                                                 th:text="${customer.fullname}+' - '+${customer.phone}"
                                                 th:selected="${infoInvoice != null && infoInvoice.customer != null && customer.id == infoInvoice.customer.id}"></option>
                                     </select>
-                                    <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+                                    <button th:if="${invoiceId != null}" type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
                                             data-bs-target="#addCustomerModal">+
                                     </button>
                                 </div>
@@ -617,8 +617,8 @@
                         <!-- Hiển thị tổng tiền -->
                         <div class="mb-3" th:if="${infoInvoice != null && infoInvoice.totalPrice != null}">
                             <label for="totalAmount" class="form-label">Tổng tiền</label>
-                            <input type="text" class="form-control" id="totalAmount"  readonly>
-                            <input id="totalAmountRaw" name="totalPayment" readonly>
+                            <input type="text" class="form-control" id="totalAmount" readonly>
+                            <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
                         </div>
                         <select id="voucherPayment" class="form-select" name="voucherPayment" hidden="hidden">
                             <option value="">Chọn voucher</option>
