@@ -119,7 +119,7 @@ public class CustomerController {
             customer.setCity(customer.getCity());
             customer.setDistrict(customer.getDistrict());
             customer.setWard(customer.getWard());
-            customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
+            customer.setCountry("Việt Nam");
             customer.setCreatedDate(LocalDateTime.now());
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerRepo.save(customer);
@@ -155,7 +155,7 @@ public class CustomerController {
         if (bindingResult.hasErrors()) {
             return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
         }
-        customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
+        customer.setCountry("Việt Nam");
         customer.setUpdatedDate(LocalDateTime.now());
         customerRepo.save(customer);
         return "redirect:/admin/customer";

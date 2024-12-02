@@ -7,13 +7,66 @@
 <body>
 <main layout:fragment="main">
 <div class="container">
-    <div class="footer__newslatter" style="padding-top: 200px">
+    <div class="footer__newslatter" style="padding-top: 50px">
         <h6>Order tracking number</h6>
-        <form th:action="@{/look-up}" method="post">
-            <input type="text" name="orderId" placeholder="Nhập mã đơn hàng...">
+        <form th:action="@{/look-up}" method="get">
+            <input type="text" name="orderId" placeholder="Nhập mã đơn hàng..." required>
             <button type="submit" class="site-btn">Tra cứu</button>
         </form>
+        <p th:if="${error}" style="color: red;">[[${error}]]</p>
+    </div>
 
+    <div th:if="${invoice}" style="display: flex; justify-content: center; align-items: center;">
+        <div class="col-md-9 ">
+            <h3 th:text="'Thông tin đơn hàng: '+${invoice.invoiceTrackingNumber}" class="mb-3"></h3>
+            <div class="row mb-3">
+                <div class="col-8">
+                    <strong >Sản phẩm</strong>
+                    <ul style="list-style: none;">
+                        <li th:each="detail : ${listInvoiceDetail}">
+                            <!-- Hiển thị tên sản phẩm và số lượng -->
+                            <span th:text="${detail.productDetail.product.name}+' màu '+${detail.productDetail.color.name}+' size '+${detail.productDetail.size.name}"></span>
+                            x
+                            <span th:text="${detail.quantity}"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-4 text-end">
+                    <strong >Tổng</strong>
+                    <ul style="list-style: none;">
+                        <li th:each="detail : ${listInvoiceDetail}">
+                            <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.finalPrice)}">Tổng tiền</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mb-3" th:if="${invoice.invoiceStatus == 1}">
+                <div class="col-8"><strong>Phí giao hàng:</strong></div>
+                <div class="col-4 text-end">30,000đ</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-8"><strong>Giảm giá:</strong></div>
+                <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(totalDiscount)}" ></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-8"><strong>Phương thức thanh toán:</strong></div>
+                <div class="col-4 text-end">
+                    <span th:text="${invoice.paymentMethod.name}"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-8"><strong>Tổng cộng:</strong></div>
+                <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}"></div>
+            </div>
+
+            <h5>Địa chỉ thanh toán</h5>
+            <p>
+                <span th:text="'Họ tên: '+${invoice.customer.fullname!=null?invoice.customer.fullname:'N/A'}"></span><br/>
+                <span th:text="'Địa chỉ: '+${invoice.shippingAddress}+' '+ ${addressC}"></span><br/>
+                <span th:text="'Số điện thoại: '+${invoice.phone}"></span>
+            </p>
+        </div>
     </div>
 </div>
 </main>
