@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <div class="row mb-3" th:if="${invoice.invoiceStatus == 1}">
                         <div class="col-8"><strong>Phí giao hàng:</strong></div>
                         <div class="col-4 text-end">30,000đ</div>
                     </div>
@@ -108,13 +108,13 @@
                         <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}"></div>
                     </div>
                     <div class="text-center mb-4">
-                        <button class="btn">ĐẶT HÀNG LẠI</button>
+                        <a href="/" class="btn">Quay lại trang chủ</a>
                     </div>
                     <h5>Địa chỉ thanh toán</h5>
                     <p>
                         <span th:text="'Họ tên: '+${invoice.customer.fullname}"></span><br/>
-                        <span th:text="'Địa chỉ: '+${invoice.customer.address}+' '+ ${invoice.customer.country}"></span><br/>
-                        <span th:text="'Số điện thoại: '+${invoice.customer.phone}"></span>
+                        <span th:text="'Địa chỉ: '+${invoice.shippingAddress}+' '+ ${addressC}"></span><br/>
+                        <span th:text="'Số điện thoại: '+${invoice.phone}"></span>
                     </p>
                 </div>
             </div>

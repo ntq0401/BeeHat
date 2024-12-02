@@ -4,10 +4,95 @@
     <meta charset="UTF-8">
     <title>Shop</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const apiBase = 'https://provinces.open-api.vn/api/';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const customerElement = document.getElementById('customerData');
+            const customer = customerElement ? {
+                id: customerElement.getAttribute('data-id'),
+                city: customerElement.getAttribute('data-city'),
+                district: customerElement.getAttribute('data-district'),
+                ward: customerElement.getAttribute('data-ward')
+            } : null;
+
+            const cityValue = customer ? customer.city : null;
+            const districtValue = customer ? customer.district : null;
+            const wardValue = customer ? customer.ward : null;
+
+            // Fetch danh sách tỉnh
+            fetch(apiBase + 'p')
+                .then(response => response.json())
+                .then(data => {
+                    const citySelect = document.getElementById('province');
+                    data.forEach(city => {
+                        const selected = cityValue && city.code == cityValue ? 'selected' : ''; // So sánh kiểu số
+                        citySelect.innerHTML += `<option value="${city.code}" ${selected}>${city.name}</option>`;
+                    });
+
+                    // Nếu đã có thông tin tỉnh, tải danh sách quận/huyện tương ứng
+                    if (cityValue) {
+                        fetchDistricts(cityValue);
+                    }
+                })
+                .catch(error => console.error('Error fetching cities:', error));
+
+            // Lắng nghe sự kiện thay đổi của tỉnh
+            document.getElementById('province').addEventListener('change', function () {
+                const cityCode = this.value;
+                fetchDistricts(cityCode);
+            });
+
+            // Lắng nghe sự kiện thay đổi của huyện
+            document.getElementById('district').addEventListener('change', function () {
+                const districtCode = this.value;
+                fetchWards(districtCode);
+            });
+
+            function fetchDistricts(cityCode) {
+                fetch(`${apiBase}p/${cityCode}?depth=2`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const districtSelect = document.getElementById('district');
+                        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                        data.districts.forEach(district => {
+                            const selected = districtValue && district.code == districtValue ? 'selected' : ''; // So sánh kiểu số
+                            districtSelect.innerHTML += `<option value="${district.code}" ${selected}>${district.name}</option>`;
+                        });
+
+                        // Nếu đã có thông tin huyện, tải danh sách xã/phường tương ứng
+                        if (districtValue) {
+                            fetchWards(districtValue);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching districts:', error));
+            }
+
+            function fetchWards(districtCode) {
+                fetch(`${apiBase}d/${districtCode}?depth=2`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const wardSelect = document.getElementById('ward');
+                        wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                        data.wards.forEach(ward => {
+                            const selected = wardValue && ward.code == wardValue ? 'selected' : ''; // So sánh kiểu số
+                            wardSelect.innerHTML += `<option value="${ward.code}" ${selected}>${ward.name}</option>`;
+                        });
+                    })
+                    .catch(error => console.error('Error fetching wards:', error));
+            }
+        });
+    </script>
 </head>
 <body>
 <main layout:fragment="main">
-
+    <div id="customerData"
+         th:if="${invoice.customer != null}"
+         th:data-id="${invoice.customer.id}"
+         th:data-city="${invoice.customer.city}"
+         th:data-district="${invoice.customer.district}"
+         th:data-ward="${invoice.customer.ward}">
+    </div>
     <!-- Breadcrumb Begin -->
     <div class="breadcrumb-option">
         <div class="container">
@@ -53,15 +138,11 @@
                                     <p>Địa chỉ <span>*</span></p>
                                     <input type="text" name="addressInv" placeholder="Street Address" th:value="${invoice.customer != null ? invoice.customer.address : ''}" required>
                                 </div>
+
                                 <div class="checkout__form__input">
                                     <p>Tỉnh/Thành phố <span>*</span></p>
                                     <select id="province" name="cityInv" required>
-                                        <option value="" readonly="">Chọn Tỉnh/Thành phố</option>
-                                        <option th:each="province : ${provinces}"
-                                                th:selected="${invoice.customer != null && invoice.customer.city == province['code']}"
-                                                th:value="${province['code']}"
-                                                th:text="${province['name']}">
-                                        </option>
+                                        <option value="" readonly>Chọn Tỉnh/Thành phố</option>
                                     </select>
                                 </div>
                                 <div class="checkout__form__input">
@@ -86,7 +167,7 @@
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <div class="checkout__form__input">
                                     <p>Email <span>*</span></p>
-                                    <input type="text" th:value="${invoice.customer != null ? invoice.customer.email : ''}" required>
+                                    <input type="text" name="emailInv" th:value="${invoice.customer != null ? invoice.customer.email : ''}" required>
                                 </div>
                             </div>
 <!--                            <div class="col-lg-12">-->
@@ -188,44 +269,6 @@
     </section>
     <!-- Checkout Section End -->
 <script>
-    $(document).ready(function () {
-        // Khi thay đổi tỉnh/thành phố
-        $('#province').change(function () {
-            const provinceId = $(this).val();
-            if (provinceId) {
-                $.ajax({
-                    url: `/districts?provinceId=${provinceId}`,
-                    method: 'GET',
-                    success: function (data) {
-                        let districtOptions = '<option value="">Chọn Quận/Huyện</option>';
-                        data.forEach(district => {
-                            districtOptions += `<option value="${district.code}">${district.name}</option>`;
-                        });
-                        $('#district').html(districtOptions);
-                        $('#ward').html('<option value="">Chọn Xã/Phường</option>'); // Reset ward
-                    }
-                });
-            }
-        });
-
-        // Khi thay đổi quận/huyện
-        $('#district').change(function () {
-            const districtId = $(this).val();
-            if (districtId) {
-                $.ajax({
-                    url: `/wards?districtId=${districtId}`,
-                    method: 'GET',
-                    success: function (data) {
-                        let wardOptions = '<option value="">Chọn Xã/Phường</option>';
-                        data.forEach(ward => {
-                            wardOptions += `<option value="${ward.code}">${ward.name}</option>`;
-                        });
-                        $('#ward').html(wardOptions);
-                    }
-                });
-            }
-        });
-    });
     function updatePriceBasedOnVoucher(selectElement) {
         // Lấy phần tử chứa tổng giá và giá sau giảm
         const totalPriceElement = document.getElementById("totalPrice");

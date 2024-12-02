@@ -148,7 +148,9 @@
                                     </span>
                                     <!-- Giá giảm -->
                                     <span class="discounted-price">
-                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - (product.lowestPrice * product.promotion.discountPercentage / 100) - product.promotion.discountAmount)}]]
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(
+                                            T(java.lang.Math).max(product.lowestPrice -(product.lowestPrice * product.promotion.discountPercentage / 100) - product.promotion.discountAmount,0)
+                                        )}]]
                                     </span>
                                 </div>
                             </div>

@@ -7,6 +7,8 @@ import com.beehat.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,6 +71,8 @@ public class ThemeTestController {
     private ColorRepo colorRepo;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    private JavaMailSender mailSender;
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
         if (principal == null) {
@@ -142,15 +146,6 @@ public class ThemeTestController {
 
             // Sau khi đăng xuất, chuyển hướng về trang login hoặc trang khác nếu cần
             return "redirect:/";  // Điều chỉnh URL chuyển hướng nếu cần
-        }
-        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
-            String username = auth.getName();
-            System.out.println(username);// Lấy tên người dùng đăng nhập (username)
-            Customer customer = customerRepo.findByUsername(username); // Tìm thông tin Customer theo username
-            if (customer != null) {
-                customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
-                customerRepo.save(customer);
-            }
         }
         List<Product> productList = productRepo.findTop12ByOrderByCreatedDateDesc();
         List<ProductDTO> productDTOs = productList.stream()
@@ -359,6 +354,7 @@ public class ThemeTestController {
                            @RequestParam("districtInv") String districtInv,
                            @RequestParam("wardInv") String wardInv,
                            @RequestParam("phoneInv") String phoneInv,
+                           @RequestParam("emailInv") String emailInv,
                            @RequestParam("paymentInv") Integer idPayment
                            //thêm voucher
                            //@RequestParam("code") String code
@@ -413,7 +409,9 @@ public class ThemeTestController {
 
         // Xóa hóa đơn tạm thời
         cartService.clearTemporaryInvoice();
-
+        String trackingNumber = savedInvoice.getInvoiceTrackingNumber();
+        String trackingLink = "http://localhost:8080/look-up?orderId="+trackingNumber;
+        sendEmail(emailInv,"Thông tin đơn hàng của bạn",trackingNumber,trackingLink);
         // Chuyển đến trang xác nhận
         return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
     }
@@ -468,7 +466,14 @@ public class ThemeTestController {
         model.addAttribute("invoice", invoiceRepo.findById(id).orElse(null));
         return "test-theme/confirmation";
     }
-
+    private void sendEmail(String to, String subject, String trackingNumber, String trackingLink) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText("Mã theo dõi của bạn là: " + trackingNumber + "\n"
+                + "Bạn có thể theo dõi đơn hàng của mình tại: " + trackingLink);
+        mailSender.send(message);
+    }
     @GetMapping("/districts")
     @ResponseBody
     public List<Map<String, Object>> getDistricts(@RequestParam("provinceId") int provinceId) {
@@ -506,7 +511,7 @@ public class ThemeTestController {
             return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
         }
         // Sao chép các trường không có trong form\
-        customer.setCountry(addressService.getWardNameByCode(customer.getWard())+' '+addressService.getDistrictNameByCode(customer.getDistrict())+' '+addressService.getProvinceNameByCode(customer.getCity()));
+        customer.setCountry("Việt Nam");
         customer.setStatus(existingCustomer.getStatus());
         customer.setPassword(existingCustomer.getPassword());
         customer.setUsername(existingCustomer.getUsername());
@@ -528,23 +533,52 @@ public class ThemeTestController {
     public String orderdetail(@PathVariable("id") Integer id, Model model) {
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
         Customer customer = customerRepo.findeById(invoice.getCustomer().getId());
-
+        String addressC = addressService.getWardNameByCode(invoice.getShippingWard())+ ' '+ addressService.getDistrictNameByCode(invoice.getShippingDistrict())+' '+ addressService.getProvinceNameByCode(invoice.getShippingCity());
+        model.addAttribute("addressC",addressC);
         model.addAttribute("customer",customer);
         model.addAttribute("invoice",invoice);
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
-        if (invoice.getVoucher() != null) {
-            int totalDiscount = listInvoiceDetail.stream()
-                    .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
-                    .sum(); // Tính tổng các giảm giá từ sản phẩm
-            totalDiscount += invoice.getVoucherDiscount();
-            model.addAttribute("totalDiscount", totalDiscount);
-        }
+//<<<<<<< HEAD
+//        if (invoice.getVoucher() != null) {
+//            int totalDiscount = listInvoiceDetail.stream()
+//                    .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
+//                    .sum(); // Tính tổng các giảm giá từ sản phẩm
+//            totalDiscount += invoice.getVoucherDiscount();
+//            model.addAttribute("totalDiscount", totalDiscount);
+//        }
+//=======
+        Integer totalPrice = invoice.getInvoiceDetails().stream()
+                .mapToInt(InvoiceDetail::getFinalPrice)
+                .sum();
+        Integer totalDiscount = totalPrice - invoice.getFinalPrice();
+        model.addAttribute("totalDiscount", totalDiscount);
+//>>>>>>> dev5
         model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         return "test-theme/orderdetail";
     }
 
     @GetMapping("/look-up")
-    public String lookUp() {
+    public String lookUp(@RequestParam(value = "orderId", required = false) String orderId, Model model) {
+        if (orderId == null || orderId.isEmpty()) {
+            return "test-theme/look-up"; // Trả về trang tra cứu
+        }
+        Invoice invoice = invoiceRepo.findByInvoiceTrackingNumber(orderId);
+        if(invoice==null){
+            model.addAttribute("error","Đơn hàng không tồn tại, vui lòng thử lại");
+        }else{
+            model.addAttribute("invoice",invoice);
+            String addressC = addressService.getWardNameByCode(invoice.getShippingWard())+ ' '+ addressService.getDistrictNameByCode(invoice.getShippingDistrict())+' '+ addressService.getProvinceNameByCode(invoice.getShippingCity());
+            model.addAttribute("addressC",addressC);
+            List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(invoice.getId());
+            model.addAttribute("listInvoiceDetail",listInvoiceDetail);
+            Integer totalPrice = invoice.getInvoiceDetails().stream()
+                    .mapToInt(InvoiceDetail::getFinalPrice)
+                    .sum();
+            Integer totalDiscount = totalPrice - invoice.getFinalPrice();
+            model.addAttribute("totalDiscount", totalDiscount);
+            model.addAttribute("listInvoiceDetail",listInvoiceDetail);
+        }
+
         return "test-theme/look-up";
     }
     @PostMapping("/update-cart")

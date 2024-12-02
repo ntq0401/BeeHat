@@ -15,4 +15,5 @@ public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
     List<Invoice> findByCustomerId(Integer id);
     List<Invoice> findByStatusAndInvoiceStatusAndEmployee(Byte status, Byte invoiceStatus, Employee e);
     List<Invoice> findByInvoiceStatus(Byte invoiceStatus, Sort sort);
+    Invoice findByInvoiceTrackingNumber(String trackNumber);
 }
