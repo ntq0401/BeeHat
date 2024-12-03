@@ -227,7 +227,7 @@ public class ThemeTestController {
     }
     @GetMapping("/checkout")
     public String checkout(Model model,Principal principal) {
-        model.addAttribute("voucherList",voucherRepo.findByStatusAndEndDate((byte) 1,LocalDateTime.now()));
+        model.addAttribute("voucherList",voucherRepo.findByStatus((byte) 1));
         model.addAttribute("provinces", provincesService.getProvinces());
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
@@ -355,9 +355,9 @@ public class ThemeTestController {
                            @RequestParam("wardInv") String wardInv,
                            @RequestParam("phoneInv") String phoneInv,
                            @RequestParam("emailInv") String emailInv,
-                           @RequestParam("paymentInv") Integer idPayment
+                           @RequestParam("paymentInv") Integer idPayment,
                            //thêm voucher
-                           //@RequestParam("code") String code
+                           @RequestParam("code") String code
     ) {
         // Lấy phương thức thanh toán
         PaymentMethod paymentMethod = paymentMethodRepo.findById(idPayment).orElse(null);
@@ -370,8 +370,7 @@ public class ThemeTestController {
         if (temporaryInvoice == null) {
             return "redirect:/cart";
         }
-        //thêm voucher
-       // Voucher voucher = voucherRepo.findByCode(code);
+        Voucher voucher = voucherRepo.findByCode(code);
         // Cập nhật thông tin vận chuyển và thanh toán cho hóa đơn tạm
         temporaryInvoice.setShippingAddress(addressInv);
         temporaryInvoice.setShippingCity(cityInv);
@@ -379,8 +378,7 @@ public class ThemeTestController {
         temporaryInvoice.setShippingWard(wardInv);
         temporaryInvoice.setPhone(phoneInv);
         temporaryInvoice.setPaymentMethod(paymentMethod);
-        //thêm voucher
-       // temporaryInvoice.setVoucher(voucher);
+        temporaryInvoice.setVoucher(voucher);
         // Kiểm tra giỏ hàng
         List<CartDetail> cartDetails;
         if (temporaryInvoice.getCustomer() != null) {
@@ -419,7 +417,11 @@ public class ThemeTestController {
     private Invoice saveInvoice(Invoice invoice, List<CartDetail> cartDetails) {
         // Tạo mã giao dịch duy nhất
         String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-
+        if (invoice.getVoucher() != null) {
+            // Tính giá sau khi áp dụng voucher
+            Integer discountAmount = (invoice.getTotalPrice() * invoice.getVoucher().getDiscountPercentage()) / 100;
+            invoice.setFinalPrice(invoice.getTotalPrice() - discountAmount);
+        }
         // Lưu hóa đơn vào cơ sở dữ liệu
         Invoice savedInvoice = invoiceRepo.save(invoice);
 

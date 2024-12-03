@@ -62,7 +62,7 @@
 
             <h5>Địa chỉ thanh toán</h5>
             <p>
-                <span th:text="'Họ tên: '+${invoice.customer.fullname!=null?invoice.customer.fullname:'N/A'}"></span><br/>
+                <span th:text="'Họ tên: '+${invoice.customer != null and invoice.customer.fullname!=null?invoice.customer.fullname:'N/A'}"></span><br/>
                 <span th:text="'Địa chỉ: '+${invoice.shippingAddress}+' '+ ${addressC}"></span><br/>
                 <span th:text="'Số điện thoại: '+${invoice.phone}"></span>
             </p>

@@ -5,12 +5,15 @@ import com.beehat.repository.InvoiceDetailRepo;
 import com.beehat.repository.InvoiceHistoryStatusRepo;
 import com.beehat.repository.InvoiceRepo;
 import com.beehat.repository.ProductDetailRepo;
+import com.beehat.service.InvoiceService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +28,8 @@ public class InvoiceController {
     InvoiceHistoryStatusRepo invoiceHistoryStatusRepo;
     @Autowired
     ProductDetailRepo productDetailRepo;
+    @Autowired
+    InvoiceService invoiceService;
     @ModelAttribute("listInvoice")
     List<Invoice> listInvoice() {
         return invoiceRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedDate"));
@@ -132,6 +137,21 @@ public class InvoiceController {
         newHistory.setUpdatedAt(LocalDateTime.now());
         newHistory.setNote(description);
         invoiceHistoryStatusRepo.save(newHistory);
+    }
+    @GetMapping("/{id}/pdf")
+    public void generateInvoicePdf(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        byte[] pdfData = invoiceService.generateInvoicePdf(invoice);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=invoice_" + id + ".pdf");
+        response.setContentLength(pdfData.length);
+
+        try (OutputStream os = response.getOutputStream()) {
+            os.write(pdfData);
+            os.flush();
+        }
+
     }
 
 }

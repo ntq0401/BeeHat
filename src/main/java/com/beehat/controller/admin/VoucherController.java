@@ -2,9 +2,11 @@ package com.beehat.controller.admin;
 
 import com.beehat.entity.Voucher;
 import com.beehat.repository.VoucherRepo;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,8 +36,20 @@ public class VoucherController {
         return "admin/voucher/form-voucher";
     }
     @PostMapping("/add-voucher")
-    public String add(@ModelAttribute("voucher") Voucher voucher) {
-        voucher.setDiscountAmount(0);
+    public String add(@Valid @ModelAttribute("voucher") Voucher voucher, BindingResult rs,
+                      Model model) {
+        if (rs.hasErrors()) {
+            model.addAttribute("voucher", voucher);
+            return "admin/voucher/form-voucher";
+        }
+
+        // Kiểm tra mã code đã tồn tại
+        if (voucherRepo.existsByCode(voucher.getCode())) {
+            rs.rejectValue("code", "error.voucher", "Mã voucher đã tồn tại!"); // Thêm lỗi vào code
+            return "admin/voucher/form-voucher";
+        }
+
+        // Lưu voucher vào cơ sở dữ liệu
         voucherRepo.save(voucher);
         return "redirect:/admin/voucher/index";
     }

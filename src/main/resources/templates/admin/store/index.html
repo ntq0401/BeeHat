@@ -46,6 +46,16 @@
             font-size: 14px;
         }
     </style>
+    <script type="text/javascript">
+        function printInvoice(invoiceId) {
+            // Mở cửa sổ mới và tải PDF từ Spring Boot backend
+            var invoiceWindow = window.open('/admin/store/' + invoiceId + '/pdf', '_blank');
+            invoiceWindow.onload = function() {
+                // Khi PDF đã tải xong, tự động gọi window.print()
+                invoiceWindow.print();
+            };
+        }
+    </script>
 </head>
 
 <body>
@@ -455,6 +465,8 @@
                                                 th:data-discount="${voucher.discountPercentage}"
                                                 th:data-description="${voucher.description}"
                                                 th:data-quantity="${voucher.quantity}"
+                                                th:data-min="${voucher.minOrderValue}"
+                                                th:data-max="${voucher.discountMax}"
                                                 th:data-startdate="${voucher.startDate}"
                                                 th:data-enddate="${voucher.endDate}"
                                                 th:selected="${infoInvoice != null && infoInvoice.voucher != null && voucher.id == infoInvoice.voucher.id}"></option>
@@ -823,14 +835,9 @@
 
                     // Chờ toast hoàn thành rồi submit form
                     setTimeout(() => {
-                        const newTab = window.open('/admin/store/' + id + '/pdf', '_blank');
-                        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-                            alert("Trình duyệt của bạn đã chặn tab mới. Hãy kiểm tra cài đặt popup!");
-                        } else {
-                            window.location.href = '/admin/store/index';
-                        }
                         const form = button.closest("form");
                         form.submit(); // Submit form mà không cần click lại button
+                        printInvoice(id);
                     }, 1500);
                 }
             });
@@ -1089,16 +1096,48 @@
             });
 
         });
-        document.addEventListener("DOMContentLoaded", function () {
-            updateVoucherPreview(); // Gọi khi trang tải để hiển thị voucher đã có
-        });
 
+        function checkVoucher(){
+            const totalPriceElement = document.getElementById("totalPrice");
+            const totalPrice = totalPriceElement.getAttribute("data-totalprice");
+            const select = document.getElementById("voucherSelect");
+            const selectedOption = select.options[select.selectedIndex];
+            const optionData = selectedOption.dataset;
+            const discountAllRaw = document.getElementById("discountAll");
+            const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
+            // Kiểm tra minValue có hợp lệ không
+            const minValue = optionData.min ? parseInt(optionData.min) : 0;
+            if (discountAll > 0){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thất bại',
+                    text: 'Chức năng đang phát triển !',
+                });
+                $('#voucherSelect').val(null).trigger('change');
+                return; // Dừng lại không thực hiện tiếp
+            }
+            if (totalPrice >= minValue) {
+                return true;
+            } else {
+                return false;
+            }
+        }
         function updateVoucherPreview() {
+            if (!checkVoucher()){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thất bại',
+                    text: 'Hoá đơn của bạn chưa đạt giá trị tối thiểu !',
+                });
+                $('#voucherSelect').val(null).trigger('change');
+                return; // Dừng lại không thực hiện tiếp
+            }
             const select = document.getElementById("voucherSelect");
             const selectValue = document.getElementById("voucherSelect").value;
             const selectedOption = select.options[select.selectedIndex];
+            const optionData = selectedOption.dataset;
             const selectPayment = document.getElementById("voucherPayment");
-
+            const maxValue = optionData.max;
             selectPayment.value = selectValue;
 
             // Lấy phần preview container
@@ -1128,9 +1167,9 @@
             const finalPriceElement = document.getElementById("finalPrice");
             const discountAllRaw = document.getElementById("discountAll");
             // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
-            const totalPrice = totalPriceElement.getAttribute("data-totalprice") || 0;
+            const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
-            const discountAmount = (totalPrice * discountPer) / 100;
+            const discountAmount = ((totalPrice * discountPer) / 100) > maxValue ? maxValue : ((totalPrice * discountPer) / 100);
             const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
             const finalPrice = totalPrice - discountALL - discountAmount ;
             console.log(finalPrice)

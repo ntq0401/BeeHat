@@ -145,6 +145,16 @@
         }
 
     </style>
+    <script type="text/javascript">
+        function printInvoice(invoiceId) {
+            // Mở cửa sổ mới và tải PDF từ Spring Boot backend
+            var invoiceWindow = window.open('/admin/order/' + invoiceId + '/pdf', '_blank');
+            invoiceWindow.onload = function() {
+                // Khi PDF đã tải xong, tự động gọi window.print()
+                invoiceWindow.print();
+            };
+        }
+    </script>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
@@ -478,7 +488,7 @@
                         <span>Tổng cộng : </span> <strong class="text-dark">[[${invoice.finalPrice}]]</strong>
                     </div>
 
-                    <button class="btn btn-secondary w-100 mt-2">In hoá đơn</button>
+                    <button class="btn btn-secondary w-100 mt-2" th:onclick="'printInvoice(' + ${invoice.id} + ')'" >In hoá đơn</button>
                 </div>
             </div>
         </div>

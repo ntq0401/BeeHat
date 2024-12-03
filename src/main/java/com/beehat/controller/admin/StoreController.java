@@ -122,7 +122,7 @@ public class StoreController {
 
     @ModelAttribute("listVoucher")
     List<Voucher> listVoucher() {
-        return voucherRepo.findByStatus((byte) 1);
+        return voucherRepo.findAvailableVouchers(LocalDateTime.now());
     }
     @ModelAttribute("listCate")
     List<Category> listCategory() {
@@ -450,29 +450,64 @@ public class StoreController {
                       @RequestParam(name = "totalPayment") int totalPayment,
                       @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
                       @RequestParam(name = "methodPayment") int paymentMethod) {
-        System.out.println("Voucher ID received: " + voucherPayment);  // Log giá trị voucherPayment
-        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+
+        // Tìm hóa đơn theo id
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        if (invoice == null) {
+            // Xử lý lỗi nếu hóa đơn không tồn tại
+            throw new RuntimeException("Invoice not found");
+        }
+
+        // Tìm voucher nếu có
+        Voucher voucher = null;
+        if (voucherPayment != -1) {
+            voucher = voucherRepo.findById(voucherPayment).orElse(null);
+            if (voucher != null) {
+                invoice.setVoucher(voucher);
+                Integer maxValue = voucher.getDiscountMax();
+                // Tính giá sau khi áp dụng voucher
+                Integer discountAmount = ((invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100) > maxValue ? maxValue : (invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100;
+                invoice.setFinalPrice(invoice.getTotalPrice() - discountAmount);
+            } else {
+                throw new RuntimeException("Invalid voucher ID");
+            }
+        } else {
+            invoice.setFinalPrice(invoice.getTotalPrice());
+        }
+
+        // Tìm phương thức thanh toán
+        PaymentMethod paymentMethodEntity = paymentMethodRepo.findById(paymentMethod).orElse(null);
+        if (paymentMethodEntity == null) {
+            throw new RuntimeException("Invalid payment method");
+        }
+        invoice.setPaymentMethod(paymentMethodEntity);
+
+        // Tạo mã giao dịch
+        String transactionCode = UUID.randomUUID().toString().substring(0, 5).toUpperCase()
+                + "-" + invoice.getInvoiceTrackingNumber();
+
+        // Tạo bản ghi lịch sử thanh toán
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.setInvoice(invoice);
         paymentHistory.setAmountPaid(totalPayment);
         paymentHistory.setPaymentDate(LocalDateTime.now());
-        paymentHistory.setTransactionCode(randomUUID+"-"+invoice.getInvoiceTrackingNumber());
-        Voucher voucher = voucherRepo.findById(voucherPayment).orElse(null);
-        if (voucher != null) {
-            invoice.setVoucher(voucher);
-        }
+        paymentHistory.setTransactionCode(transactionCode);
+        paymentHistory.setPaymentMethod(paymentMethodEntity);
 
-        PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod).orElse(null);
-        if (paymentMethod1 != null) {
-            invoice.setPaymentMethod(paymentMethod1);
-            paymentHistory.setPaymentMethod(paymentMethod1);
+        // Kiểm tra số tiền thanh toán
+        if (totalPayment < invoice.getFinalPrice()) {
+            throw new RuntimeException("Insufficient payment amount");
         }
-
-        invoice.setFinalPrice(totalPayment);
-        invoice.setStatus(Byte.valueOf("2"));
+        voucher.setQuantity(voucher.getQuantity() - 1);
+        voucherRepo.save(voucher);
+        // Cập nhật trạng thái hóa đơn
+        invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất
         invoiceRepo.save(invoice);
+
+        // Lưu lịch sử thanh toán
         paymentHistoryRepo.save(paymentHistory);
+
         return "redirect:/admin/store/index";
     }
+
 }

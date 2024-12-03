@@ -12,68 +12,79 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header" style="background: #FFFFFF">
-                        <h3>Thêm mới voucher</h3>
+                        <h3 th:if="${voucher.id != null}">Chỉnh sửa Voucher</h3>
+                        <h3 th:if="${voucher.id == null}">Thêm mới Voucher</h3>
                     </div>
                     <div class="card-body">
-
-                        <form th:action="@{/admin/voucher/add-voucher}" th:object="${voucher}" method="post">
+                        <form th:object="${voucher}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input type="hidden" th:field="*{id}"/>
                             <div class="row">
                                 <div class="form-group col-6">
                                     <label>Tên Voucher:</label>
-                                    <input type="text" th:field="*{name}" id="voucherName" class="form-control" required
-                                           oninput="updatePreview()"/>
+                                    <input type="text" th:field="*{name}" id="voucherName" class="form-control"
+                                           oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
                                 </div>
 
                                 <div class="form-group col-6">
                                     <label>Mã Code:</label>
-                                    <input type="text" th:field="*{code}" id="voucherCode" class="form-control" required
-                                           oninput="updatePreview()"/>
+                                    <input type="text" th:field="*{code}" id="voucherCode" class="form-control"
+                                           oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('code')}" class="text-danger" th:errors="*{code}"></p>
                                 </div>
 
                                 <div class="form-group col-6">
                                     <label>Phần Trăm Giảm Giá:</label>
                                     <input type="number" th:field="*{discountPercentage}" id="voucherDiscount"
-                                           class="form-control" min="0" max="100" required oninput="updatePreview()"/>
+                                           class="form-control" min="0" max="100" oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('discountPercentage')}" class="text-danger" th:errors="*{discountPercentage}"></p>
                                 </div>
                                 <div class="form-group col-6">
                                     <label>Ngày Bắt Đầu:</label>
                                     <input type="datetime-local" th:field="*{startDate}" id="startDate"
                                            class="form-control"
-                                           required oninput="updatePreview()"/>
+                                           oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('startDate')}" class="text-danger" th:errors="*{startDate}"></p>
                                 </div>
 
                                 <div class="form-group col-6">
                                     <label>Ngày Kết Thúc:</label>
                                     <input type="datetime-local" th:field="*{endDate}" id="endDate" class="form-control"
-                                           required oninput="updatePreview()"/>
-
+                                          oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('endDate')}" class="text-danger" th:errors="*{endDate}"></p>
+                                    <span class="text-danger" th:errors="*{endDateAfterStartDate}"></span>
                                 </div>
+
                                 <div class="form-group col-6">
                                     <label>Số lượng :</label>
                                     <input type="number" th:field="*{quantity}"
-                                           class="form-control" min="0" max="100" id="voucherQuantity"
+                                           class="form-control" min="0" max="100000000" id="voucherQuantity"
                                            oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('quantity')}" class="text-danger" th:errors="*{quantity}"></p>
                                 </div>
                                 <div class="form-group col-6">
                                     <label>Số tiền giảm tối đa :</label>
                                     <input type="number" th:field="*{discountMax}"
-                                           class="form-control" min="0"  id="voucherMax"
-                                           oninput="updatePreview()"
-                                           required/>
+                                           class="form-control" min="0" max="100000000" id="voucherMax"
+                                           oninput="updatePreview()" required
+                                           />
+                                    <p th:if="${#fields.hasErrors('discountMax')}" class="text-danger" th:errors="*{discountMax}"></p>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group col-6">
                                     <label>Giá trị tối thiểu :</label>
                                     <input type="number" th:field="*{minOrderValue}" id="voucherMin"
-                                           class="form-control" min="0"  oninput="updatePreview()" required/>
+                                           class="form-control" min="0" max="100000000" oninput="updatePreview()" required/>
+                                    <p th:if="${#fields.hasErrors('minOrderValue')}" class="text-danger" th:errors="*{minOrderValue}"></p>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Mô tả:</label>
                                     <textarea th:field="*{description}" id="voucherDescription" class="form-control"
-                                              required oninput="updatePreview()"></textarea>
+                                               oninput="updatePreview()" required></textarea>
+                                    <p th:if="${#fields.hasErrors('description')}" class="text-danger" th:errors="*{description}"></p>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-4">Lưu</button>
+                                <button th:if="${voucher.id == null}" th:formaction="@{/admin/voucher/add-voucher}" type="submit" class="btn btn-primary mt-4">Lưu</button>
                             </div>
                         </form>
 
