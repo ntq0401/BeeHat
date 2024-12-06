@@ -227,7 +227,7 @@ public class ThemeTestController {
     }
     @GetMapping("/checkout")
     public String checkout(Model model,Principal principal) {
-        model.addAttribute("voucherList",voucherRepo.findByStatus((byte) 1));
+        model.addAttribute("voucherList",voucherRepo.findAvailableVouchers(LocalDateTime.now()));
         model.addAttribute("provinces", provincesService.getProvinces());
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
@@ -419,7 +419,7 @@ public class ThemeTestController {
         String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         if (invoice.getVoucher() != null) {
             // Tính giá sau khi áp dụng voucher
-            Integer discountAmount = (invoice.getTotalPrice() * invoice.getVoucher().getDiscountPercentage()) / 100;
+            Integer discountAmount = ((invoice.getTotalPrice() * invoice.getVoucher().getDiscountPercentage()) / 100) > invoice.getVoucher().getDiscountMax() ?invoice.getVoucher().getDiscountMax() : (invoice.getTotalPrice() * invoice.getVoucher().getDiscountPercentage()) / 100 ;
             invoice.setFinalPrice(invoice.getTotalPrice() - discountAmount);
         }
         // Lưu hóa đơn vào cơ sở dữ liệu

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -50,9 +51,11 @@ public class Voucher {
     private Integer discountMax;
 
     @NotNull(message = "Ngày bắt đầu không được bỏ trống")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
 
     @NotNull(message = "Ngày kết thúc không được bỏ trống")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
     @AssertTrue(message = "Ngày kết thúc phải sau ngày bắt đầu")
@@ -65,7 +68,7 @@ public class Voucher {
     @Min(value = 0, message = "Giá trị đơn hàng tối thiểu không được âm")
     private Integer minOrderValue;
 
-    @Column(insertable = false)
+    @Column(insertable = false,updatable = false)
     private Byte status;
 
     @Column(name = "created_date", insertable = false, updatable = false)

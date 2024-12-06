@@ -468,6 +468,8 @@ public class StoreController {
                 // Tính giá sau khi áp dụng voucher
                 Integer discountAmount = ((invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100) > maxValue ? maxValue : (invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100;
                 invoice.setFinalPrice(invoice.getTotalPrice() - discountAmount);
+                voucher.setQuantity(voucher.getQuantity() - 1);
+                voucherRepo.save(voucher);
             } else {
                 throw new RuntimeException("Invalid voucher ID");
             }
@@ -498,8 +500,6 @@ public class StoreController {
         if (totalPayment < invoice.getFinalPrice()) {
             throw new RuntimeException("Insufficient payment amount");
         }
-        voucher.setQuantity(voucher.getQuantity() - 1);
-        voucherRepo.save(voucher);
         // Cập nhật trạng thái hóa đơn
         invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất
         invoiceRepo.save(invoice);

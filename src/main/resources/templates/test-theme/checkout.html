@@ -224,9 +224,8 @@
                                             <div class="d-flex">
                                                 <select class="form-control" style="margin-right: 5px" placeholder="Nhập mã giảm giá" name="code" onchange="updatePriceBasedOnVoucher(this)">
                                                     <option value="">Chọn voucher</option>
-                                                    <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:text="${v.code}"></option>
+                                                    <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:data-min-value="${v.minOrderValue}" th:data-max-value="${v.discountMax}" th:text="${v.code}"></option>
                                                 </select>
-                                                <button th:formaction="@{/add-voucher}" class="btn btn-danger" type="submit" style="background-color: #ca1515;font-weight: 600">Apply</button>
                                             </div>
                                         </form>
                                     </li>
@@ -280,9 +279,12 @@
         // Lấy phần trăm giảm giá từ thuộc tính data-discount của option được chọn
         const selectedOption = selectElement.options[selectElement.selectedIndex];
         const discountPercent = parseInt(selectedOption.getAttribute("data-discount")) || 0;
+        const discountMax = parseInt(selectedOption.getAttribute("data-max-value")) || 0;
+        const discountMin = parseInt(selectedOption.getAttribute("data-min-value")) || 0;
+
 
         // Tính toán giá sau khi giảm
-        const discountAmount = (totalPrice * discountPercent) / 100;
+        const discountAmount = (totalPrice * discountPercent) / 100 > discountMax ? discountMax : (totalPrice * discountPercent) / 100 > discountMax || 0;
         discountedPriceElement.textContent = discountAmount.toLocaleString() +"đ";
         const discountedPrice = totalPrice - discountAmount;
 

@@ -54,14 +54,7 @@
                 <div class="col-lg-6">
                     <div class="product__details__text">
                         <h3>[[${product.name}]] <span>SKU: [[${product.sku}]]</span></h3>
-                        <div class="rating">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <span>( 0 đánh giá )</span>
-                        </div>
+
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
@@ -90,23 +83,10 @@
                             <a href="javascript:void(0);" onclick="showStockWarning(this)" class="cart-btn"><span
                                     class="icon_bag_alt"></span> Thêm vào giỏ</a>
                         </form>
-                        <ul>
-                            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                            <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
-                        </ul>
+
                     </div>
                     <div class="product__details__widget">
                         <ul>
-<!--                            <li>-->
-<!--                                <span>Số lượng hàng :</span>-->
-<!--                                <div class="stock__checkbox">-->
-<!--                                    <label for="stockin">-->
-<!--                                        In Stock-->
-<!--                                        <input type="checkbox" id="stockin">-->
-<!--                                        <span class="checkmark"></span>-->
-<!--                                    </label>-->
-<!--                                </div>-->
-<!--                            </li>-->
                             <input type="hidden" name="product__id" th:value="${product.id}">
                             <li>
                                 <span>Màu sắc:</span>
@@ -138,13 +118,10 @@
                 <div class="product__details__tab">
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Mô tả</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Thông tin</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Đánh giá ( 0 )</a>
+                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Mô tả</a>
                         </li>
                     </ul>
                     <div class="tab-content">

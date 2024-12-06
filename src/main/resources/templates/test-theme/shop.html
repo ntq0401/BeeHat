@@ -39,9 +39,16 @@
                                         </div>
                                         <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <ul>
-                                                    <li th:each="cate : ${listCate}"><a href="#">[[${cate.name}]]</a></li>
-                                                </ul>
+                                                <div class="sidebar__sizes">
+                                                    <div class="size__list">
+                                                        <label th:each="cate : ${listCate}" th:for="${cate.name}">
+                                                            [[${cate.name}]]
+                                                            <input type="checkbox" th:id="${cate.name}">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -51,9 +58,17 @@
                                         </div>
                                         <div id="collapseTwo" class="collapse" data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <ul>
-                                                    <li th:each="mater : ${listMater}"><a href="#">[[${mater.name}]]</a></li>
-                                                </ul>
+                                                <div class="sidebar__sizes">
+                                                    <div class="size__list">
+                                                        <ul>
+                                                            <label th:each="mater : ${listMater}" th:for="${mater.name}">
+                                                                [[${mater.name}]]
+                                                                <input type="checkbox" th:id="${mater.name}">
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -63,9 +78,17 @@
                                         </div>
                                         <div id="collapseThree" class="collapse" data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <ul>
-                                                    <li th:each="style : ${listStyle}"><a href="#">[[${style.name}]]</a></li>
-                                                </ul>
+                                                <div class="sidebar__sizes">
+                                                    <div class="size__list">
+                                                        <ul>
+                                                            <label th:each="style : ${listStyle}" th:for="${style.name}">
+                                                                [[${style.name}]]
+                                                                <input type="checkbox" th:id="${style.name}">
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -75,9 +98,17 @@
                                         </div>
                                         <div id="collapseFour" class="collapse" data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <ul>
-                                                    <li th:each="belt : ${listBelt}"><a href="#">[[${belt.name}]]</a></li>
-                                                </ul>
+                                                <div class="sidebar__sizes">
+                                                    <div class="size__list">
+                                                        <ul>
+                                                            <label th:each="belt : ${listBelt}" th:for="${belt.name}">
+                                                                [[${belt.name}]]
+                                                                <input type="checkbox" th:id="${belt.name}">
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -87,9 +118,17 @@
                                         </div>
                                         <div id="collapseFive" class="collapse" data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <ul>
-                                                    <li th:each="lining : ${listLining}"><a href="#">[[${lining.name}]]</a></li>
-                                                </ul>
+                                                <div class="sidebar__sizes">
+                                                    <div class="size__list">
+                                                        <ul>
+                                                            <label th:each="lining : ${listLining}" th:for="${lining.name}">
+                                                                [[${lining.name}]]
+                                                                <input type="checkbox" th:id="${lining.name}">
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -102,7 +141,7 @@
                             </div>
                             <div class="filter-range-wrap">
                                 <div class="price-range ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content"
-                                data-min="1" data-max="10000000"></div>
+                                     data-min="1" data-max="10000000"></div>
                                 <div class="range-slider">
                                     <div class="price-input">
                                         <p>Giá:</p>
@@ -149,32 +188,35 @@
                                     <div class="label new">New</div>
                                     <form method="post" th:action="@{/add-product-to-cart/{id}(id=${p.id})}">
                                         <input type="hidden" name="username" th:value="${username}">
-                                    <ul class="product__hover">
-                                        <li><a th:href="${p.images[0].getImageUrl()}" class="image-popup"><span class="arrow_expand"></span></a></li>
-                                        <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span class="icon_info_alt"></span></a></li>
-                                        <li><!-- Chuyển onclick vào thẻ <a> và sử dụng closest() để tìm form -->
-                                            <a href="javascript:void(0);" onclick="this.closest('form').submit()">
-                                                <span class="icon_bag_alt"></span>
-                                            </a></li>
-                                    </ul>
+                                        <ul class="product__hover">
+                                            <li><a th:href="${p.images[0].getImageUrl()}" class="image-popup"><span
+                                                    class="arrow_expand"></span></a></li>
+                                            <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span
+                                                    class="icon_info_alt"></span></a></li>
+                                            <li><!-- Chuyển onclick vào thẻ <a> và sử dụng closest() để tìm form -->
+                                                <a href="javascript:void(0);" onclick="this.closest('form').submit()">
+                                                    <span class="icon_bag_alt"></span>
+                                                </a></li>
+                                        </ul>
                                     </form>
                                 </div>
                                 <div class="product__item__text">
                                     <h6><a th:href="@{/detail/{sku}(sku=${p.sku})}">[[${p.name}]]</a></h6>
                                     <div class="rating">
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
+
                                     </div>
-                                    <div class="product__price" th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice}">
-                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]] - [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice)}]]
+                                    <div class="product__price"
+                                         th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice}">
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]] -
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice)}]]
                                     </div>
-                                    <div class="product__price" th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice == p.highestPrice}">
+                                    <div class="product__price"
+                                         th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice == p.highestPrice}">
                                         [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]]
                                     </div>
-                                    <div class="product__price" th:if="${p.productDetail == null or p.productDetail.isEmpty()}">Coming soon</div>
+                                    <div class="product__price"
+                                         th:if="${p.productDetail == null or p.productDetail.isEmpty()}">Coming soon
+                                    </div>
                                 </div>
                             </div>
                         </div>

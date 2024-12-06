@@ -43,14 +43,14 @@
                                 <div class="form-group col-6">
                                     <label>Ngày Bắt Đầu:</label>
                                     <input type="datetime-local" th:field="*{startDate}" id="startDate"
-                                           class="form-control"
+                                           class="form-control" th:value="*{startDate}"
                                            oninput="updatePreview()" required/>
                                     <p th:if="${#fields.hasErrors('startDate')}" class="text-danger" th:errors="*{startDate}"></p>
                                 </div>
 
                                 <div class="form-group col-6">
                                     <label>Ngày Kết Thúc:</label>
-                                    <input type="datetime-local" th:field="*{endDate}" id="endDate" class="form-control"
+                                    <input type="datetime-local" th:field="*{endDate}" th:value="*{endDate}" id="endDate" class="form-control"
                                           oninput="updatePreview()" required/>
                                     <p th:if="${#fields.hasErrors('endDate')}" class="text-danger" th:errors="*{endDate}"></p>
                                     <span class="text-danger" th:errors="*{endDateAfterStartDate}"></span>
@@ -85,6 +85,7 @@
                                     <p th:if="${#fields.hasErrors('description')}" class="text-danger" th:errors="*{description}"></p>
                                 </div>
                                 <button th:if="${voucher.id == null}" th:formaction="@{/admin/voucher/add-voucher}" type="submit" class="btn btn-primary mt-4">Lưu</button>
+                                <button th:if="${voucher.id != null}" th:formaction="@{/admin/voucher/update-voucher}" type="submit" class="btn btn-primary mt-4">Cập nhật</button>
                             </div>
                         </form>
 
@@ -209,6 +210,9 @@
         </div>
     </div>
     <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            updatePreview();  // Gọi updatePreview ngay khi trang đã tải xong
+        });
         function updatePreview() {
             // Lấy giá trị từ các trường input
             const name = document.getElementById("voucherName").value;
@@ -218,7 +222,6 @@
             const startDate = document.getElementById("startDate").value;
             const endDate = document.getElementById("endDate").value;
             const description = document.getElementById("voucherDescription").value;
-
             // Định dạng chuỗi ngày tháng
             const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : "--";
             const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString() : "--";

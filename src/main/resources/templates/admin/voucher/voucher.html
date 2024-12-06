@@ -105,10 +105,10 @@
             <span th:if="${voucher.status == 2}" class="badge bg-warning">Đã kết thúc</span>
           </td>
           <td>
-            <a th:href="@{/admin/product}">
+            <a th:href="@{/admin/voucher/detail-voucher/{id}(id=${voucher.id})}">
               <button class="btn btn-secondary"><i class="ph ph-info"></i></button>
             </a>
-            <a th:href="@{/admin/product}">
+            <a th:href="@{/admin/voucher/update-voucher/{id}(id=${voucher.id})}">
               <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
             </a>
           </td>
