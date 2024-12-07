@@ -396,12 +396,12 @@
                                     <div th:if="${invoiceDetail.productDetail.product.promotion != null}">
                                         <!-- Kiểm tra nếu có discountPercentage -->
                                         <span th:if="${invoiceDetail.productDetail.product.promotion.discountPercentage != null && invoiceDetail.productDetail.product.promotion.discountPercentage > 0}">
-                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - (invoiceDetail.productDetail.price * invoiceDetail.productDetail.product.promotion.discountPercentage / 100))}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.discountAmount)}"></span>
                                                                 </span>
 
                                         <!-- Kiểm tra nếu có discountAmount -->
                                         <span th:if="${invoiceDetail.productDetail.product.promotion.discountAmount != null && invoiceDetail.productDetail.product.promotion.discountAmount > 0}">
-                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - invoiceDetail.productDetail.product.promotion.discountAmount)}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.discountAmount)}"></span>
                                                                 </span>
                                     </div>
                                     <!-- Nếu không có giảm giá -->

@@ -8,6 +8,7 @@ import com.beehat.repository.ProductDetailRepo;
 import com.beehat.repository.ProductPromotionRepo;
 import com.beehat.repository.ProductRepo;
 import com.beehat.repository.PromotionRepo;
+import com.beehat.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,8 @@ public class PromotionController {
     private ProductPromotionRepo productPromotionRepo;
     @Autowired
     private ProductDetailRepo productDetailRepo;
+    @Autowired
+    private PromotionService promotionService;
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-seal-percent fs-3";
@@ -166,6 +169,7 @@ public class PromotionController {
                 productPromotionRepo.save(promotionProduct); // Lưu vào bảng mối quan hệ
             }
         }
+//        promotionService.updatePromotionStatus();
         return "redirect:/admin/promotion"; // Chuyển hướng về trang danh sách sản phẩm
     }
     @GetMapping("/detail/{id}")

@@ -3,6 +3,7 @@ package com.beehat.controller.admin;
 import com.beehat.entity.*;
 import com.beehat.repository.*;
 import com.beehat.service.ProductService;
+import com.beehat.service.PromotionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,8 @@ public class ProductController {
     SizeRepo sizeRepo;
     @Autowired
     ProductService productService;
+    @Autowired
+    PromotionService promotionService;
     @Autowired
     private ProductImageRepo productImageRepo;
 
@@ -358,6 +361,7 @@ public class ProductController {
         productDetail.setStock(quantity);
         productDetail.setPrice(price);
         productDetailRepo.save(productDetail);
+//        promotionService.resetALLInvoiceDetailPrice();
         return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
     }
     @PostMapping("/change-status-product-detail")

@@ -221,15 +221,20 @@ public class StoreController {
         Product product = productDetail.getProduct();
         boolean isExistingProduct = false;
 
-        int unitPrice = getDiscountedPrice(productDetail, product);
+        int discount = getDiscountedPrice(productDetail, product);
 
         // Kiểm tra sản phẩm đã tồn tại trong hóa đơn chi tiết chưa
         for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
             if (invoiceDetail.getProductDetail().getId().equals(idProductDetail)) {
                 isExistingProduct = true;
-                invoiceDetail.setUnitPrice(unitPrice);
+                invoiceDetail.setUnitPrice(invoiceDetail.getProductDetail().getPrice());
+                invoiceDetail.setDiscountAmount(discount == productDetail.getPrice()? 0 : discount);
                 invoiceDetail.setQuantity(invoiceDetail.getQuantity() + 1);
-                invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+                if (discount == productDetail.getPrice()) {
+                    invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+                }else{
+                    invoiceDetail.setFinalPrice(discount * invoiceDetail.getQuantity());
+                }
                 invoiceDetailRepo.save(invoiceDetail);
 
                 // Giảm số lượng tồn kho của sản phẩm
@@ -245,8 +250,13 @@ public class StoreController {
             invoiceDetail.setInvoice(invoice);
             invoiceDetail.setProductDetail(productDetail);
             invoiceDetail.setQuantity(1);
-            invoiceDetail.setUnitPrice(unitPrice);
-            invoiceDetail.setFinalPrice(unitPrice);
+            invoiceDetail.setUnitPrice(invoiceDetail.getProductDetail().getPrice());
+            invoiceDetail.setDiscountAmount(discount == productDetail.getPrice()? 0 : discount);
+            if (discount == productDetail.getPrice()) {
+                invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+            }else{
+                invoiceDetail.setFinalPrice(discount * invoiceDetail.getQuantity());
+            }
 
             invoiceDetailRepo.save(invoiceDetail);
 
@@ -369,12 +379,14 @@ public class StoreController {
 
         // Cập nhật giá khuyến mãi nếu có
         int unitPrice = productDetail.getPrice();
+        invoiceDetail.setUnitPrice(unitPrice);
         if (product.getPromotion() != null) {
             unitPrice = product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0
                     ? productDetail.getPrice() - product.getPromotion().getDiscountAmount()
                     : productDetail.getPrice() - (productDetail.getPrice() * product.getPromotion().getDiscountPercentage()) / 100;
+            invoiceDetail.setDiscountAmount(unitPrice);
         }
-        invoiceDetail.setUnitPrice(unitPrice);
+
         invoiceDetail.setFinalPrice(unitPrice * quantities);
 
         // Lưu cập nhật cho invoiceDetail và productDetail
