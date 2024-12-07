@@ -104,15 +104,15 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
+                <input type="text" maxlength="100" class="form-control" name="username" placeholder="Username" required>
                 <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="email" class="form-control" name="email" placeholder="Email" required>
+                <input type="email" maxlength="100" class="form-control" name="email" placeholder="Email" required>
                 <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                <input type="password" maxlength="100" class="form-control" name="password" placeholder="Password" required>
             </div>
             <div>
                 <button type="submit" class="btn">CREATE</button>

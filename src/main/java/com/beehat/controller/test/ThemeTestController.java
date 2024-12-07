@@ -6,6 +6,8 @@ import com.beehat.repository.*;
 import com.beehat.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -73,6 +75,8 @@ public class ThemeTestController {
     PasswordEncoder passwordEncoder;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private VNPayService vnPayService;
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
         if (principal == null) {
@@ -357,7 +361,7 @@ public class ThemeTestController {
                            @RequestParam("emailInv") String emailInv,
                            @RequestParam("paymentInv") Integer idPayment,
                            //thêm voucher
-                           @RequestParam("code") String code
+                           @RequestParam("code") String code, HttpServletRequest request, HttpSession session
     ) {
         // Lấy phương thức thanh toán
         PaymentMethod paymentMethod = paymentMethodRepo.findById(idPayment).orElse(null);
@@ -391,30 +395,101 @@ public class ThemeTestController {
         if (cartDetails == null || cartDetails.isEmpty()) {
             return "redirect:/cart";
         }
-
-        // Lưu hóa đơn
-        Invoice savedInvoice = saveInvoice(temporaryInvoice, cartDetails);
-
-        // Cập nhật trạng thái giỏ hàng
-        if (temporaryInvoice.getCustomer() != null) {
-            for (CartDetail cart : cartDetails) {
-                cart.setStatus((byte) 2); // Đánh dấu là đã thanh toán
-                cartDetailRepo.save(cart);
+        session.setAttribute("emailInv", emailInv);
+        if(paymentMethod.getId()==1){
+            Invoice savedInvoice = saveInvoice(temporaryInvoice, cartDetails,null);
+            // Cập nhật trạng thái giỏ hàng
+            if (temporaryInvoice.getCustomer() != null) {
+                for (CartDetail cart : cartDetails) {
+                    cart.setStatus((byte) 2); // Đánh dấu là đã thanh toán
+                    cartDetailRepo.save(cart);
+                }
+            } else {
+                cartService.clear(); // Xóa giỏ hàng nếu người dùng không đăng nhập
             }
-        } else {
-            cartService.clear(); // Xóa giỏ hàng nếu người dùng không đăng nhập
+            // Xóa hóa đơn tạm thời
+            cartService.clearTemporaryInvoice();
+            String trackingNumber = savedInvoice.getInvoiceTrackingNumber();
+            String trackingLink = "http://localhost:8080/look-up?orderId="+trackingNumber;
+            sendEmail(emailInv,"Thông tin đơn hàng của bạn",trackingNumber,trackingLink);
+            // Chuyển đến trang xác nhận
+            return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
         }
+        else {
+            try {
+                // Tạo URL thanh toán VNPay
+                String paymentUrl = vnPayService.createPaymentUrl(temporaryInvoice,request);
+                return "redirect:" + paymentUrl; // Chuyển hướng đến VNPay
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "redirect:/checkout?error=payment_error"; // Xử lý lỗi tạo thanh toán
+            }
+        }
+    }
+    @GetMapping("/checkout/vnpay/return")
+    public String vnpayReturn(@RequestParam Map<String, String> params, Model model, HttpSession session, Principal principal) {
+        try {
+            System.out.println("Received VNPay callback: " + params);
 
-        // Xóa hóa đơn tạm thời
-        cartService.clearTemporaryInvoice();
-        String trackingNumber = savedInvoice.getInvoiceTrackingNumber();
-        String trackingLink = "http://localhost:8080/look-up?orderId="+trackingNumber;
-        sendEmail(emailInv,"Thông tin đơn hàng của bạn",trackingNumber,trackingLink);
-        // Chuyển đến trang xác nhận
-        return "redirect:/confirmation?invoiceId=" + savedInvoice.getId();
+//             Kiểm tra chữ ký
+//            boolean isValid = vnPayService.validateReturnUrl(params);
+//            System.out.println("Signature validation result: " + isValid);
+//
+//            if (!isValid) {
+//                return "redirect:/checkout?error=invalid_signature";
+//            }
+
+            String txnRef = params.get("vnp_TxnRef");
+            String responseCode = params.get("vnp_ResponseCode");
+            System.out.println("Transaction Ref: " + txnRef);
+            System.out.println("Response Code: " + responseCode);
+
+            Invoice temporaryInvoice = cartService.getTemporaryInvoice();
+            System.out.println(temporaryInvoice);
+            if (temporaryInvoice == null) {
+                System.out.println("Invoice not found for transaction reference: " + txnRef);
+                return "redirect:/checkout?error=transaction_not_found";
+            }
+
+            // Giao dịch thành công
+            if ("00".equals(responseCode)) {
+
+                System.out.println("Invoice updated to status 2");
+                List<CartDetail> cartDetails;
+                if(principal.getName() != null){
+                    Customer customer = customerRepo.findByUsername(principal.getName());
+                    cartDetails = cartDetailRepo.findByCustomerId(customer.getId());;
+                }else{
+                    cartDetails = cartService.getCartDetails();
+                }
+                // Lấy thông tin giỏ hàng
+                if (temporaryInvoice.getCustomer() != null) {
+                    for (CartDetail cart : cartDetails) {
+                        cart.setStatus((byte) 2);
+                        cartDetailRepo.save(cart);
+                    }
+                    System.out.println("Cart details updated to status 2");
+                } else {
+                    cartService.clear();
+                    System.out.println("Cart details not found in session");
+                }
+                Invoice invoice = saveInvoice(temporaryInvoice,cartDetails,txnRef);
+                String trackingNumber = invoice.getInvoiceTrackingNumber();
+                String trackingLink = "http://localhost:8080/look-up?orderId=" + trackingNumber;
+                sendEmail(session.getAttribute("emailInv").toString(), "Thông tin đơn hàng của bạn", trackingNumber, trackingLink);
+
+                return "redirect:/confirmation?invoiceId=" + invoice.getId();
+            } else {
+                System.out.println("Transaction failed with response code: " + responseCode);
+                return "redirect:/checkout?error=payment_failed";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/checkout?error=payment_error";
+        }
     }
 
-    private Invoice saveInvoice(Invoice invoice, List<CartDetail> cartDetails) {
+    private Invoice saveInvoice(Invoice invoice, List<CartDetail> cartDetails, String txnRef) {
         // Tạo mã giao dịch duy nhất
         String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         if (invoice.getVoucher() != null) {
@@ -456,7 +531,11 @@ public class ThemeTestController {
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.setInvoice(savedInvoice);
         paymentHistory.setPaymentDate(LocalDateTime.now());
-        paymentHistory.setTransactionCode(randomUUID + "-" + savedInvoice.getInvoiceTrackingNumber());
+        if (txnRef == null){
+            paymentHistory.setTransactionCode(randomUUID);
+        }else{
+            paymentHistory.setTransactionCode(txnRef);
+        }
         paymentHistory.setAmountPaid(savedInvoice.getTotalPrice());
         paymentHistory.setPaymentMethod(savedInvoice.getPaymentMethod());
         paymentHistoryRepo.save(paymentHistory);
@@ -495,7 +574,7 @@ public class ThemeTestController {
         return "test-theme/account";
     }
     @PostMapping("/account/update")
-    public String updateCustomer(@ModelAttribute Customer customer, BindingResult bindingResult) {
+    public String updateCustomer(@Valid  @ModelAttribute Customer customer, BindingResult bindingResult) {
         Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
         if (existingCustomer != null) {
             // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi

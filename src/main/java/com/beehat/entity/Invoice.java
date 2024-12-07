@@ -111,4 +111,33 @@ public class Invoice {
     public void preUpdate() {
         updatedDate = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "Invoice{" +
+                "id=" + id +
+                ", customer=" + customer +
+                ", employee=" + employee +
+                ", paymentMethod=" + paymentMethod +
+                ", invoiceDetails=" + invoiceDetails +
+                ", deliverDate=" + deliverDate +
+                ", totalPrice=" + totalPrice +
+                ", voucher=" + voucher +
+                ", voucherDiscount=" + voucherDiscount +
+                ", finalPrice=" + finalPrice +
+                ", shippingAddress='" + shippingAddress + '\'' +
+                ", shippingCity='" + shippingCity + '\'' +
+                ", shippingDistrict='" + shippingDistrict + '\'' +
+                ", shippingWard='" + shippingWard + '\'' +
+                ", shippingCountry='" + shippingCountry + '\'' +
+                ", phone='" + phone + '\'' +
+                ", invoiceTrackingNumber='" + invoiceTrackingNumber + '\'' +
+                ", invoiceStatus=" + invoiceStatus +
+                ", status=" + status +
+                ", statusHistories=" + statusHistories +
+                ", paymentHistories=" + paymentHistories +
+                ", createdDate=" + createdDate +
+                ", updatedDate=" + updatedDate +
+                '}';
+    }
 }

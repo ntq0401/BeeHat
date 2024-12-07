@@ -4,6 +4,7 @@ import com.beehat.entity.Customer;
 import com.beehat.entity.Employee;
 import com.beehat.repository.EmployeeRepo;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -110,7 +111,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public String updateEmployee(@ModelAttribute Employee employee, BindingResult bindingResult, Principal principal) {
+    public String updateEmployee(@Valid  @ModelAttribute Employee employee, BindingResult bindingResult, Principal principal) {
         Employee existingEmployee = employeeRepository.findById(employee.getId()).orElse(null);
         // Lấy tên người dùng đang đăng nhập
         String currentUsername = principal.getName();
@@ -144,7 +145,7 @@ public class EmployeeController {
         return "redirect:/admin/employee";
     }
     @PostMapping("/add")
-    public ModelAndView add(@ModelAttribute("employee") Employee employee, BindingResult bindingResult) {
+    public ModelAndView add(@Valid @ModelAttribute("employee") Employee employee, BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/employee/employee"); // Trả về trang admin/employee nếu có lỗi
 
         // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult

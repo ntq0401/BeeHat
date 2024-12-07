@@ -20,7 +20,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/admin/index">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Promotion</li>
+            <li class="breadcrumb-item active" aria-current="page">Chương trình giảm giá </li>
         </ol>
     </nav>
     <div class="card">
@@ -110,11 +110,14 @@
                         <span class="badge rounded-pill bg-danger" th:if="${promotion.endDate.isBefore(#temporals.createNow())}">Đã kết thúc</span>
                     </td>
                     <td>
-                        <button class="btn btn-outline-info btn-sm">
+                        <button class="btn btn-info btn-sm">
                             <a th:href="@{/admin/promotion/detail/{id}(id=${promotion.id})}"><i class="ph ph-info"></i></a> <!-- Biểu tượng chi tiết -->
                         </button>
-                        <button class="btn btn-outline-warning btn-sm">
+                        <button class="btn btn-warning btn-sm">
                             <a th:href="@{/admin/promotion/update(id=${promotion.id})}"><i class="ph ph-pencil"></i></a> <!-- Biểu tượng sửa -->
+                        </button>
+                        <button class="btn btn-info btn-sm"  onclick="return confirm('Bạn có chắc muốn dừng')">
+                            <a th:href="@{/admin/promotion/stop/{id}(id=${promotion.id})}"><i class="ph ph-pause"></i></a>
                         </button>
                     </td>
                 </tr>
@@ -132,6 +135,18 @@
                 alert('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.');
             }
         });
+        function confirmStopPromotion(promotionId) {
+            // Hiển thị hộp thoại xác nhận
+            var confirmAction = confirm('Bạn có chắc chắn muốn dừng chương trình này?');
+
+            // Nếu người dùng chọn "OK" (xác nhận), tiếp tục với yêu cầu dừng
+            if (confirmAction) {
+                window.location.href = '/admin/promotion/stop/' + promotionId;
+            }
+
+            // Nếu người dùng chọn "Cancel" (hủy), không làm gì cả
+            return false; // Hủy hành động mặc định của thẻ <a> nếu người dùng chọn "Cancel"
+        }
     </script>
 </main>
 </body>

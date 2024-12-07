@@ -12,5 +12,5 @@ import java.util.List;
 
 public interface ProductPromotionRepo extends JpaRepository<ProductPromotion,Integer> {
     List<ProductPromotion> findAllByPromotionAndStatus(Promotion promotion, byte status);
-    List<ProductPromotion> findByPromotionId(Integer promotionId);
+    List<ProductPromotion> findByPromotionIdAndStatus(Integer promotionId,Byte status);
 }

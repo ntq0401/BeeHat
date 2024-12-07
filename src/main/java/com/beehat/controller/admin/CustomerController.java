@@ -5,6 +5,7 @@ import com.beehat.entity.Employee;
 import com.beehat.repository.CustomerRepo;
 import com.beehat.service.AddressService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -93,7 +94,7 @@ public class CustomerController {
 
 
     @PostMapping("/add")
-    public ModelAndView add(@ModelAttribute("customer") Customer customer, BindingResult bindingResult) {
+    public ModelAndView add(@Valid @ModelAttribute("customer") Customer customer, BindingResult bindingResult) {
         ModelAndView modelAndView = new ModelAndView("admin/customer/customer"); // Trả về trang admin/employee nếu có lỗi
 
         // Kiểm tra lỗi và thêm thông báo lỗi vào bindingResult
@@ -137,7 +138,7 @@ public class CustomerController {
     }
 
     @PostMapping("/update")
-    public String updateCustomer(@ModelAttribute Customer customer,BindingResult bindingResult) {
+    public String updateCustomer(@Valid @ModelAttribute Customer customer, BindingResult bindingResult) {
         Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
 
         if (existingCustomer != null) {

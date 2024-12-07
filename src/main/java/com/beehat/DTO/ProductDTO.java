@@ -4,6 +4,7 @@ import com.beehat.entity.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ public class ProductDTO {
     private List<Color> colors;
     private List<Size> sizes;
     private Promotion promotion;
+    private Byte status;
+    private LocalDateTime createdDate;
     // Constructor
     public ProductDTO(Product product) {
         this.id = product.getId();
@@ -47,6 +50,8 @@ public class ProductDTO {
         this.colors = getColors(product.getProductDetail());
         this.sizes = getSizes(product.getProductDetail());
         this.promotion = product.getPromotion();
+        this.status = product.getStatus();
+        this.createdDate=product.getCreatedDate();
     }
 
     // Method to calculate lowest price

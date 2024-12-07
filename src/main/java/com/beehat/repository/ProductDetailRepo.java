@@ -16,7 +16,7 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     Page<ProductDetail> findByStatus(Byte status, Pageable pageable);
     // Lấy danh sách ProductDetail theo id của Promotion
     @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.id IN " +
-            "(SELECT pp.product.id FROM ProductPromotion pp WHERE pp.promotion.id = :promotionId)")
+            "(SELECT pp.product.id FROM ProductPromotion pp WHERE pp.promotion.id = :promotionId AND pp.status = 1)")
     List<ProductDetail> findByPromotionId(@Param("promotionId") Integer promotionId);
     boolean existsByProductIdAndColorIdAndSizeId(Integer productId, Integer colorId, Integer sizeId);
     ProductDetail findTopByProductIdOrderByPriceAsc(int id);

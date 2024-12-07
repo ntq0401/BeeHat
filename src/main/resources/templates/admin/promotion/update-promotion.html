@@ -73,17 +73,68 @@
     // Gọi hàm khi trang load để hiển thị đúng input
     document.addEventListener("DOMContentLoaded", toggleDiscountInput);
   </script>
-
+  <style>
+    .scroll-container {
+      height: 400px; /* Chiều cao cố định */
+      overflow-y: auto; /* Thanh cuộn dọc */
+    }
+  </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/admin/index">Trang chủ</a></li>
-      <li class="breadcrumb-item"><a href="/admin/promotion">Promotion</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Update</li>
+      <li class="breadcrumb-item"><a href="/admin/promotion">Chương trình giảm giá</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Cập nhật</li>
     </ol>
   </nav>
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Bộ lọc</h5>
+    </div>
+
+    <div class="card-body">
+      <div class="row mt-2">
+        <div>
+          <form th:action="@{/admin/promotion/update}" method="get" id="searchForm">
+            <input type="text" name="id" th:value="${promotion.id}" hidden>
+            <div class="row">
+              <div class="form-group">
+                <input placeholder="Nhập tên" type="text" class="form-control" id="search"
+                       name="search">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <label>Từ ngày:</label>
+                <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
+              </div>
+              <div class="col-md-3">
+                <label>Tới ngày:</label>
+                <input type="datetime-local" class="form-control" id="toDate" name="toDate">
+              </div>
+              <div class="col-md-4">
+                <label>Danh mục</label>
+                <select class="form-select" name="categoryId">
+                  <option value="">Tất cả</option>
+                  <option th:each=" cate : ${listCategory}" th:value="${cate.id}"
+                          th:text="${cate.name}"
+                          th:selected="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}"></option>
+
+                </select>
+              </div>
+              <div class="col-auto d-flex align-items-center">
+                <button class="btn btn-info" type="submit">
+                  <i class="ph ph-magnifying-glass"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
   <form th:action="@{/admin/promotion/update}" method="post" onsubmit="validateForm(event)">
     <input type="text" name="id" th:value="${promotion.id}" hidden>
     <div class="row">
@@ -96,7 +147,7 @@
           <div class="card-body">
             <div class="form-group">
               <label for="name">Tên chương trình khuyến mãi:</label>
-              <input type="text" id="name" name="name" th:value="${promotion.name}" class="form-control" required>
+              <input type="text" maxlength="100" id="name" name="name" th:value="${promotion.name}" class="form-control" required>
             </div>
 
             <!-- Loại giảm giá -->
@@ -115,13 +166,13 @@
             <!-- Ô nhập % -->
             <div class="form-group" style="display: none;" id="discountPercentageInput" >
               <label for="percentage">Nhập phần trăm giảm:</label>
-              <input type="number" id="percentage" name="percentage" th:value="${promotion.discountPercentage}"  class="form-control" placeholder="% giảm" min="0" max="100" >
+              <input type="number" id="percentage" name="percentage" th:value="${promotion.discountPercentage}"  class="form-control" placeholder="% giảm" min="0" max="70" >
             </div>
 
             <!-- Ô nhập giá trị -->
             <div class="form-group" style="display: none;" id="discountValueInput" >
               <label for="value">Nhập giá trị giảm:</label>
-              <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="0" max="100000" >
+              <input type="number" id="value" name="value" th:value="${promotion.discountAmount}" class="form-control" placeholder="Giá trị giảm" min="0" max="1000000000" >
             </div>
             <!-- Ngày bắt đầu -->
             <div class="form-group">
@@ -147,60 +198,76 @@
         <div class="card ">
           <div class="card-header">
             <h5 class="card-title">Danh sách sản phẩm</h5>
+            <div th:if="${error}" th:class="'alert ' + (${error} != null ? 'alert-danger' : 'alert-success')" th:text="${error}"></div>
+
           </div>
 
           <div class="card-body">
+            <div id="product-container" class="scroll-container">
             <table class="table table-bordered">
               <thead class="thead-light">
               <tr>
                 <th scope="col"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
                 <th scope="col">Mã sản phẩm</th>
                 <th scope="col">Tên sản phẩm</th>
+                <th scope="col">Số lượng tồn</th>
+                <th scope="col">Ngày tạo</th>
                 <th scope="col">Trạng thái</th>
               </tr>
               </thead>
-              <tbody>
+              <tbody id="product-list">
               <!-- Lặp qua danh sách sản phẩm -->
-              <tr th:each="product : ${listProduct}">
+              <tr th:block th:each="product : ${listProduct}">
                 <td>
-                  <input class="productCheckbox" type="checkbox" th:value="${product.id}" th:name="selectedProducts"
+                  <input class="productCheckbox" type="checkbox" th:value="${product.id}"
+                         th:name="selectedProducts"
                          th:checked="${selectedSet != null && selectedSet.contains(product.id)}"/>
                 </td>
                 <td th:text="${product.sku}"></td>
                 <td th:text="${product.name}"></td>
-                <td><span class="badge rounded-pill bg-primary" th:text="${product.status==1?'Hoạt động':'Không hoạt động'}"></span></td>
+                <td th:text="${product.totalStock}"></td>
+                <td th:text="${#temporals.format(product.createdDate, 'dd-MM-yyyy')}"></td>
+                <td><span class="badge rounded-pill bg-primary"
+                          th:text="${product.status==1?'Hoạt động':'Không hoạt động'}"></span></td>
               </tr>
               </tbody>
             </table>
-            <nav aria-label="Page navigation">
-              <ul class="pagination justify-content-center">
-                <!-- Nút Previous -->
-                <li class="page-item" th:classappend="${listProduct.number == 0 || !listProduct.hasPrevious()} ? 'disabled'">
-                  <a class="page-link"
-                     th:href="@{/admin/promotion/update(id=${id}, page=${listProduct.number - 1}, selectedProducts=${selectedSet})}">Previous</a>
-                </li>
-
-                <!-- Nút chuyển đến các trang -->
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, listProduct.totalPages - 1)}"
-                    th:classappend="${i == listProduct.number} ? 'active'">
-                  <a class="page-link"
-                     th:href="@{/admin/promotion/update(id=${id}, page=${i}, selectedProducts=${selectedSet})}"
-                     th:text="${i + 1}"></a>
-                </li>
-
-                <!-- Nút Next -->
-                <li class="page-item" th:classappend="${listProduct.hasNext()} ? '' : 'disabled'">
-                  <a class="page-link"
-                     th:href="@{/admin/promotion/update(id=${id}, page=${listProduct.number + 1}, selectedProducts=${selectedSet})}">Next</a>
-                </li>
-              </ul>
-            </nav>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </form>
+  <script>
+    let currentPage = 0;
+    let isLoading = false; // Prevent multiple API calls
 
+    // Function to load next page of products
+    function loadNextPage() {
+      if (isLoading) return; // Prevent multiple API calls
+
+      isLoading = true; // Set loading flag to true
+
+      const search = document.getElementById('search').value; // Get search value
+      const fromDate = document.getElementById('fromDate').value; // Get fromDate value
+      const toDate = document.getElementById('toDate').value; // Get toDate value
+      const categoryId = document.getElementById('categoryId').value; // Get categoryId value
+
+      // Gọi API để lấy thêm sản phẩm
+      fetch(`/admin/promotion/update?page=${currentPage + 1}&selectedProducts=${selectedSet}&search=${search}&fromDate=${fromDate}&toDate=${toDate}&categoryId=${categoryId}`)
+              .then(response => response.text()) // Trả về HTML
+              .then(html => {
+                document.getElementById('product-list').innerHTML += html; // Append sản phẩm mới vào bảng
+                isLoading = false; // Reset loading flag
+                currentPage++; // Cập nhật trang hiện tại
+              })
+              .catch(error => {
+                console.error("Error loading products:", error);
+                isLoading = false;
+              });
+    }
+
+  </script>
 </main>
 </body>
 </html>

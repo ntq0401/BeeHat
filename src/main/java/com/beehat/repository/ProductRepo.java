@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -23,8 +24,25 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Transactional
     @Query("UPDATE Product p SET p.promotion = null WHERE p.promotion.id = :promotionId")
     void clearPromotionByPromotionId(@Param("promotionId") Integer promotionId);
-    @Query("SELECT p FROM Product p WHERE p.promotion IS NULL OR p.promotion.id = :promotionId")
-    Page<Product> findProductUpdate(@Param("promotionId") Integer promotionId, Pageable pageable);
+    @Query("""
+    SELECT p FROM Product p 
+    WHERE 
+        (p.promotion IS NULL OR p.promotion.id = :promotionId) 
+        AND (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) 
+        AND (:fromDate IS NULL OR p.createdDate >= :fromDate) 
+        AND (:toDate IS NULL OR p.createdDate <= :toDate) 
+        AND (:categoryId IS NULL OR p.category.id = :categoryId)
+""")
+    Page<Product> findProductUpdate(
+            @Param("promotionId") Integer promotionId,
+            @Param("name") String name,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            @Param("categoryId") Integer categoryId,
+            Pageable pageable
+    );
+    List<Product> findByPromotionId(@Param("promotionId") Integer promotionId);
+
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, int id);
     Product findBySku(String sku);
@@ -39,6 +57,19 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "AND (:beltId IS NULL OR P.belt.id = :beltId)")
     Page<Product> findByCriteria(
             String name ,Integer categoryId, Integer materialId, Integer styleId, Integer liningId, Integer beltId,Pageable pageable
+    );
+    @Query("SELECT p FROM Product p " +
+            "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:fromDate IS NULL OR p.createdDate >= :fromDate) " +
+            "AND (:toDate IS NULL OR p.createdDate <= :toDate) " +
+            "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
+            "AND p.promotion IS NULL")
+    Page<Product> findProducts(
+            @Param("name") String name,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            @Param("categoryId") Integer categoryId,
+            Pageable pageable
     );
 
 }

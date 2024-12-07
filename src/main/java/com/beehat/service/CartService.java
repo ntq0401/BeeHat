@@ -3,15 +3,16 @@ package com.beehat.service;
 import com.beehat.entity.*;
 import com.beehat.repository.CartDetailRepo;
 import com.beehat.repository.ProductDetailRepo;
-import com.beehat.repository.ProductRepo;
 import com.beehat.repository.VoucherRepo;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +40,7 @@ public class CartService {
     }
     public void createTemporaryInvoice(Customer customer,List<CartDetail> carts) {
         Invoice invoice = new Invoice();
+        invoice.setInvoiceTrackingNumber(generateInvoiceTrackingNumber());
         invoice.setCustomer(customer);
         invoice.setInvoiceStatus((byte) 1);
         invoice.setTotalPrice(carts.stream()
@@ -146,5 +148,15 @@ public class CartService {
 
         // Xóa giỏ hàng tạm thời trong session (nếu cần)
         clear();
+    }
+    private String generateInvoiceTrackingNumber() {
+        // Sinh chuỗi ngẫu nhiên 5 ký tự
+        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+
+        // Thời gian hiện tại dưới dạng yyyyMMddHHmmss
+        String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+
+        // Tạo SKU bằng cách kết hợp productCode, timeStamp, và randomUUID
+        return randomUUID + "-" + timeStamp;
     }
 }

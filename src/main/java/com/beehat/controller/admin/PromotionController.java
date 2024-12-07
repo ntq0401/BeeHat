@@ -1,5 +1,6 @@
 package com.beehat.controller.admin;
 
+
 import com.beehat.entity.Product;
 import com.beehat.entity.ProductDetail;
 import com.beehat.entity.ProductPromotion;
@@ -9,8 +10,13 @@ import com.beehat.repository.ProductPromotionRepo;
 import com.beehat.repository.ProductRepo;
 import com.beehat.repository.PromotionRepo;
 import com.beehat.service.PromotionService;
+import com.beehat.DTO.ProductDTO;
+import com.beehat.entity.*;
+import com.beehat.repository.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,10 +24,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +53,8 @@ public class PromotionController {
     String pageTitle() {
         return "Chương trình giảm giá";
     }
+    @Autowired
+    private CategoryRepo categoryRepo;
     @GetMapping
     public String promotion(Model model) {
         List<Promotion> listPromotion = promotionRepo.findAll();
@@ -99,20 +108,39 @@ public class PromotionController {
         return "admin/promotion/promotion";
     }
     @GetMapping("/add")
-    public String add(Model model,@RequestParam(required = false) List<Integer> selectedProducts,@RequestParam(defaultValue = "0") int page){
-        Pageable pageable = PageRequest.of(page, 5); // 5 sản phẩm mỗi trang
-        Page<Product> productsPage = productRepo.findByPromotionIsNull(pageable);
+    public String add(Model model,@RequestParam(required = false) List<Integer> selectedProducts,@RequestParam(defaultValue = "0") int page,@RequestParam(value = "search", required = false) String search,
+                      @RequestParam(value = "fromDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime fromDate,
+                      @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
+                      @RequestParam(value = "categoryId",required = false) Integer categoryId){
+        List<Category> listCategory = categoryRepo.findAll();
+        Pageable pageable = PageRequest.of(page, 100); // 5 sản phẩm mỗi trang
+        Page<Product> productsPage = productRepo.findProducts(search,fromDate,toDate,categoryId,pageable);
+        if (productsPage.getTotalElements() == 0) {
+            page = 0;
+        }
+        List<ProductDTO> productDTOList = productsPage.getContent().stream()
+                .map(product -> new ProductDTO(product))
+                .collect(Collectors.toList());
+        Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOList, pageable, productsPage.getTotalElements());
         // Khởi tạo tập hợp để lưu trạng thái checkbox
         Set<Integer> selectedSet = new HashSet<>();
         if (selectedProducts != null) {
             selectedSet.addAll(selectedProducts);
         }
+        model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("currentPage", productsPage.getNumber());
+        model.addAttribute("search",search);
+        model.addAttribute("fromDate",fromDate);
+        model.addAttribute("toDate",toDate);
+        model.addAttribute("categoryId",categoryId);
+        model.addAttribute("listCategory",listCategory);
         model.addAttribute("selectedSet", selectedSet);
-        model.addAttribute("listProduct",productsPage);
+        model.addAttribute("listProduct",productDTOPage);
+
         return "/admin/promotion/add-promotion";
     }
     @PostMapping("/add")
-    public String addPromotion(Model model,
+    public String addPromotion(@Valid Model model, RedirectAttributes redirectAttributes,
                                @RequestParam(required = false) List<Integer> selectedProducts,
                                @RequestParam String name,
                                @RequestParam(required = false) Integer value,
@@ -128,6 +156,27 @@ public class PromotionController {
             percentage = 0; // hoặc giá trị mặc định khác nếu muốn
         }
 
+        if (selectedProducts != null) {
+            for (Integer productId : selectedProducts) {
+                // Lấy thông tin sản phẩm
+                Product product = productRepo.findById(productId).orElse(null);
+                if (product != null) {
+                    // Lấy danh sách ProductDetail liên quan đến sản phẩm
+                    List<ProductDetail> productDetails = productDetailRepo.findByProductId(productId);
+                    if(productDetails==null|| productDetails.isEmpty()){
+                        redirectAttributes.addFlashAttribute("error", "Sản phẩm " + product.getName() + " không có sản phẩm chi tiết");
+                        return "redirect:/admin/promotion/add";
+                    }
+                    // Kiểm tra giá của từng ProductDetail
+                    for (ProductDetail detail : productDetails) {
+                        if (detail.getPrice() < value) { // So sánh với giá trị giảm giá
+                            redirectAttributes.addFlashAttribute("error", "Sản phẩm " + product.getName() + " có giá trị bé hơn giá giảm.");
+                            return "redirect:/admin/promotion/add"; // Trả về trang thêm khuyến mãi
+                        }
+                    }
+                }
+            }
+        }
 
         // Khởi tạo đối tượng khuyến mãi
         Promotion promotion = new Promotion();
@@ -153,6 +202,7 @@ public class PromotionController {
         } else {
             promotion.setStatus((byte) 1); // Đang diễn ra
         }
+
         // Lưu khuyến mãi mới vào cơ sở dữ liệu
         promotionRepo.save(promotion);
         if (selectedProducts != null) {
@@ -180,16 +230,33 @@ public class PromotionController {
         model.addAttribute("promotion",promotion);
         return "/admin/promotion/detail-promotion";
     }
+    @GetMapping("/stop/{id}")
+    public String stop(@PathVariable Integer id){
+        Promotion promotion = promotionRepo.findeById(id);
+        promotion.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        promotionRepo.save(promotion);
+        return "redirect:/admin/promotion";
+    }
     @GetMapping("/update")
     public String update(@RequestParam Integer id,
                          Model model,
                          @RequestParam(required = false) List<Integer> selectedProducts,
-                         @RequestParam(defaultValue = "0") int page) {
-        Pageable pageable = PageRequest.of(page, 5); // 5 sản phẩm mỗi trang
-        Page<Product> productsPage = productRepo.findProductUpdate(id,pageable);
-
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(value = "search", required = false) String search,
+                         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime fromDate,
+                         @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
+                         @RequestParam(value = "categoryId",required = false) Integer categoryId) {
+        Pageable pageable = PageRequest.of(page, 100);
+        Page<Product> productsPage = productRepo.findProductUpdate(id,search,fromDate,toDate,categoryId,pageable);
+        if (productsPage.getTotalElements() == 0) {
+            page = 0;
+        }
+        List<ProductDTO> productDTOList = productsPage.getContent().stream()
+                .map(product -> new ProductDTO(product))
+                .collect(Collectors.toList());
+        Page<ProductDTO> productDTOPage = new PageImpl<>(productDTOList, pageable, productsPage.getTotalElements());
         // Tìm tất cả ProductPromotion liên quan đến khuyến mãi đó
-        List<ProductPromotion> productPromotions = productPromotionRepo.findByPromotionId(id);
+        List<ProductPromotion> productPromotions = productPromotionRepo.findByPromotionIdAndStatus(id, (byte) 1);
 
         // Khởi tạo tập hợp để lưu trạng thái checkbox
         Set<Integer> selectedSet = new HashSet<>();
@@ -200,19 +267,25 @@ public class PromotionController {
         }
         // Lấy ID sản phẩm từ ProductPromotion liên quan và thêm vào selectedSet
         productPromotions.forEach(pp -> selectedSet.add(pp.getProduct().getId()));
-
+        List<Category> listCategory = categoryRepo.findAll();
         // Thêm vào model để sử dụng trong view
         model.addAttribute("selectedSet", selectedSet);
         model.addAttribute("id", id);
         Promotion promotion = promotionRepo.findById(id).orElse(null);
+        model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("currentPage", productsPage.getNumber());
         model.addAttribute("promotion", promotion);
-        model.addAttribute("listProduct", productsPage);
-
+        model.addAttribute("listProduct", productDTOPage);
+        model.addAttribute("search",search);
+        model.addAttribute("fromDate",fromDate);
+        model.addAttribute("toDate",toDate);
+        model.addAttribute("categoryId",categoryId);
+        model.addAttribute("listCategory",listCategory);
         return "/admin/promotion/update-promotion";
     }
     @Transactional
     @PostMapping("/update")
-    public String updatePromotion(Model model,
+    public String updatePromotion(@Valid Model model, RedirectAttributes redirectAttributes,
                                   @RequestParam(required = false) List<Integer> selectedProducts,
                                   @RequestParam String name,
                                   @RequestParam(required = false) Integer value,
@@ -225,7 +298,27 @@ public class PromotionController {
         if (value == null) {
             value = 0; // Giá trị mặc định
         }
-
+        if (selectedProducts != null) {
+            for (Integer productId : selectedProducts) {
+                // Lấy thông tin sản phẩm
+                Product product = productRepo.findById(productId).orElse(null);
+                if (product != null) {
+                    // Lấy danh sách ProductDetail liên quan đến sản phẩm
+                    List<ProductDetail> productDetails = productDetailRepo.findByProductId(productId);
+                    if(productDetails==null|| productDetails.isEmpty()){
+                        redirectAttributes.addFlashAttribute("error", "Sản phẩm " + product.getName() + " không có sản phẩm chi tiết");
+                        return "redirect:/admin/promotion/update?id="+id;
+                    }
+                    // Kiểm tra giá của từng ProductDetail
+                    for (ProductDetail detail : productDetails) {
+                        if (detail.getPrice() < value) { // So sánh với giá trị giảm giá
+                            redirectAttributes.addFlashAttribute("error", "Sản phẩm " + product.getName() + " có giá trị bé hơn giá giảm.");
+                            return "redirect:/admin/promotion/update?id="+id; // Trả về trang thêm khuyến mãi
+                        }
+                    }
+                }
+            }
+        }
         if (percentage == null) {
             percentage = 0; // Giá trị mặc định
         }
@@ -261,7 +354,7 @@ public class PromotionController {
         promotionRepo.save(promotion);
 
         // Lấy danh sách sản phẩm hiện có liên kết với promotionId
-        List<ProductPromotion> existingProductPromotions = productPromotionRepo.findByPromotionId(id);
+        List<ProductPromotion> existingProductPromotions = productPromotionRepo.findByPromotionIdAndStatus(id, (byte) 1);
         List<Product> existingProducts = existingProductPromotions.stream()
                 .map(ProductPromotion::getProduct)
                 .collect(Collectors.toList());
