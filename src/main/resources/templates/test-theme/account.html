@@ -158,11 +158,11 @@
                 </div>
                 <div class="mb-3">
                         <label for="fullName" class="form-label">Họ tên *</label>
-                        <input type="text" class="form-control" id="fullname" name="fullname" th:value="${customer.fullname}" required>
+                        <input type="text" maxlength="100" class="form-control" id="fullname" name="fullname" th:value="${customer.fullname}" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Địa chỉ email *</label>
-                    <input type="email" name="email" th:value="${customer.email}" class="form-control" required/>
+                    <input type="email" maxlength="100" name="email" th:value="${customer.email}" class="form-control" required/>
                     <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
@@ -196,7 +196,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Địa chỉ *</label>
-                    <input type="text" name="address" th:value="${customer.address}" class="form-control" required/>
+                    <input type="text" maxlength="255" name="address" th:value="${customer.address}" class="form-control" required/>
                 </div>
                 <button type="submit" class="btn btn-primary">Cập nhật</button>
             </form>

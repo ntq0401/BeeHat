@@ -1,6 +1,10 @@
 package com.beehat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,17 +27,27 @@ public class Employee implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @NotBlank(message = "Username không được để trống")
+    @Size(max = 100, message = "Username không được vượt quá 100 ký tự")
     private String username;
 
+    @NotBlank(message = "Password không được để trống")
+    @Size(max = 100, message = "Password phải có độ dài dưới 100 ký tự")
     private String password;
 
+    @NotBlank(message = "Fullname không được để trống")
+    @Size(max = 100, message = "Fullname không được vượt quá 100 ký tự")
     private String fullname;
 
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
     private String email;
 
+    @NotBlank(message = "Phone không được để trống")
+    @Pattern(regexp = "\\d{10}", message = "Phone phải là chuỗi số và có đúng 10 ký tự")
     private String phone;
 
+    @Size(max = 500, message = "Photo URL không được vượt quá 500 ký tự")
     private String photo;
 
     private Byte role;

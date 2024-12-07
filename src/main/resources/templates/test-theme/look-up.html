@@ -3,6 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <title>Shop</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">
+    <style>
+
+        .steps .step {
+            display: block;
+            width: 100%;
+            margin-bottom: 35px;
+            text-align: center
+        }
+
+        .steps .step .step-icon-wrap {
+            display: block;
+            position: relative;
+            width: 100%;
+            height: 80px;
+            text-align: center
+        }
+
+        .steps .step .step-icon-wrap::before,
+        .steps .step .step-icon-wrap::after {
+            display: block;
+            position: absolute;
+            top: 50%;
+            width: 50%;
+            height: 3px;
+            margin-top: -1px;
+            background-color: #e1e7ec;
+            content: '';
+            z-index: 1
+        }
+
+        .steps .step .step-icon-wrap::before {
+            left: 0
+        }
+
+        .steps .step .step-icon-wrap::after {
+            right: 0
+        }
+
+        .steps .step .step-icon {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border: 1px solid #e1e7ec;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            color: #374250;
+            font-size: 38px;
+            line-height: 81px;
+            z-index: 5
+        }
+
+        .steps .step .step-title {
+            margin-top: 16px;
+            margin-bottom: 0;
+            color: #606975;
+            font-size: 14px;
+            font-weight: 500
+        }
+
+        .steps .step:first-child .step-icon-wrap::before {
+            display: none
+        }
+
+        .steps .step:last-child .step-icon-wrap::after {
+            display: none
+        }
+
+        .steps .step.completed .step-icon-wrap::before,
+        .steps .step.completed .step-icon-wrap::after {
+            background-color: #0da9ef
+        }
+
+        .steps .step.completed .step-icon {
+            border-color: #0da9ef;
+            background-color: #0da9ef;
+            color: #fff
+        }
+
+        @media (max-width: 576px) {
+            .flex-sm-nowrap .step .step-icon-wrap::before,
+            .flex-sm-nowrap .step .step-icon-wrap::after {
+                display: none
+            }
+        }
+
+        @media (max-width: 768px) {
+            .flex-md-nowrap .step .step-icon-wrap::before,
+            .flex-md-nowrap .step .step-icon-wrap::after {
+                display: none
+            }
+        }
+
+        @media (max-width: 991px) {
+            .flex-lg-nowrap .step .step-icon-wrap::before,
+            .flex-lg-nowrap .step .step-icon-wrap::after {
+                display: none
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .flex-xl-nowrap .step .step-icon-wrap::before,
+            .flex-xl-nowrap .step .step-icon-wrap::after {
+                display: none
+            }
+        }
+
+        .bg-faded, .bg-secondary {
+            background-color: #f5f5f5 !important;
+        }
+
+        .icon-large {
+            font-size: 1.5rem; /* Tăng kích thước biểu tượng */
+            margin-right: 7px; /* Khoảng cách giữa các biểu tượng */
+            margin-left: 7px;
+            text-align: center;
+        }
+
+
+        .card {
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        }
+        .text-reset {
+            --bs-text-opacity: 1;
+            color: inherit!important;
+        }
+        a {
+            text-decoration: none;
+        }
+        th, td {
+            text-align: center; /* Căn giữa theo mặc định */
+        }
+
+        tfoot tr td {
+            text-align: right; /* Mặc định căn phải trong footer */
+            font-weight: bold;
+        }
+
+        /* Căn trái cho các ô có class "text-start" */
+        tfoot tr td.text-start {
+            text-align: left; /* Căn trái */
+        }
+        .divider-row td {
+            border-top: 1px solid #ddd; /* Tùy chỉnh độ dày và màu sắc của đường kẻ */
+        }
+
+    </style>
 </head>
 <body>
 <main layout:fragment="main">
@@ -16,57 +165,171 @@
         <p th:if="${error}" style="color: red;">[[${error}]]</p>
     </div>
 
-    <div th:if="${invoice}" style="display: flex; justify-content: center; align-items: center;">
-        <div class="col-md-9 ">
-            <h3 th:text="'Thông tin đơn hàng: '+${invoice.invoiceTrackingNumber}" class="mb-3"></h3>
-            <div class="row mb-3">
-                <div class="col-8">
-                    <strong >Sản phẩm</strong>
-                    <ul style="list-style: none;">
-                        <li th:each="detail : ${listInvoiceDetail}">
-                            <!-- Hiển thị tên sản phẩm và số lượng -->
-                            <span th:text="${detail.productDetail.product.name}+' màu '+${detail.productDetail.color.name}+' size '+${detail.productDetail.size.name}"></span>
-                            x
-                            <span th:text="${detail.quantity}"></span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-4 text-end">
-                    <strong >Tổng</strong>
-                    <ul style="list-style: none;">
-                        <li th:each="detail : ${listInvoiceDetail}">
-                            <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.finalPrice)}">Tổng tiền</span>
-                        </li>
-                    </ul>
-                </div>
+    <div th:if="${invoice}">
+        <div class="card">
+            <div class="card-header">
+                <h4 th:text="'Thông tin đơn hàng: '+${invoice.invoiceTrackingNumber}" class="mb-3 text-center"></h4>
             </div>
+            <div class="">
+                <div class="card-body" th:if="${invoice.status == 0}">
+                    <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            </div>
+                            <h4 class="step-title">Tạo đơn hàng</h4>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-check"></i></div>
+                            </div>
+                            <h4 class="step-title">Hoàn thành</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" th:if="${invoice.status == 1}">
+                    <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            </div>
+                            <h4 class="step-title">Tạo đơn hàng</h4>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-junk"></i></div>
+                            </div>
+                            <h4 class="step-title">Huỷ hoá đơn</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" th:if="${invoice.status == 2}">
+                    <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            </div>
+                            <h4 class="step-title">Tạo đơn hàng</h4>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-check"></i></div>
+                            </div>
+                            <h4 class="step-title">Hoàn thành</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" th:if="${invoice.status >= 3}">
+                    <div class="steps d-flex flex-wrap flex-sm-nowrap justify-content-between padding-top-2x padding-bottom-1x">
+                        <div class="step completed">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-cart"></i></div>
+                            </div>
+                            <h4 class="step-title">Chờ xác nhận</h4>
+                        </div>
+                        <div class="step" th:classappend="${invoice.status >= 4 ? 'completed' : ''}">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-like2"></i></div>
+                            </div>
+                            <h4 class="step-title">Xác nhận đơn hàng</h4>
+                        </div>
+                        <div class="step" th:classappend="${invoice.status >= 5 ? 'completed' : ''}">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-box1"></i></div>
+                            </div>
+                            <h4 class="step-title">Chờ lấy hàng</h4>
+                        </div>
+                        <div class="step" th:classappend="${invoice.status >= 6 ? 'completed' : ''}">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-car"></i></div>
+                            </div>
+                            <h4 class="step-title">Chờ vận chuyển</h4>
+                        </div>
+                        <div class="step" th:classappend="${invoice.status >= 7 ? 'completed' : ''}">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-bicycle"></i></div>
+                            </div>
+                            <h4 class="step-title">Giao hàng</h4>
+                        </div>
+                        <div class="step" th:classappend="${invoice.status >= 8 ? 'completed' : ''}">
+                            <div class="step-icon-wrap">
+                                <div class="step-icon"><i class="pe-7s-check"></i></div>
+                            </div>
+                            <h4 class="step-title">Hoàn thành</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="detail, stt : ${listInvoiceDetail}">
+                            <td th:text="${stt.index + 1}"></td>
+                            <td>
+                                <div class="flex-shrink-0">
+                                    <img th:src="${detail.productDetail.product.images.size() > 0 ? detail.productDetail.product.images[0].imageUrl : '/default-image.jpg'}"
+                                         alt="Ảnh sản phẩm" width="35" class="img-fluid"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex-lg-grow-1 ms-3">
+                                    <h6 class="small mb-0"><a href="#" class="text-reset">[[${detail.productDetail.product.name}]]</a></h6>
+                                    <span class="small">Màu sắc: [[${detail.productDetail.color.name}]],</span>
+                                    <span class="small">Kích cỡ: [[${detail.productDetail.size.name}]]</span>
+                                </div>
+                            </td>
+                            <td>[[${detail.quantity}]]</td>
+                            <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.unitPrice)}]]</td>
+                            <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(detail.finalPrice)}]]</td>
+                        </tr>
+                        </tbody>
+                        <!-- Divider row -->
+                        <tr class="divider-row" >
+                            <td colspan="6"></td>
+                        </tr>
+                        <tfoot>
+                        <tr>
+                            <td colspan="1" class="text-start">Họ tên khách hàng: </td>
+                            <td colspan="2" class="text-start">[[${invoice.customer != null and invoice.customer.fullname!=null?invoice.customer.fullname:'N/A'}]]</td>
+                            <td colspan="2" class="text-end">Tổng tiền:  </td>
+                            <td class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</td>
 
-            <div class="row mb-3" th:if="${invoice.invoiceStatus == 1}">
-                <div class="col-8"><strong>Phí giao hàng:</strong></div>
-                <div class="col-4 text-end">30,000đ</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-8"><strong>Giảm giá:</strong></div>
-                <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(totalDiscount)}" ></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-8"><strong>Phương thức thanh toán:</strong></div>
-                <div class="col-4 text-end">
-                    <span th:text="${invoice.paymentMethod.name}"></span>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-start">Số điện thoại:</td>
+                            <td colspan="2" class="text-start"> [[${invoice.phone}!=null?${invoice.phone}:'N/A']]</td>
+                            <td th:if="${invoice.invoiceStatus == 1}" colspan="2" class="text-end">Phí ship:</td>
+                            <td th:if="${invoice.invoiceStatus == 1}" class="text-end">30.000VND</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-start">Địa chỉ: </td>
+                            <td colspan="2" class="text-start">[[${invoice.invoiceStatus==1?invoice.shippingAddress+' '+ addressC:'N/A'}]]</td>
+                            <td colspan="2" class="text-end">Giảm giá: </td>
+                            <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-start">Hình thức mua hàng:</td>
+                            <td colspan="2" class="text-start text-danger"> [[${invoice.invoiceStatus==0?'Tại quầy':'Online'}]]</td>
+                            <td colspan="2" class="text-end">Thực thu: </td>
+                            <td class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}]]</td>
+                        </tr>
+
+                        </tfoot>
+                    </table>
+
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-8"><strong>Tổng cộng:</strong></div>
-                <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice)}"></div>
-            </div>
-
-            <h5>Địa chỉ thanh toán</h5>
-            <p>
-                <span th:text="'Họ tên: '+${invoice.customer != null and invoice.customer.fullname!=null?invoice.customer.fullname:'N/A'}"></span><br/>
-                <span th:text="'Địa chỉ: '+${invoice.shippingAddress}+' '+ ${addressC}"></span><br/>
-                <span th:text="'Số điện thoại: '+${invoice.phone}"></span>
-            </p>
         </div>
+
     </div>
 </div>
 </main>

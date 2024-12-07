@@ -1169,7 +1169,7 @@
             // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
             const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
-            const discountAmount = ((totalPrice * discountPer) / 100) > maxValue ? maxValue : ((totalPrice * discountPer) / 100);
+            const discountAmount = ((totalPrice * discountPer) / 100) > maxValue ? parseInt(maxValue) : parseInt(((totalPrice * discountPer) / 100));
             const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
             const finalPrice = totalPrice - discountALL - discountAmount ;
             console.log(finalPrice)

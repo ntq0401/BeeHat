@@ -4,6 +4,7 @@ import com.beehat.entity.Customer;
 import com.beehat.entity.Product;
 import com.beehat.repository.CustomerRepo;
 import com.beehat.repository.ProductRepo;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -65,7 +66,7 @@ public class CustomerRegisterController {
         return "customer/register"; // Trả về tên template đăng nhập
     }
     @PostMapping("/register")
-    public String registerCustomer(@ModelAttribute("customer") Customer customer,
+    public String registerCustomer( @Valid @ModelAttribute("customer") Customer customer,
                                    BindingResult result,
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
@@ -97,7 +98,7 @@ public class CustomerRegisterController {
         return "/customer/forgot-password";
     }
     @PostMapping("/forgot-password")
-    public String handleForgotPassword(@RequestParam String email, Model model) {
+    public String handleForgotPassword( @Valid @RequestParam String email, Model model) {
         Optional<Customer> customer = Optional.ofNullable(customerRepo.findByEmail(email));
         if (!customer.isPresent()) {
             model.addAttribute("error", "Email does not exist, please try again !.");
@@ -124,7 +125,7 @@ public class CustomerRegisterController {
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam String email, @RequestParam String newPassword,
+    public String resetPassword( @Valid @RequestParam String email, @RequestParam String newPassword,
                                 @RequestParam String confirmPassword, Model model, RedirectAttributes redirectAttributes) {
         System.out.println("email reset:"+email);
         if (!newPassword.equals(confirmPassword)) {
