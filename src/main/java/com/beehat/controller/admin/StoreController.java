@@ -13,13 +13,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -456,12 +459,13 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
         }
     }
-
+    @Transactional
     @PostMapping("/pay")
-    public String pay(@RequestParam(name = "idPayment") int id,
-                      @RequestParam(name = "totalPayment") int totalPayment,
-                      @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
-                      @RequestParam(name = "methodPayment") int paymentMethod) {
+    @ResponseBody
+    public ResponseEntity<?> pay(@RequestParam(name = "idPayment") int id,
+                                 @RequestParam(name = "totalPayment") int totalPayment,
+                                 @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
+                                 @RequestParam(name = "methodPayment") int paymentMethod) {
 
         // Tìm hóa đơn theo id
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
@@ -478,15 +482,15 @@ public class StoreController {
                 invoice.setVoucher(voucher);
                 Integer maxValue = voucher.getDiscountMax();
                 // Tính giá sau khi áp dụng voucher
-                Integer discountAmount = ((invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100) > maxValue ? maxValue : (invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100;
-                invoice.setFinalPrice(invoice.getTotalPrice() - discountAmount);
+                Integer discountAmount = ((totalPayment * voucher.getDiscountPercentage()) / 100) > maxValue ? maxValue : (invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100;
+                invoice.setFinalPrice(invoice.getFinalPrice() - discountAmount);
                 voucher.setQuantity(voucher.getQuantity() - 1);
                 voucherRepo.save(voucher);
             } else {
                 throw new RuntimeException("Invalid voucher ID");
             }
         } else {
-            invoice.setFinalPrice(invoice.getTotalPrice());
+            invoice.setFinalPrice(totalPayment);
         }
 
         // Tìm phương thức thanh toán
@@ -518,8 +522,11 @@ public class StoreController {
 
         // Lưu lịch sử thanh toán
         paymentHistoryRepo.save(paymentHistory);
-
-        return "redirect:/admin/store/index";
+// Trả về JSON bao gồm ID của hóa đơn
+        Map<String, Object> response = new HashMap<>();
+        response.put("invoiceId", invoice.getId());
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -539,7 +539,7 @@
                                         <tr class="bg-light">
                                             <th>Thực thu :</th>
                                             <td class="text-end">
-                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold" data-raw-value=""
+                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold" th:data-raw-value="*{finalPrice}"
                                                   th:field="*{finalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(finalPrice)}">
                                             </span>
                                             </td>
@@ -616,7 +616,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="paymentModal" tabindex="-1" style="display:block;" aria-labelledby="paymentModalLabel" inert>
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -632,7 +632,7 @@
                             <input type="text" class="form-control" id="totalAmount" readonly>
                             <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
                         </div>
-                        <select id="voucherPayment" class="form-select" name="voucherPayment" hidden="hidden">
+                        <select id="voucherPayment" class="form-select" name="voucherPayment" >
                             <option value="">Chọn voucher</option>
                             <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
                                     th:text="${voucher.code} + ' - ' + ${voucher.name} + ' - ' + ${voucher.discountPercentage} + '%'"
@@ -795,8 +795,9 @@
         // Gửi dữ liệu thanh toán, là hàm xác nhận thanh toán
         function submitPayment(button) {
             const paymentMethod = document.getElementById("paymentMethod").value;
-            const totalAmount = document.getElementById("totalAmount").value;
-            const id = parseInt(button.getAttribute('data-invoice-submit-payment'));
+            // const totalAmount = document.getElementById("totalAmount").value;
+            // const voucherElement = document.getElementById("voucherPayment");
+            // const id = parseInt(button.getAttribute('data-invoice-submit-payment'));
             if (!paymentMethod) {
                 Swal.fire({
                     icon: 'error',
@@ -806,41 +807,48 @@
                 return; // Dừng lại không thực hiện tiếp
             }
 
-            // Thực hiện logic thanh toán ở đây, ví dụ: gửi yêu cầu thanh toán qua AJAX
             Swal.fire({
-                title: 'Bạn có chắc chắn muốn thanh toán hoá đơn này?',
+                title: 'Bạn có chắc chắn muốn thanh toán?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy',
-                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Nếu đồng ý, hiển thị thông báo Toast
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: "top-end",
-                        showConfirmButton: false,
-                        timer: 1500,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.onmouseenter = Swal.stopTimer;
-                            toast.onmouseleave = Swal.resumeTimer;
-                        }
-                    });
-                    Toast.fire({
-                        icon: "success",
-                        title: "Thanh toán thành công"
-                    });
-
-                    // Chờ toast hoàn thành rồi submit form
-                    setTimeout(() => {
-                        const form = button.closest("form");
-                        form.submit(); // Submit form mà không cần click lại button
-                        printInvoice(id);
-                    }, 1500);
+                    const form = button.closest("form");
+                    // Tạo đối tượng FormData từ form
+                    const formData = new FormData(form);
+                    fetch('/admin/store/pay', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(errorData => {
+                                    throw new Error(errorData.message || "Lỗi không xác định");
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thanh toán thành công',
+                                text: 'Hóa đơn đã được lưu!',
+                            }).then(() => {
+                                printInvoice(data.invoiceId); // Gọi hàm in sau khi server trả về ID hóa đơn mới.
+                            });
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Thanh toán thất bại',
+                                text: error.message,
+                            });
+                        });
                 }
             });
+
 
             // Đóng modal sau khi thanh toán thành công
             bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
@@ -1098,8 +1106,8 @@
         });
 
         function checkVoucher(){
-            const totalPriceElement = document.getElementById("totalPrice");
-            const totalPrice = totalPriceElement.getAttribute("data-totalprice");
+            const finalPrice = document.getElementById('finalPrice');
+            const finalPriceRaw = finalPrice.getAttribute("data-raw-value") || 0
             const select = document.getElementById("voucherSelect");
             const selectedOption = select.options[select.selectedIndex];
             const optionData = selectedOption.dataset;
@@ -1107,16 +1115,16 @@
             const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
             // Kiểm tra minValue có hợp lệ không
             const minValue = optionData.min ? parseInt(optionData.min) : 0;
-            if (discountAll > 0){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Thất bại',
-                    text: 'Chức năng đang phát triển !',
-                });
-                $('#voucherSelect').val(null).trigger('change');
-                return; // Dừng lại không thực hiện tiếp
-            }
-            if (totalPrice >= minValue) {
+            // if (discountAll > 0){
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Thất bại',
+            //         text: 'Chức năng đang phát triển !',
+            //     });
+            //     $('#voucherSelect').val(null).trigger('change');
+            //     return; // Dừng lại không thực hiện tiếp
+            // }
+            if (finalPriceRaw >= minValue) {
                 return true;
             } else {
                 return false;
@@ -1170,6 +1178,7 @@
             const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
             const discountAmount = ((totalPrice * discountPer) / 100) > maxValue ? parseInt(maxValue) : parseInt((totalPrice * discountPer) / 100);
+
             const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
             const finalPrice = totalPrice - discountALL - discountAmount ;
             console.log(finalPrice)

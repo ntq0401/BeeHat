@@ -33,8 +33,16 @@ public class PromotionService {
         System.out.println("Updating promotion statuses...");
         LocalDateTime today = LocalDateTime.now();
         List<Promotion> promotions = promotionRepo.findAll();
+        if (promotions.isEmpty()) {
+            System.out.println("No promotions found.");
+            return;
+        }
 
         for (Promotion promotion : promotions) {
+            if (promotion.getStartDate() == null || promotion.getEndDate() == null) {
+                System.out.println("Invalid promotion dates for promotion ID: " + promotion.getId());
+                continue; // Skip this promotion
+            }
             if (promotion.getStartDate().isAfter(today)) {
                 promotion.setStatus((byte) 0); // Chưa bắt đầu
             } else if (promotion.getEndDate().isBefore(today)) {
@@ -43,47 +51,51 @@ public class PromotionService {
                 productRepo.clearPromotionByPromotionId(promotion.getId());
             } else {
                 promotion.setStatus((byte) 1); // Đang diễn ra
+                updateProductPromotion(promotion); // cập nhật promotionID trong bảng product
                 applyDiscountedPrice(promotion); // Áp dụng giá giảm khi chương trình bắt đầu
-                updateProductPromotion(promotion);
             }
         }
         promotionRepo.saveAll(promotions);
     }
-//    @Scheduled(cron = "0 * * * * ?") // Cài đặt để chạy hàm mỗi giờ
-//    public void resetALLInvoiceDetailPrice() {
-//        System.out.println("Cập nhật giá sau mỗi phút ....");
-//        for (Invoice invoice : invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 0)) {
-//            List<InvoiceDetail> allInvoiceDetails = invoiceDetailRepo.findByInvoiceId(invoice.getId());
-//
-//            for (InvoiceDetail invoiceDetail : allInvoiceDetails) {
-//                // Lấy giá sản phẩm từ DB và áp dụng lại nếu có khuyến mãi
-//                ProductDetail productDetail = invoiceDetail.getProductDetail();
-//                int currentPrice = productDetail.getPrice();
-//                Promotion promotion = productDetail.getProduct().getPromotion();
-//                invoiceDetail.setUnitPrice(currentPrice);
-//                if (promotion != null && promotion.getStatus() == 1) { // Áp dụng giá khuyến mãi nếu đang diễn ra
-//                    invoiceDetail.setDiscountAmount(calculateDiscountedPrice(productDetail, promotion));
-//                }
-//                invoiceDetail.setFinalPrice(currentPrice * invoiceDetail.getQuantity());
-//                invoiceDetailRepo.save(invoiceDetail);
-//            }
-//
-//            // Cập nhật tổng tiền của hóa đơn
-//            int totalPrice = allInvoiceDetails.stream()
-//                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
-//                    .sum();
-//            int finalInvoicePrice = allInvoiceDetails.stream()
-//                    .mapToInt(InvoiceDetail::getFinalPrice)
-//                    .sum();
-//            int discountMoney = totalPrice - finalInvoicePrice;
-//
-//            invoice.setVoucherDiscount(discountMoney);
-//            invoice.setTotalPrice(totalPrice);
-//            invoice.setFinalPrice(finalInvoicePrice);
-//            invoiceRepo.save(invoice);
-//
-//        }
-//    }
+    @Transactional
+    @Scheduled(cron = "0 * * * * ?") // Cài đặt để chạy hàm mỗi giờ
+    public void resetALLInvoiceDetailPrice() {
+        System.out.println("Cập nhật giá sau mỗi phút ....");
+        for (Invoice invoice : invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 0)) {
+            List<InvoiceDetail> allInvoiceDetails = invoiceDetailRepo.findByInvoiceId(invoice.getId());
+
+            for (InvoiceDetail invoiceDetail : allInvoiceDetails) {
+                // Lấy giá sản phẩm từ DB và áp dụng lại nếu có khuyến mãi
+                ProductDetail productDetail = invoiceDetail.getProductDetail();
+                Promotion promotion = productDetail.getProduct().getPromotion();
+                int discountedPrice = calculateDiscountedPrice(productDetail,promotion);
+                invoiceDetail.setUnitPrice(productDetail.getPrice());
+                if (promotion != null && promotion.getStatus() == 1) { // Áp dụng giá khuyến mãi nếu đang diễn ra
+                    invoiceDetail.setDiscountAmount(calculateDiscountedPrice(productDetail, promotion));
+                }else{
+                    invoiceDetail.setDiscountAmount(0);
+                    invoiceDetail.setDiscountPercentage((byte)0);
+                }
+                invoiceDetail.setFinalPrice(discountedPrice * invoiceDetail.getQuantity());
+                invoiceDetailRepo.save(invoiceDetail);
+            }
+
+            // Cập nhật tổng tiền của hóa đơn
+            int totalPrice = allInvoiceDetails.stream()
+                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                    .sum();
+            int finalInvoicePrice = allInvoiceDetails.stream()
+                    .mapToInt(InvoiceDetail::getFinalPrice)
+                    .sum();
+            int discountMoney = totalPrice - finalInvoicePrice;
+
+            invoice.setVoucherDiscount(discountMoney);
+            invoice.setTotalPrice(totalPrice);
+            invoice.setFinalPrice(finalInvoicePrice);
+            invoiceRepo.save(invoice);
+
+        }
+    }
     public List<Promotion> getAllPromotions() {
         return promotionRepo.findAll();
     }
@@ -96,7 +108,7 @@ public class PromotionService {
             for (ProductDetail productDetail : productDetails) {
                 List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByProductDetailId(productDetail.getId());
                 for (InvoiceDetail invoiceDetail : invoiceDetails) {
-                    Invoice invoice = invoiceRepo.findById(invoiceDetail.getInvoice().getId()).orElse(null);
+                    Invoice invoice = invoiceDetail.getInvoice();
                     // Chỉ cập nhật nếu hóa đơn đang chờ thanh toán
                     if (invoice != null && invoice.getStatus() == 0) {
                         resetInvoiceDetailPrice(invoiceDetail);
@@ -108,7 +120,7 @@ public class PromotionService {
 
     // Cập nhật lại giá gốc cho một hóa đơn chi tiết cụ thể
     private void resetInvoiceDetailPrice(InvoiceDetail invoiceDetail) {
-        Invoice invoice = invoiceRepo.findById(invoiceDetail.getInvoice().getId()).orElse(null);
+        Invoice invoice = invoiceDetail.getInvoice();
         if (invoice != null && invoice.getStatus() == (byte) 0) {
             invoiceDetail.setUnitPrice(invoiceDetail.getProductDetail().getPrice());
             invoiceDetail.setDiscountAmount(0);
@@ -186,10 +198,12 @@ public class PromotionService {
 
     // Tính giá sau khi giảm
     private int calculateDiscountedPrice(ProductDetail productDetail, Promotion promotion) {
-        if (promotion.getDiscountAmount() != null && promotion.getDiscountAmount() > 0) {
-            return productDetail.getPrice() - promotion.getDiscountAmount();
-        } else if (promotion.getDiscountPercentage() != null && promotion.getDiscountPercentage() > 0) {
-            return productDetail.getPrice() - (productDetail.getPrice() * promotion.getDiscountPercentage()) / 100;
+        if (promotion != null){
+            if (promotion.getDiscountAmount() != null && promotion.getDiscountAmount() > 0) {
+                return productDetail.getPrice() - promotion.getDiscountAmount();
+            } else if (promotion.getDiscountPercentage() != null && promotion.getDiscountPercentage() > 0) {
+                return productDetail.getPrice() - (productDetail.getPrice() * promotion.getDiscountPercentage()) / 100;
+            }
         }
         return productDetail.getPrice();
     }

@@ -206,9 +206,20 @@
 
                                     </div>
                                     <div class="product__price"
-                                         th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice}">
+                                         th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice && p.promotion == null}">
                                         [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]] -
                                         [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice)}]]
+                                    </div>
+                                    <div class="product__price"
+                                         th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice < p.highestPrice && p.promotion != null}">
+                                        <del>
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice)}]] -
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice)}]]
+                                        </del>
+                                        <div class="product__details__price" style="font-size:16px">
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.lowestPrice - p.promotion.discountAmount)}]] -
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(p.highestPrice - p.promotion.discountAmount)}]]
+                                        </div>
                                     </div>
                                     <div class="product__price"
                                          th:if="${p.productDetail != null and !p.productDetail.isEmpty() && p.lowestPrice == p.highestPrice}">

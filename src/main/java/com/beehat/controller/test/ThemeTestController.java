@@ -200,7 +200,26 @@ public class ThemeTestController {
                 }
             }
             model.addAttribute("cartDetail", cartService.getCartDetails());
-            model.addAttribute("totalPrice", cartService.getCartDetails().stream().mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice()).sum());
+            int totalPrice = cartDetails.stream().mapToInt(cart -> {
+                int price = cart.getProductDetail().getPrice();
+                if (cart.getProductDetail().getProduct().getPromotion() != null) {
+                    Promotion promotion = cart.getProductDetail().getProduct().getPromotion();
+
+                    if (promotion.getDiscountPercentage() != null && promotion.getDiscountPercentage() != 0) {
+                        // Giảm giá theo tỷ lệ phần trăm
+                        int discountAmount = (promotion.getDiscountPercentage() * price) / 100;
+                        price = price - discountAmount;
+                    } else if (promotion.getDiscountAmount() != null && promotion.getDiscountAmount() != 0) {
+                        // Giảm giá theo số tiền cố định
+                        price = price - promotion.getDiscountAmount();
+                    }
+
+                    // Đảm bảo giá không âm
+                    if (price < 0) price = 0;
+                }
+                return cart.getQuantity() * price;
+            }).sum();
+            model.addAttribute("totalPrice", totalPrice);
             return "test-theme/shop-cart";
         }
 
@@ -305,6 +324,12 @@ public class ThemeTestController {
                 response.put("id", productDetail.getId());
                 response.put("price", CurrencyUtil.formatCurrency(productDetail.getPrice()));
                 response.put("stock", productDetail.getStock()); // Thêm số lượng tồn kho
+                if(productDetail.getProduct().getPromotion() != null) {
+                        int sale = productDetail.getProduct().getPromotion().getDiscountAmount() != null && productDetail.getProduct().getPromotion().getDiscountAmount() > 0
+                                ? productDetail.getPrice() - productDetail.getProduct().getPromotion().getDiscountAmount()
+                                : productDetail.getPrice() - (productDetail.getPrice() * productDetail.getProduct().getPromotion().getDiscountPercentage()) / 100;
+                    response.put("sale", CurrencyUtil.formatCurrency(sale));
+                }
                 response.put("stockInCart", cartDetails.stream()
                         .filter(cartDetail -> cartDetail.getProductDetail().getId().equals(productDetail.getId()))
                         .mapToInt(CartDetail::getQuantity)

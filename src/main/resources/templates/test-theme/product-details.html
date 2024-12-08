@@ -56,13 +56,29 @@
                         <h3>[[${product.name}]] <span>SKU: [[${product.sku}]]</span></h3>
 
                         <div class="product__details__price" id="productPrice"
-                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice}">
+                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice && product.promotion == null}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
                         </div>
                         <div class="product__details__price" id="productPrice"
-                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice}">
+                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice && product.promotion == null}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
+                        </div>
+                        <div class="product__details__price" id="productPrice"
+                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice && product.promotion != null}">
+                            <del style="color: #939393">
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
+                            </del><br>
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]] -
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice - product.promotion.discountAmount)}]]
+                        </div>
+                        <div class="product__details__price" id="productPrice"
+                             th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice && product.promotion != null}">
+                            <del>
+                            [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
+                            </del>
+                            [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]]
                         </div>
                         <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
                             quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
@@ -295,7 +311,11 @@
                             // Kiểm tra nếu phản hồi có chứa giá trị id và price
                             if (response.id && response.price) {
                                 // Cập nhật giá, id và số lượng tồn kho trên giao diện
-                                $("#productPrice").text(response.price);
+                                if (response.sale != null){
+                                    $("#productPrice").text(response.sale);
+                                }else{
+                                    $("#productPrice").text(response.price);
+                                }
                                 $("#productId").val(response.id); // Cập nhật ID sản phẩm
                                 $("#productStock").text(response.stock); // Hiển thị số lượng tồn kho
                                 $("#quantityInput").attr("data-stock", response.stock);
