@@ -43,10 +43,27 @@ public class CartService {
         invoice.setInvoiceTrackingNumber(generateInvoiceTrackingNumber());
         invoice.setCustomer(customer);
         invoice.setInvoiceStatus((byte) 1);
-        invoice.setTotalPrice(carts.stream()
-                .mapToInt(cart -> cart.getQuantity() * cart.getProductDetail().getPrice())
-                .sum());
-        invoice.setFinalPrice(invoice.getTotalPrice());
+        invoice.setTotalPrice(carts.stream().mapToInt(cart -> cart.getProductDetail().getPrice() * cart.getQuantity()).sum());
+        invoice.setFinalPrice(carts.stream().mapToInt(cart -> {
+            int price = cart.getProductDetail().getPrice();
+            if (cart.getProductDetail().getProduct().getPromotion() != null) {
+                Promotion promotion = cart.getProductDetail().getProduct().getPromotion();
+
+                if (promotion.getDiscountPercentage() != null && promotion.getDiscountPercentage() != 0) {
+                    // Giảm giá theo tỷ lệ phần trăm
+                    int discountAmount = (promotion.getDiscountPercentage() * price) / 100;
+                    price = price - discountAmount;
+                } else if (promotion.getDiscountAmount() != null && promotion.getDiscountAmount() != 0) {
+                    // Giảm giá theo số tiền cố định
+                    price = price - promotion.getDiscountAmount();
+                }
+
+                // Đảm bảo giá không âm
+                if (price < 0) price = 0;
+            }
+            return cart.getQuantity() * price;
+        }).sum());
+        invoice.setVoucherDiscount(invoice.getFinalPrice() - invoice.getTotalPrice());
         this.temporaryInvoice = invoice;
     }
 

@@ -62,8 +62,21 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="cart__price">
+                                <td class="cart__price" th:if="${cart.productDetail.product.promotion == null}">
                                     [[${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price)}]]
+                                </td>
+                                <td class="cart__price" th:if="${cart.productDetail.product.promotion != null}">
+                                    <span style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
+                                        [[${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price)}]]</span>
+                                    <!-- Kiểm tra nếu có discountPercentage -->
+                                    <span th:if="${cart.productDetail.product.promotion.discountPercentage != null && cart.productDetail.product.promotion.discountPercentage > 0}">
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price - (cart.productDetail.price * cart.productDetail.product.promotion.discountPercentage / 100))}"></span>
+                                                                </span>
+
+                                    <!-- Kiểm tra nếu có discountAmount -->
+                                    <span th:if="${cart.productDetail.product.promotion.discountAmount != null && cart.productDetail.product.promotion.discountAmount > 0}">
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price - cart.productDetail.product.promotion.discountAmount)}"></span>
+                                                                </span>
                                 </td>
                                 <td class="cart__quantity">
                                     <form th:action="@{/update-cart}" method="post">
@@ -80,8 +93,16 @@
                                         </div>
                                     </form>
                                 </td>
-                                <td class="cart__total"
+                                <td class="cart__total" th:if="${cart.productDetail.product.promotion == null}"
                                     th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(cart.productDetail.price * cart.quantity)}">
+                                </td>
+                                <td class="cart__total" th:if="${cart.productDetail.product.promotion != null}">
+                                    <span th:if="${cart.productDetail.product.promotion.discountPercentage != null && cart.productDetail.product.promotion.discountPercentage > 0}"
+                                        th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency((cart.productDetail.price - (cart.productDetail.price * cart.productDetail.product.promotion.discountPercentage / 100)) * cart.quantity)}">
+                                    </span>
+                                    <span th:if="${cart.productDetail.product.promotion.discountAmount != null && cart.productDetail.product.promotion.discountAmount > 0}"
+                                        th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency((cart.productDetail.price - cart.productDetail.product.promotion.discountAmount) * cart.quantity)}">
+                                    </span>
 
                                 </td>
                                 <td class="cart__close"><a
