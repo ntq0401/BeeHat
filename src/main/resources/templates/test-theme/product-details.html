@@ -300,7 +300,7 @@
                 // Nếu cả màu sắc và kích cỡ đều được chọn, gửi yêu cầu AJAX
                 if (selectedColor && selectedSize) {
                     $.ajax({
-                        url: 'http://localhost:8000/getProductPrice',
+                        url: '/getProductPrice',
                         method: 'GET',
                         data: {
                             product: productId,

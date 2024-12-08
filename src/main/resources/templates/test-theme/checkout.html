@@ -241,9 +241,9 @@
                             <div class="checkout__order__total">
                                 <ul>
                                     <li>Tổng tiền  <span id="totalPrice" th:data-total-price="${invoice.totalPrice}">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</span></li>
+                                    <li>Phí vận chuyển <span>30.000đ</span></li>
                                     <li>Chương trình giảm giá<span id="discountedPromotion">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</span></li>
                                     <li>Giảm giá voucher<span id="discountedPrice">0đ</span></li>
-                                    <li>Phí vận chuyển <span>30.000đ</span></li>
                                     <li>Thực thu <span id="finalPrice" th:data-final-price="${invoice.finalPrice}">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice+30000)}]]</span></li>
                                 </ul>
                             </div>
@@ -297,7 +297,7 @@
         // Tính toán giá sau khi giảm
         const discountAmount = (finalPrice * discountPercent) / 100 > discountMax ? discountMax : (totalPrice * discountPercent) / 100 > discountMax || 0;
         console.log(discountAmount)
-        discountedPriceElement.textContent = discountAmount.toLocaleString() +"đ";
+        discountedPriceElement.textContent = "-"+ discountAmount.toLocaleString() +"đ";
         const discountedPrice = (finalPrice - discountAmount) + 30000;
         console.log(discountedPrice)
         // Cập nhật giá trị trên giao diện
