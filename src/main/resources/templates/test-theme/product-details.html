@@ -70,15 +70,26 @@
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
                             </del><br>
+                            <div class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - (product.lowestPrice * product.promotion.discountPercentage / 100))}]] -
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice - (product.highestPrice * product.promotion.discountPercentage / 100))}]]
+                            </div>
+                            <div class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]] -
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice - product.promotion.discountAmount)}]]
+                            </div>
                         </div>
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice && product.promotion != null}">
-                            <del>
+                            <del style="color: #939393">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
                             </del>
-                            [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]]
+                            <div class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - (product.lowestPrice * product.promotion.discountPercentage / 100))}]]
+                            </div>
+                            <div class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
+                                [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]]
+                            </div>
                         </div>
                         <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
                             quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.

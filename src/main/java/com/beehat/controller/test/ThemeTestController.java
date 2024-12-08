@@ -474,7 +474,7 @@ public class ThemeTestController {
         else {
             try {
                 // Tạo URL thanh toán VNPay
-                String paymentUrl = vnPayService.createPaymentUrl(temporaryInvoice,request);
+                String paymentUrl = vnPayService.createPaymentUrl(saveInvoiceVnPay(temporaryInvoice,cartDetails),request);
                 return "redirect:" + paymentUrl; // Chuyển hướng đến VNPay
             } catch (Exception e) {
                 e.printStackTrace();
@@ -512,7 +512,7 @@ public class ThemeTestController {
 
                 System.out.println("Invoice updated to status 2");
                 List<CartDetail> cartDetails;
-                if(principal.getName() != null){
+                if(principal != null){
                     Customer customer = customerRepo.findByUsername(principal.getName());
                     cartDetails = cartDetailRepo.findByCustomerId(customer.getId());;
                 }else{
@@ -625,6 +625,42 @@ public class ThemeTestController {
         paymentHistory.setPaymentMethod(savedInvoice.getPaymentMethod());
         paymentHistoryRepo.save(paymentHistory);
         return savedInvoice;
+    }
+    public Invoice saveInvoiceVnPay(Invoice invoice, List<CartDetail> cartDetails){
+        // Tính tổng giá hóa đơn sau khi áp dụng chương trình giảm giá
+        int totalPriceAfterPromotion = 0;
+        for (CartDetail cartDetail : cartDetails) {
+            ProductDetail productDetail = cartDetail.getProductDetail();
+            Product product = productDetail.getProduct();
+
+            // Tính giá sau giảm giá từ chương trình khuyến mãi
+            int discountedPrice = getDiscountedPrice(productDetail, product);
+            totalPriceAfterPromotion += discountedPrice * cartDetail.getQuantity();
+        }
+        int totalPrice = cartDetails.stream()
+                .mapToInt(carts -> carts.getProductDetail().getPrice() * carts.getQuantity())
+                .sum();
+        invoice.setTotalPrice(totalPrice);
+
+        // Áp dụng voucher nếu có
+        if (invoice.getVoucher() != null) {
+            Voucher voucher = invoice.getVoucher();
+
+            // Tính giảm giá từ voucher
+            int voucherDiscount = (totalPriceAfterPromotion * voucher.getDiscountPercentage()) / 100;
+            if (voucherDiscount > voucher.getDiscountMax()) {
+                voucherDiscount = voucher.getDiscountMax();
+            }
+
+            // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
+            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
+        } else {
+            // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
+            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setFinalPrice(totalPriceAfterPromotion + 30000);
+        }
+        return invoice;
     }
 
     @GetMapping("/confirmation")
