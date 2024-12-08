@@ -44,7 +44,7 @@
                 <div class="sidebar">
                     <div class="text-center mb-4">
                         <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle" height="100" width="100"/>
-                        <h6 class="mt-2">ntq0401 #1085</h6>
+                        <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
                     </div>
                     <a href="/account">
                         <i class="fas fa-home"></i>
@@ -95,7 +95,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-8"><strong>Giảm giá:</strong></div>
-                        <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(totalDiscount)}" ></div>
+                        <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}" ></div>
+                    </div>
+                    <div class="row mb-3" th:if="${invoice.voucher != null}">
+                        <div class="col-8"><strong>Giảm giá voucher:</strong></div>
+                        <span class="col-4 text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(((invoice.totalPrice * invoice.voucher.discountPercentage) / 100) > invoice.voucher.discountMax ? invoice.voucher.discountMax : (invoice.totalPrice * invoice.voucher.discountPercentage) / 100 )}]]</span>
                     </div>
                     <div class="row mb-3">
                         <div class="col-8"><strong>Phương thức thanh toán:</strong></div>

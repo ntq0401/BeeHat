@@ -644,15 +644,6 @@ public class ThemeTestController {
         model.addAttribute("customer",customer);
         model.addAttribute("invoice",invoice);
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
-//<<<<<<< HEAD
-//        if (invoice.getVoucher() != null) {
-//            int totalDiscount = listInvoiceDetail.stream()
-//                    .mapToInt(detail -> detail.getDiscountAmount()!=null?detail.getDiscountAmount():0) // Lấy giá trị discountAmount của từng sản phẩm
-//                    .sum(); // Tính tổng các giảm giá từ sản phẩm
-//            totalDiscount += invoice.getVoucherDiscount();
-//            model.addAttribute("totalDiscount", totalDiscount);
-//        }
-//=======
         Integer totalPrice = invoice.getInvoiceDetails().stream()
                 .mapToInt(InvoiceDetail::getFinalPrice)
                 .sum();
@@ -677,11 +668,6 @@ public class ThemeTestController {
             model.addAttribute("addressC",addressC);
             List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(invoice.getId());
             model.addAttribute("listInvoiceDetail",listInvoiceDetail);
-            Integer totalPrice = invoice.getInvoiceDetails().stream()
-                    .mapToInt(InvoiceDetail::getFinalPrice)
-                    .sum();
-            Integer totalDiscount = totalPrice - invoice.getFinalPrice();
-            model.addAttribute("totalDiscount", totalDiscount);
             model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         }
 

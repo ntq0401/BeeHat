@@ -134,6 +134,9 @@ public class EmployeeController {
             if (existingEmployee.getUsername().equals(currentUsername) && !existingEmployee.getRole().equals(employee.getRole())) {
                 bindingResult.rejectValue("role", "error.employee", "Bạn không thể tự thay đổi vai trò của chính mình.");
             }
+            if (employee.getRole()==1) { // Điều chỉnh logic phù hợp với cấu trúc Role của bạn
+                bindingResult.rejectValue("role", "error.employee", "Không thể cập nhật vai trò Admin");
+            }
         }
 
         // Kiểm tra có lỗi không
@@ -158,7 +161,9 @@ public class EmployeeController {
         if (employeeRepository.existsByPhone(employee.getPhone())) {
             bindingResult.rejectValue("phone", "error.employee", "Số điện thoại đã tồn tại");
         }
-
+        if (employee.getRole()==1) { // Điều chỉnh logic phù hợp với cấu trúc Role của bạn
+            bindingResult.rejectValue("role", "error.employee", "Không thể thêm mới tài khoản Admin");
+        }
         // Kiểm tra nếu có lỗi, trả về trang với modal mở kèm thông báo lỗi
         if (bindingResult.hasErrors()) {
             modelAndView.addObject("employee", employee);
