@@ -66,13 +66,13 @@ public class CustomerRegisterController {
         return "customer/register"; // Trả về tên template đăng nhập
     }
     @PostMapping("/register")
-    public String registerCustomer( @Valid @ModelAttribute("customer") Customer customer,
+    public String registerCustomer(@ModelAttribute("customer") Customer customer,
                                    BindingResult result,
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
         boolean usernameExists = customerRepo.existsByUsername(customer.getUsername());
         boolean emailExists = customerRepo.existsByEmail(customer.getEmail());
-
+        Customer customer1 = customer;
         if (usernameExists) {
             result.rejectValue("username", "error.customer", "Username already exists !");
         }
