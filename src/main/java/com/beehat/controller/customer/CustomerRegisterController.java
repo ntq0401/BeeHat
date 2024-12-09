@@ -119,6 +119,7 @@ public class CustomerRegisterController {
             model.addAttribute("email", email);
             return "/customer/reset-password";  // Nếu mã đúng, chuyển đến trang đặt lại mật khẩu
         } else {
+            model.addAttribute("email", email);
             model.addAttribute("error", "Invalid verification code.");
             return "/customer/verify-code";  // Nếu mã sai, giữ nguyên trang mã xác nhận với thông báo lỗi
         }
