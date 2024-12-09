@@ -100,9 +100,8 @@
         <h2 class="text-center">CREATE NEW ACCOUNT</h2>
         <form class="text-left clearfix" th:action="@{/customer/register}" th:object="${customer}" method="post">
             <div class="form-group">
-                <input type="text" class="form-control" name="fullName" placeholder="Fullname" required>
+                <input type="text" class="form-control" name="fullname" placeholder="Fullname" required>
             </div>
-
             <div class="form-group">
                 <input type="text" maxlength="100" class="form-control" name="username" placeholder="Username" required>
                 <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>

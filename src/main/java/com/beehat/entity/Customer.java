@@ -18,24 +18,15 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotBlank(message = "Username không được để trống")
-    @Size(max = 100, message = "Username phải có độ dài dưới 100 ký tự")
     private String username;
 
-    @NotBlank(message = "Password không được để trống")
-    @Size(max = 100, message = "Password phải có độ dài dưới 100 ký tự")
     private String password;
 
-    @NotNull(message = "Fullname không được để trống")
-    @Size(max = 100, message = "Fullname không được vượt quá 100 ký tự")
     private String fullname;
 
-    @Email(message = "Email không hợp lệ")
-    @NotBlank(message = "Email không được để trống")
-    @Size(max = 100, message = "Fullname không được vượt quá 100 ký tự")
+
     private String email;
 
-    @Size(max = 255, message = "Address không được vượt quá 255 ký tự")
     private String address;
 
     private String city;
@@ -44,10 +35,8 @@ public class Customer {
 
     private String ward;
 
-    @Size(max = 100, message = "Country không được vượt quá 100 ký tự")
     private String country;
 
-    @Size(max = 500, message = "Photo URL không được vượt quá 500 ký tự")
     private String photo;
 
     private String phone;

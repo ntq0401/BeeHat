@@ -66,13 +66,13 @@ public class CustomerRegisterController {
         return "customer/register"; // Trả về tên template đăng nhập
     }
     @PostMapping("/register")
-    public String registerCustomer( @Valid @ModelAttribute("customer") Customer customer,
+    public String registerCustomer(@ModelAttribute("customer") Customer customer,
                                    BindingResult result,
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
         boolean usernameExists = customerRepo.existsByUsername(customer.getUsername());
         boolean emailExists = customerRepo.existsByEmail(customer.getEmail());
-
+        Customer customer1 = customer;
         if (usernameExists) {
             result.rejectValue("username", "error.customer", "Username already exists !");
         }
@@ -119,6 +119,7 @@ public class CustomerRegisterController {
             model.addAttribute("email", email);
             return "/customer/reset-password";  // Nếu mã đúng, chuyển đến trang đặt lại mật khẩu
         } else {
+            model.addAttribute("email", email);
             model.addAttribute("error", "Invalid verification code.");
             return "/customer/verify-code";  // Nếu mã sai, giữ nguyên trang mã xác nhận với thông báo lỗi
         }

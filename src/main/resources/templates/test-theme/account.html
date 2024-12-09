@@ -150,6 +150,8 @@
             <div class="col-md-9">
             <form th:action="@{/account/update}" th:object="${customer}" method="post">
                 <input type="hidden" name="id" th:value="${customer.id}" />
+                <input type="text" name="username" th:value="${customer.username}" hidden>
+                <input type="text" name="password" th:value="${customer.password}" hidden>
                 <div id="customerData"
                      th:data-id="${customer.id}"
                      th:data-city="${customer.city}"

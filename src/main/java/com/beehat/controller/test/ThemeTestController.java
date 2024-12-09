@@ -708,8 +708,10 @@ public class ThemeTestController {
         Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
         if (existingCustomer != null) {
             // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
-            if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
-                bindingResult.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
+            if(existingCustomer.getPhone()!=null) {
+                if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
+                    bindingResult.rejectValue("phone", "error.customer", "Số điện thoại đã tồn tại");
+                }
             }
             // Kiểm tra email đã tồn tại, nhưng bỏ qua nếu không thay đổi
             if (!existingCustomer.getEmail().equals(customer.getEmail()) && customerRepo.existsByEmail(customer.getEmail())) {
@@ -724,9 +726,8 @@ public class ThemeTestController {
         // Sao chép các trường không có trong form\
         customer.setCountry("Việt Nam");
         customer.setStatus(existingCustomer.getStatus());
-        customer.setPassword(existingCustomer.getPassword());
-        customer.setUsername(existingCustomer.getUsername());
         customer.setUpdatedDate(LocalDateTime.now());
+        customer.setCreatedDate(existingCustomer.getCreatedDate());
         customer.setPhoto(existingCustomer.getPhoto());
         customerRepo.save(customer);
         return "redirect:/account";
