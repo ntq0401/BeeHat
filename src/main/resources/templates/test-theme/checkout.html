@@ -242,7 +242,7 @@
                                 <ul>
                                     <li>Tổng tiền  <span id="totalPrice" th:data-total-price="${invoice.totalPrice}">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.totalPrice)}]]</span></li>
                                     <li>Phí vận chuyển <span>30.000đ</span></li>
-                                    <li>Chương trình giảm giá<span id="discountedPromotion">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</span></li>
+                                    <li>Chương trình giảm giá<span id="discountedPromotion">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.promotionDiscount)}]]</span></li>
                                     <li>Giảm giá voucher<span id="discountedPrice">0đ</span></li>
                                     <li>Thực thu <span id="finalPrice" th:data-final-price="${invoice.finalPrice}">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.finalPrice+30000)}]]</span></li>
                                 </ul>

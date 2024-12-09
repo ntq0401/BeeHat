@@ -47,6 +47,9 @@ public class Invoice {
     @Column(name = "voucher_discount")
     private Integer voucherDiscount;
 
+    @Column(name = "promotion_discount")
+    private Integer promotionDiscount;
+
     @Column(name = "final_price")
     private Integer finalPrice;
 
@@ -124,6 +127,7 @@ public class Invoice {
                 ", totalPrice=" + totalPrice +
                 ", voucher=" + voucher +
                 ", voucherDiscount=" + voucherDiscount +
+                ", promotionDiscount=" + promotionDiscount +
                 ", finalPrice=" + finalPrice +
                 ", shippingAddress='" + shippingAddress + '\'' +
                 ", shippingCity='" + shippingCity + '\'' +

@@ -89,7 +89,7 @@ public class PromotionService {
                     .sum();
             int discountMoney = totalPrice - finalInvoicePrice;
 
-            invoice.setVoucherDiscount(discountMoney);
+            invoice.setPromotionDiscount(discountMoney);
             invoice.setTotalPrice(totalPrice);
             invoice.setFinalPrice(finalInvoicePrice);
             invoiceRepo.save(invoice);
@@ -139,7 +139,7 @@ public class PromotionService {
                     .sum();
             int discountMoney = totalPrice - finalInvoicePrice;
 
-            invoice.setVoucherDiscount(discountMoney);
+            invoice.setPromotionDiscount(discountMoney);
             invoice.setTotalPrice(totalPrice);
             invoice.setFinalPrice(finalInvoicePrice);
             invoiceRepo.save(invoice);
@@ -185,7 +185,7 @@ public class PromotionService {
                                 .sum();
                         int discountMoney = totalPrice - finalInvoicePrice;
 
-                        invoice.setVoucherDiscount(discountMoney);
+                        invoice.setPromotionDiscount(discountMoney);
                         invoice.setTotalPrice(totalPrice);
                         invoice.setFinalPrice(finalInvoicePrice);
                         invoiceRepo.save(invoice);

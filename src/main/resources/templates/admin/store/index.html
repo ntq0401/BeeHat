@@ -524,18 +524,15 @@
                                             <td>Giảm giá voucher :</td>
                                             <td id="discountAmount" class="text-end"></td>
                                         </tr>
-                                        <tr th:if="${infoInvoice != null and infoInvoice.voucherDiscount != null && infoInvoice.voucherDiscount > 0}" id="discount">
+                                        <tr th:if="${infoInvoice != null and infoInvoice.promotionDiscount != null && infoInvoice.promotionDiscount > 0}" id="discount">
                                             <td>Giảm giá sản phẩm :</td>
-                                            <td id="discountAll" class="text-end" th:data-discount-raw-value="*{voucherDiscount}" th:text="*{'-' + T(com.beehat.service.CurrencyUtil).formatCurrency(voucherDiscount)}"></td>
+                                            <td id="discountAll" class="text-end" th:data-discount-raw-value="*{promotionDiscount}" th:text="*{'-' + T(com.beehat.service.CurrencyUtil).formatCurrency(promotionDiscount)}"></td>
                                         </tr>
-                                        <tr th:unless="${infoInvoice != null and infoInvoice.voucherDiscount != null && infoInvoice.voucherDiscount > 0}" id="discount" hidden="hidden">
+                                        <tr th:unless="${infoInvoice != null and infoInvoice.promotionDiscount != null && infoInvoice.promotionDiscount > 0}" id="discount" hidden="hidden">
                                             <td>Giảm giá sản phẩm :</td>
                                             <td id="discountAll" class="text-end" data-discount-raw-value="0"></td>
                                         </tr>
-                                        <tr th:if="${infoInvoice != null and infoInvoice.deliverDate != null}">
-                                            <td>Phí ship :</td>
-                                            <td class="text-end">$ 25</td>
-                                        </tr>
+
                                         <tr class="bg-light">
                                             <th>Thực thu :</th>
                                             <td class="text-end">
@@ -630,7 +627,7 @@
                         <div class="mb-3" th:if="${infoInvoice != null && infoInvoice.totalPrice != null}">
                             <label for="totalAmount" class="form-label">Tổng tiền</label>
                             <input type="text" class="form-control" id="totalAmount" readonly>
-                            <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
+                            <input id="totalAmountRaw" name="totalPayment" type="" readonly>
                         </div>
                         <select id="voucherPayment" class="form-select" name="voucherPayment" >
                             <option value="">Chọn voucher</option>

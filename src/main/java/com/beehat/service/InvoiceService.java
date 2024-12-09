@@ -41,7 +41,7 @@ public class InvoiceService {
         document.setMargins(20, 20, 20, 20);
 
         // Load font
-        String fontPath = new ClassPathResource("arial.ttf").getFile().getAbsolutePath();
+        String fontPath = new ClassPathResource("NotoSans-Regular.ttf").getFile().getAbsolutePath();
         PdfFont font = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H);
         document.setFont(font);
 
@@ -120,10 +120,10 @@ public class InvoiceService {
         totalTable.addCell(new Cell().add(new Paragraph("Tổng cộng").setBold().setTextAlignment(TextAlignment.RIGHT)));
         totalTable.addCell(new Cell().add(new Paragraph(invoice.getTotalPrice()+"")).setBold());
         totalTable.addCell(new Cell().add(new Paragraph("Giảm giá").setBold().setTextAlignment(TextAlignment.RIGHT)));
-        totalTable.addCell(new Cell().add(new Paragraph(invoice.getVoucherDiscount()+"")));
+        totalTable.addCell(new Cell().add(new Paragraph(invoice.getPromotionDiscount()+"")));
         // Kiểm tra null cho voucher
         if (invoice.getVoucher() != null) {
-            int discountAmount = (invoice.getTotalPrice() * invoice.getVoucher().getDiscountPercentage()) / 100;
+            int discountAmount = ((invoice.getTotalPrice() - invoice.getPromotionDiscount()) * invoice.getVoucher().getDiscountPercentage()) / 100;
             discountAmount = discountAmount > invoice.getVoucher().getDiscountMax() ? invoice.getVoucher().getDiscountMax() : discountAmount;
             totalTable.addCell(new Cell().add(new Paragraph("Giảm giá voucher").setBold().setTextAlignment(TextAlignment.RIGHT)));
             totalTable.addCell(new Cell().add(new Paragraph(discountAmount + "")));

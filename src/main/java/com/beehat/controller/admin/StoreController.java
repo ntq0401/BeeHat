@@ -275,7 +275,7 @@ public class StoreController {
                 .mapToInt(invoiceDetail -> invoiceDetail.getProductDetail().getPrice() * invoiceDetail.getQuantity())
                 .sum();
         int discountMoney = totalInvoicePrice - listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-        invoice.setVoucherDiscount(discountMoney);
+        invoice.setPromotionDiscount(discountMoney);
         int finalInvoicePrice = totalInvoicePrice - discountMoney;
         invoice.setTotalPrice(totalInvoicePrice);
         invoice.setFinalPrice(finalInvoicePrice);  // Có thể thêm xử lý khác nếu cần
@@ -345,8 +345,13 @@ public class StoreController {
             }
             invoiceDetailRepo.deleteById(id);
             Invoice invoice = invoiceDetail.getInvoice();
+            // Cập nhật tổng tiền của hóa đơn
+            int totalPrice = invoice.getInvoiceDetails().stream()
+                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                    .sum();
             int totalInvoicePrice = invoice.getInvoiceDetails().stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-            invoice.setTotalPrice(totalInvoicePrice);
+            invoice.setPromotionDiscount(totalPrice - totalInvoicePrice);
+            invoice.setTotalPrice(totalPrice);
             invoice.setFinalPrice(totalInvoicePrice);
             invoiceRepo.save(invoice);
             return "redirect:/admin/store/invoice-detail/" + invoiceId;
@@ -406,7 +411,7 @@ public class StoreController {
                 .sum();
         int discountMoney = totalPrice - finalInvoicePrice;
 
-        invoice.setVoucherDiscount(discountMoney);
+        invoice.setPromotionDiscount(discountMoney);
         invoice.setTotalPrice(totalPrice);
         invoice.setFinalPrice(finalInvoicePrice);
         invoiceRepo.save(invoice);
@@ -480,10 +485,7 @@ public class StoreController {
             voucher = voucherRepo.findById(voucherPayment).orElse(null);
             if (voucher != null) {
                 invoice.setVoucher(voucher);
-                Integer maxValue = voucher.getDiscountMax();
-                // Tính giá sau khi áp dụng voucher
-                Integer discountAmount = ((totalPayment * voucher.getDiscountPercentage()) / 100) > maxValue ? maxValue : (invoice.getTotalPrice() * voucher.getDiscountPercentage()) / 100;
-                invoice.setFinalPrice(invoice.getFinalPrice() - discountAmount);
+                invoice.setFinalPrice(totalPayment);
                 voucher.setQuantity(voucher.getQuantity() - 1);
                 voucherRepo.save(voucher);
             } else {

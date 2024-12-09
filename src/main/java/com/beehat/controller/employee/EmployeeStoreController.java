@@ -264,7 +264,7 @@ public class EmployeeStoreController {
                 .mapToInt(invoiceDetail -> invoiceDetail.getProductDetail().getPrice() * invoiceDetail.getQuantity())
                 .sum();
         int discountMoney = totalInvoicePrice - listInvoiceDetail.stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-        invoice.setVoucherDiscount(discountMoney);
+        invoice.setPromotionDiscount(discountMoney);
         int finalInvoicePrice = totalInvoicePrice - discountMoney;
         invoice.setTotalPrice(totalInvoicePrice);
         invoice.setFinalPrice(finalInvoicePrice);  // Có thể thêm xử lý khác nếu cần
@@ -393,7 +393,7 @@ public class EmployeeStoreController {
                 .sum();
         int discountMoney = totalPrice - finalInvoicePrice;
 
-        invoice.setVoucherDiscount(discountMoney);
+        invoice.setPromotionDiscount(discountMoney);
         invoice.setTotalPrice(totalPrice);
         invoice.setFinalPrice(finalInvoicePrice);
         invoiceRepo.save(invoice);

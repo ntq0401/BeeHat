@@ -95,7 +95,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-8"><strong>Giảm giá:</strong></div>
-                        <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}" ></div>
+                        <div class="col-4 text-end" th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.promotionDiscount)}" ></div>
                     </div>
                     <div class="row mb-3" th:if="${invoice.voucher != null}">
                         <div class="col-8"><strong>Giảm giá voucher:</strong></div>

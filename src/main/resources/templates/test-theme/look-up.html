@@ -325,7 +325,7 @@
                             <td colspan="1" class="text-start">Địa chỉ: </td>
                             <td colspan="2" class="text-start">[[${invoice.invoiceStatus==1?invoice.shippingAddress+' '+ addressC:'N/A'}]]</td>
                             <td colspan="2" class="text-end">Giảm giá: </td>
-                            <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</td>
+                            <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.promotionDiscount)}]]</td>
                         </tr>
                         <tr>
                             <td colspan="1" class="text-start">Hình thức mua hàng:</td>

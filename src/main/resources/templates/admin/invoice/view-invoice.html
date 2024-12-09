@@ -450,11 +450,11 @@
                             </tr>
                             <tr>
                                 <td colspan="5" class="text-end">Giảm giá</td>
-                                <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</td>
+                                <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.promotionDiscount)}]]</td>
                             </tr>
                             <tr th:if="${invoice.voucher != null}">
                                 <td colspan="5" class="text-end">Giảm giá từ voucher</td>
-                                <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(((invoice.finalPrice * invoice.voucher.discountPercentage) / 100) > invoice.voucher.discountMax ? invoice.voucher.discountMax : (invoice.finalPrice * invoice.voucher.discountPercentage) / 100 )}]]</td>
+                                <td class="text-danger text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency((((invoice.totalPrice - invoice.promotionDiscount) * invoice.voucher.discountPercentage) / 100) > invoice.voucher.discountMax ? invoice.voucher.discountMax : ((invoice.totalPrice - invoice.promotionDiscount) * invoice.voucher.discountPercentage) / 100 )}]]</td>
                             </tr>
                             <tr class="fw-bold">
                                 <td colspan="5" class="text-end">Thực thu</td>

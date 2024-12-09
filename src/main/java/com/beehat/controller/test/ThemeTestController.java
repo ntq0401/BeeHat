@@ -577,11 +577,11 @@ public class ThemeTestController {
             }
 
             // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
-            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
         } else {
             // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
-            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setFinalPrice(totalPriceAfterPromotion + 30000);
         }
 
@@ -656,11 +656,11 @@ public class ThemeTestController {
             }
 
             // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
-            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
         } else {
             // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
-            invoice.setVoucherDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setFinalPrice(totalPriceAfterPromotion + 30000);
         }
         return invoice;
