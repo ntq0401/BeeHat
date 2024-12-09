@@ -837,6 +837,7 @@
                                 text: 'Hóa đơn đã được lưu!',
                             }).then(() => {
                                 printInvoice(data.invoiceId); // Gọi hàm in sau khi server trả về ID hóa đơn mới.
+                                window.location.href = '/admin/store/index';
                             });
                         })
                         .catch(error => {
@@ -1154,9 +1155,9 @@
             if (!selectedOption || !selectedOption.value) {
                 const finalPriceElement = document.getElementById('finalPrice');
                 const totalPriceElement = document.getElementById("totalPrice");
-                const totalPrice = totalPriceElement.getAttribute("data-totalprice");
+                const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice"));
                 const discountAllRaw = document.getElementById("discountAll");
-                const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
+                const discountAll = parseInt(discountAllRaw.getAttribute("data-discount-raw-value"));
                 const finalPrice = totalPrice - discountAll;
                 finalPriceElement.setAttribute("data-raw-value", finalPrice);
                 finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
@@ -1175,13 +1176,10 @@
             const finalPriceElement = document.getElementById("finalPrice");
             const discountAllRaw = document.getElementById("discountAll");
             // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
-            const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
+            const finalPrice = parseInt(finalPriceElement.getAttribute("data-raw-value")) || 0;
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
-            const discountAmount = ((totalPrice * discountPer) / 100) > maxValue ? parseInt(maxValue) : parseInt((totalPrice * discountPer) / 100);
-
-            const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
-            const finalPrice = totalPrice - discountALL - discountAmount ;
-            console.log(finalPrice)
+            const discountAmount = ((finalPrice * discountPer) / 100) > maxValue ? parseInt(maxValue) : parseInt((finalPrice * discountPer) / 100);
+            const lastPrice = finalPrice - discountAmount ;
             // Hiển thị dòng giảm giá và cập nhật giá trị
             discountRow.style.display = "table-row";
 
@@ -1190,12 +1188,12 @@
                 currency: "VND"
             });
 
-            finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
+            finalPriceElement.innerText = lastPrice.toLocaleString("vi-VN", {
                 style: "currency",
                 currency: "VND"
             });
             // Cập nhật data-raw-value bằng giá trị mới
-            finalPriceElement.setAttribute("data-raw-value", finalPrice);
+            finalPriceElement.setAttribute("data-raw-value", lastPrice);
             // Hiển thị phần preview nếu có lựa chọn
             previewContainer.style.display = "block";
 

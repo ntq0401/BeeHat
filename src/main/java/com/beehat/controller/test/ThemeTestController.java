@@ -514,10 +514,12 @@ public class ThemeTestController {
                 List<CartDetail> cartDetails;
                 if(principal != null){
                     Customer customer = customerRepo.findByUsername(principal.getName());
-                    cartDetails = cartDetailRepo.findByCustomerId(customer.getId());;
+                    cartDetails = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(),(byte) 1);;
                 }else{
                     cartDetails = cartService.getCartDetails();
                 }
+
+                Invoice invoice = saveInvoice(temporaryInvoice,cartDetails,txnRef);
                 // Lấy thông tin giỏ hàng
                 if (temporaryInvoice.getCustomer() != null) {
                     for (CartDetail cart : cartDetails) {
@@ -529,7 +531,8 @@ public class ThemeTestController {
                     cartService.clear();
                     System.out.println("Cart details not found in session");
                 }
-                Invoice invoice = saveInvoice(temporaryInvoice,cartDetails,txnRef);
+                cartService.clearTemporaryInvoice();
+
                 String trackingNumber = invoice.getInvoiceTrackingNumber();
                 String trackingLink = "http://localhost:8080/look-up?orderId=" + trackingNumber;
                 sendEmail(session.getAttribute("emailInv").toString(), "Thông tin đơn hàng của bạn", trackingNumber, trackingLink);

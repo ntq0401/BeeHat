@@ -295,7 +295,7 @@
 
 
         // Tính toán giá sau khi giảm
-        const discountAmount = (finalPrice * discountPercent) / 100 > discountMax ? discountMax : (totalPrice * discountPercent) / 100 > discountMax || 0;
+        const discountAmount = (finalPrice * discountPercent) / 100 > discountMax ? discountMax : (finalPrice * discountPercent) / 100 ;
         console.log(discountAmount)
         discountedPriceElement.textContent = "-"+ discountAmount.toLocaleString() +"đ";
         const discountedPrice = (finalPrice - discountAmount) + 30000;
