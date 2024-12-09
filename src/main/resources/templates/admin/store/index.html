@@ -776,14 +776,10 @@
         // Mở modal chọn phương thức thanh toán và set tổng tiền
         function openPaymentModal() {
             var finalPriceElement = document.getElementById('finalPrice');
-            console.log(finalPriceElement)
             var finalPrice = finalPriceElement.textContent; // Hoặc dùng innerText
             const finalPriceRaw = finalPriceElement.getAttribute("data-raw-value")
-            console.log(finalPriceRaw); // In giá trị ra console
             const totalAmount = document.getElementById("totalAmount");
-            console.log(totalAmount)
             const totalAmountRaw = document.getElementById("totalAmountRaw");
-            console.log(totalAmountRaw);
             totalAmount.value = finalPrice;
             totalAmountRaw.value = finalPriceRaw;
             new bootstrap.Modal(document.getElementById('paymentModal')).show();
@@ -912,6 +908,7 @@
                 if (result.isConfirmed) {
                     const selectElement = document.getElementById('paymentMethod');
                     const selectValue = document.getElementById("voucherSelect").value;
+                    console.log(selectValue)
                     if (!selectValue){
                         const finalPriceElement = document.getElementById('finalPrice');
                         const totalPriceElement = document.getElementById("totalPrice");
@@ -1129,90 +1126,83 @@
             }
         }
         function updateVoucherPreview() {
-            if (!checkVoucher()){
+            if (!checkVoucher()) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Thất bại',
-                    text: 'Hoá đơn của bạn chưa đạt giá trị tối thiểu !',
+                    text: 'Hoá đơn của bạn chưa đạt giá trị tối thiểu!',
                 });
                 $('#voucherSelect').val(null).trigger('change');
                 return; // Dừng lại không thực hiện tiếp
             }
+
             const select = document.getElementById("voucherSelect");
-            const selectValue = document.getElementById("voucherSelect").value;
+            const selectValue = select.value;
             const selectedOption = select.options[select.selectedIndex];
             const optionData = selectedOption.dataset;
             const selectPayment = document.getElementById("voucherPayment");
-            const maxValue = optionData.max;
+            const maxValue = optionData.max || 0;
             selectPayment.value = selectValue;
-
-            // Lấy phần preview container
-            const previewContainer = document.querySelector(".card-body .preview-block");
-
-            if (!selectedOption || !selectedOption.value) {
-                const finalPriceElement = document.getElementById('finalPrice');
-                const totalPriceElement = document.getElementById("totalPrice");
-                const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice"));
-                const discountAllRaw = document.getElementById("discountAll");
-                const discountAll = parseInt(discountAllRaw.getAttribute("data-discount-raw-value"));
-                const finalPrice = totalPrice - discountAll;
-                finalPriceElement.setAttribute("data-raw-value", finalPrice);
-                finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND"
-                });
-                const discountRow = document.getElementById("discountRow");
-                discountRow.style.display = "none";
-                previewContainer.style.display = "none";
-                return;
-            }
-
+            // Lấy phần tử giá trị
             const totalPriceElement = document.getElementById("totalPrice");
             const discountRow = document.getElementById("discountRow");
             const discountAmountElement = document.getElementById("discountAmount");
             const finalPriceElement = document.getElementById("finalPrice");
             const discountAllRaw = document.getElementById("discountAll");
-            // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
-            const finalPrice = parseInt(finalPriceElement.getAttribute("data-raw-value")) || 0;
+
+            // Giá trị gốc của hóa đơn (tổng tiền - giảm giá chung)
+            const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
+            const discountAll = parseInt(discountAllRaw.getAttribute("data-discount-raw-value")) || 0;
+            const baseFinalPrice = totalPrice - discountAll;
+
+            // Nếu không có voucher được chọn
+            if (!selectValue) {
+                finalPriceElement.setAttribute("data-raw-value", baseFinalPrice);
+                finalPriceElement.innerText = baseFinalPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                });
+                discountRow.style.display = "none";
+                document.querySelector(".card-body .preview-block").style.display = "none";
+                return;
+            }
+
+            // Áp dụng giảm giá từ voucher
             const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
-            const discountAmount = ((finalPrice * discountPer) / 100) > maxValue ? parseInt(maxValue) : parseInt((finalPrice * discountPer) / 100);
-            const lastPrice = finalPrice - discountAmount ;
-            // Hiển thị dòng giảm giá và cập nhật giá trị
+            const discountAmount = Math.min(
+                Math.floor((baseFinalPrice * discountPer) / 100),
+                maxValue
+            );
+            const lastPrice = baseFinalPrice - discountAmount;
+
+            // Cập nhật giá trị hiển thị
             discountRow.style.display = "table-row";
-
-            discountAmountElement.innerText = '-' + discountAmount.toLocaleString("vi-VN", {
+            discountAmountElement.innerText = `-${discountAmount.toLocaleString("vi-VN", {
                 style: "currency",
-                currency: "VND"
-            });
-
+                currency: "VND",
+            })}`;
             finalPriceElement.innerText = lastPrice.toLocaleString("vi-VN", {
                 style: "currency",
-                currency: "VND"
+                currency: "VND",
             });
-            // Cập nhật data-raw-value bằng giá trị mới
             finalPriceElement.setAttribute("data-raw-value", lastPrice);
-            // Hiển thị phần preview nếu có lựa chọn
+
+            // Hiển thị thông tin voucher trong phần preview
+            const previewContainer = document.querySelector(".card-body .preview-block");
             previewContainer.style.display = "block";
 
-            // Lấy thông tin voucher từ các thuộc tính data
-            const name = selectedOption.getAttribute("data-name") || "Voucher";
-            const code = selectedOption.getAttribute("data-code") || "CODE";
-            const discount = selectedOption.getAttribute("data-discount") || "0";
-            const description = selectedOption.getAttribute("data-description") || "Mô tả";
-            const quantity = selectedOption.getAttribute("data-quantity") || "0";
-            const startDate = selectedOption.getAttribute("data-startdate") || "--";
-            const endDate = selectedOption.getAttribute("data-enddate") || "--";
-
-            const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : "--";
-            const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString() : "--";
-
-            document.getElementById("previewName").innerText = name;
-            document.getElementById("previewCode").innerText = code;
-            document.getElementById("previewDiscount").innerText = `${discount}% OFF`;
-            document.getElementById("previewQuantity").innerText = `Quantity: ${quantity}`;
-            document.getElementById("previewDescription").innerText = description;
-            document.getElementById("previewValidity").innerText = `Valid: ${formattedStartDate} - ${formattedEndDate}`;
+            document.getElementById("previewName").innerText = optionData.name || "Voucher";
+            document.getElementById("previewCode").innerText = optionData.code || "CODE";
+            document.getElementById("previewDiscount").innerText = `${discountPer}% OFF`;
+            document.getElementById("previewQuantity").innerText = `Quantity: ${optionData.quantity || "0"}`;
+            document.getElementById("previewDescription").innerText = optionData.description || "Mô tả";
+            document.getElementById("previewValidity").innerText = `Valid: ${
+                optionData.startdate ? new Date(optionData.startdate).toLocaleDateString() : "--"
+            } - ${
+                optionData.enddate ? new Date(optionData.enddate).toLocaleDateString() : "--"
+            }`;
         }
+
 
     </script>
     <script src="/admin/store/script.js"></script>

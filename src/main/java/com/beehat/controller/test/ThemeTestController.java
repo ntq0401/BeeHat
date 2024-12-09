@@ -9,6 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
@@ -578,6 +582,7 @@ public class ThemeTestController {
 
             // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
             invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
+            invoice.setVoucherDiscount(voucherDiscount);
             invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
         } else {
             // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
@@ -656,6 +661,7 @@ public class ThemeTestController {
             }
 
             // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
+            invoice.setVoucherDiscount(voucherDiscount);
             invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
         } else {

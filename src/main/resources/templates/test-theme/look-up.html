@@ -331,7 +331,7 @@
                             <td colspan="1" class="text-start">Hình thức mua hàng:</td>
                             <td colspan="2" class="text-start text-danger"> [[${invoice.invoiceStatus==0?'Tại quầy':'Online'}]]</td>
                             <td colspan="2" th:if="${invoice.voucher != null}" class="text-end">Giảm giá voucher </td>
-                            <td th:if="${invoice.voucher != null}" class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(((invoice.totalPrice * invoice.voucher.discountPercentage) / 100) > invoice.voucher.discountMax ? invoice.voucher.discountMax : (invoice.totalPrice * invoice.voucher.discountPercentage) / 100 )}]]</td>
+                            <td th:if="${invoice.voucher != null}" class="text-end">[[${T(com.beehat.service.CurrencyUtil).formatCurrency(invoice.voucherDiscount)}]]</td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>

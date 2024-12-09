@@ -485,6 +485,12 @@ public class StoreController {
             voucher = voucherRepo.findById(voucherPayment).orElse(null);
             if (voucher != null) {
                 invoice.setVoucher(voucher);
+                Integer maxValue = voucher.getDiscountMax();
+                // Tính giá sau khi áp dụng voucher
+                Integer totalPrice = invoice.getTotalPrice();
+                Integer promotionDiscount = invoice.getPromotionDiscount();
+                Integer discountAmount =  ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100 > maxValue ? maxValue : ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100;
+                invoice.setVoucherDiscount(discountAmount);
                 invoice.setFinalPrice(totalPayment);
                 voucher.setQuantity(voucher.getQuantity() - 1);
                 voucherRepo.save(voucher);

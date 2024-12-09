@@ -43,7 +43,7 @@
                                                     <div class="size__list">
                                                         <label th:each="cate : ${listCate}" th:for="${cate.name}">
                                                             [[${cate.name}]]
-                                                            <input type="checkbox" th:id="${cate.name}">
+                                                            <input type="checkbox" th:id="${cate.name}" th:data-id="${cate.id}" onclick="filterProducts()">
                                                             <span class="checkmark"></span>
                                                         </label>
 
@@ -262,7 +262,9 @@
         </div>
     </section>
     <!-- Shop Section End -->
+<script>
 
+</script>
 </main>
 </body>
 
