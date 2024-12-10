@@ -228,7 +228,7 @@
                             <option value="offline">Tại quầy</option>
                             <option value="online">Bán online</option>
                         </select>
-                        <input id="salesDate" type="date" class="form-control" value="2024-06-05">
+                        <input id="salesDate" type="date" class="form-control" value="2024-12-11">
                     </div>
                 </div>
                 <div class="d-flex chart-container-wrapper">
@@ -244,7 +244,7 @@
 
 
                 <strong>Sản phẩm bán chạy</strong>
-                <table id="topSellingProductsTable" border="1">
+                <table id="topSellingProductsTable" border="1" class="table table-hover">
                     <!-- Bảng sẽ được cập nhật từ script -->
                 </table>
             </div>
@@ -266,10 +266,10 @@
                         const tableHeader = document.createElement("thead");
                         tableHeader.innerHTML = `
                 <tr>
-                    <th>Hình ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Số lượng bán</th>
-                    <th>Giá</th>
+                    <th scope="col">Hình ảnh</th>
+                    <th scope="col">Tên sản phẩm</th>
+                    <th scope="col">Số lượng bán</th>
+                    <th scope="col">Giá</th>
                 </tr>
             `;
                         productTable.appendChild(tableHeader);
