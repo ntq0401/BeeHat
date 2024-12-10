@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Lỗi máy chủ</title>
+    <style>
+        /* Cơ bản cho toàn bộ trang */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        /* Khung của trang lỗi 500 */
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Định dạng số 500 */
+        .error-code {
+            font-size: 100px;
+            font-weight: bold;
+            color: #ff4500;
+        }
+
+        /* Định dạng văn bản */
+        .error-message {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        /* Nút quay lại trang chủ */
+        .home-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Hover cho nút */
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="error-code">500</div>
+    <div class="error-message">Lỗi máy chủ!</div>
+    <p>Rất tiếc, đã xảy ra sự cố với máy chủ. Vui lòng thử lại sau.</p>
+    <a href="/" class="home-button">Quay lại trang chủ</a>
+</div>
+
+</body>
+</html>

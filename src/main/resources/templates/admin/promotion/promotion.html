@@ -116,7 +116,7 @@
                         <button class="btn btn-warning btn-sm">
                             <a th:href="@{/admin/promotion/update(id=${promotion.id})}"><i class="ph ph-pencil"></i></a> <!-- Biểu tượng sửa -->
                         </button>
-                        <button class="btn btn-info btn-sm"  onclick="return confirm('Bạn có chắc muốn dừng')">
+                        <button th:if="${promotion.status!=2}" class="btn btn-info btn-sm"  onclick="return confirm('Bạn có chắc muốn dừng')">
                             <a th:href="@{/admin/promotion/stop/{id}(id=${promotion.id})}"><i class="ph ph-pause"></i></a>
                         </button>
                     </td>

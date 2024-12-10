@@ -16,10 +16,8 @@ public class AdminErrorController {
     public String handleError(HttpServletRequest request, Model model) {
         // Lấy status code của lỗi
         Object status = request.getAttribute("javax.servlet.error.status_code");
-
         if (status != null) {
             Integer statusCode = Integer.valueOf(status.toString());
-
             if (statusCode == 403) {
                 return "error/403";  // Trả về trang 403
             } else if (statusCode == 404) {
