@@ -86,7 +86,7 @@
                                             <span class="dec qtybtn" onclick="checkQuantityAndSubmit(this, 'decrease')"
                                                   th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}" >-</span>
                                             <input name="productId" type="hidden" th:value="${cart.productDetail.id}">
-                                            <input id="quantityInput" class="quantity-input" name="quantity" type="number" pattern="\d+"
+                                            <input id="quantityInput" class="quantity-input" name="quantity" type="number" pattern="\d+" th:data-value-quantity="${cart.quantity}"
                                                    th:value="${cart.quantity}"  th:data-stock="${cart.productDetail.stock}" oninput="validateQuantityInput(this)">
                                             <span class="inc qtybtn" onclick="checkQuantityAndSubmit(this, 'increase')"
                                                   th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}">+</span>
@@ -106,7 +106,7 @@
 
                                 </td>
                                 <td class="cart__close"><a
-                                        th:href="@{/delete-cart/{id}(id=${cart.id})}"><span
+                                        th:href="@{/delete-cart/{id}(id=${cart.productDetail.id})}"><span
                                         class="icon_close"></span></a></td>
                             </tr>
                             </tbody>
@@ -117,12 +117,12 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="cart__btn">
-                        <a href="/shop">Continue Shopping</a>
+                        <a href="/shop">Tiếp tục mua hàng</a>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="cart__btn update__btn">
-                        <a href="#"><span class="icon_loading"></span> Update cart</a>
+                        <a href="#"><span class="icon_loading"></span>Cập nhật giỏ hàng</a>
                     </div>
                 </div>
             </div>
@@ -185,12 +185,13 @@
             // Lấy tất cả các sản phẩm trong giỏ hàng
             const form = element.closest('form')
             const cartItems = document.querySelectorAll('.cart__product__item');
-            console.log(cartItems)
 
+            const cartQuantity = document.querySelectorAll('.cart__quantity .pro-qty1');
             if(cartItems.length == 0){
                 showToast("error","Không thể thanh toán giỏ hàng trống !");
                 return;
             }
+
             // Kiểm tra xem có sản phẩm nào hết hàng không
             let hasOutOfStockItem = false;
             cartItems.forEach(item => {
@@ -198,6 +199,25 @@
                     hasOutOfStockItem = true;
                 }
             });
+            // Kiểm tra từng sản phẩm trong giỏ hàng
+            let hasError = false; // Cờ để kiểm tra lỗi
+            cartQuantity.forEach(item => {
+                // Lấy số lượng sản phẩm trong giỏ và tồn kho
+                const productQuantity = parseInt(item.querySelector('.quantity-input').getAttribute('data-value-quantity')) || 0; // Số lượng trong giỏ
+                const productStock = parseInt(item.querySelector('.dec').getAttribute('data-stock')) || 0; // Số lượng tồn kho
+
+                // Nếu số lượng trong giỏ vượt quá số lượng tồn kho
+                if (productQuantity > productStock) {
+                    hasError = true;
+                    // Hiển thị thông báo lỗi cụ thể
+                    showToast("error", `Sản phẩm vượt quá số lượng tồn kho!`);
+                }
+            });
+
+            // Nếu có lỗi, ngăn người dùng thanh toán
+            if (hasError) {
+                return;
+            }
 
             // Nếu có sản phẩm hết hàng, hiển thị thông báo và ngăn thanh toán
             if (hasOutOfStockItem) {

@@ -9,10 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
@@ -20,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -801,10 +799,11 @@ public class ThemeTestController {
         }
             return "redirect:/shop-cart";
     }
+    @Transactional
     @GetMapping("/delete-cart/{id}")
     public String deleteCart(@PathVariable("id") Integer id,Principal principal) {
         if (principal != null) {
-            cartDetailRepo.deleteById(id);
+            cartDetailRepo.deleteCartDetailByProductDetailId(id);
         } else {
             cartService.remove(id);
         }

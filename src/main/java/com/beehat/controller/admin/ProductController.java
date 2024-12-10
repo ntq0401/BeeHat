@@ -361,7 +361,7 @@ public class ProductController {
         productDetail.setStock(quantity);
         productDetail.setPrice(price);
         productDetailRepo.save(productDetail);
-//        promotionService.resetALLInvoiceDetailPrice();
+        promotionService.resetALLInvoiceDetailPrice();
         return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
     }
     @PostMapping("/change-status-product-detail")

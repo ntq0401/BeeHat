@@ -144,8 +144,20 @@ public class CartService {
             boolean found = false;
             for (CartDetail userCartDetail : userCart) {
                 if (userCartDetail.getProductDetail().getId().equals(tempCartDetail.getProductDetail().getId())) {
-                    // Nếu sản phẩm đã có trong giỏ hàng người dùng, cộng số lượng
-                    userCartDetail.setQuantity(userCartDetail.getQuantity() + tempCartDetail.getQuantity());
+                    // Kiểm tra số lượng trong kho
+                    int availableStock = productDetailRepo.findById(tempCartDetail.getProductDetail().getId()).get().getStock(); // Lấy số lượng trong kho
+                    // Tính tổng số lượng hiện tại
+                    int currentQuantityInCart = userCartDetail.getQuantity();
+                    int quantityToAdd = tempCartDetail.getQuantity();
+
+                    // Kiểm tra số lượng tối đa có thể thêm vào
+                    int maxAddable = availableStock - currentQuantityInCart;
+                    if (maxAddable > 0) {
+                        int quantityToMerge = Math.min(maxAddable, quantityToAdd);
+                        userCartDetail.setQuantity(currentQuantityInCart + quantityToMerge);
+                    }
+
+                    // Nếu không đủ số lượng, bỏ qua sản phẩm này
                     found = true;
                     break;
                 }
@@ -153,7 +165,16 @@ public class CartService {
 
             // Nếu sản phẩm chưa có trong giỏ hàng người dùng, thêm mới vào giỏ hàng người dùng
             if (!found) {
-                userCart.add(tempCartDetail);
+                int availableStock = productDetailRepo.findById(tempCartDetail.getProductDetail().getId()).get().getStock(); // Lấy số lượng trong kho
+                int quantityToAdd = tempCartDetail.getQuantity();
+
+                if (quantityToAdd <= availableStock) {
+                    userCart.add(tempCartDetail);
+                } else if (availableStock > 0) {
+                    // Nếu số lượng trong kho không đủ, chỉ thêm số lượng tối đa có thể
+                    tempCartDetail.setQuantity(availableStock);
+                    userCart.add(tempCartDetail);
+                }
             }
         }
 
