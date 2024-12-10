@@ -54,6 +54,7 @@ public class PasswordController {
             model.addAttribute("email", email);
             return "/admin/reset-password";  // Nếu mã đúng, chuyển đến trang đặt lại mật khẩu
         } else {
+            model.addAttribute("email", email);
             model.addAttribute("error", "Invalid verification code.");
             return "/admin/verify-code";  // Nếu mã sai, giữ nguyên trang mã xác nhận với thông báo lỗi
         }

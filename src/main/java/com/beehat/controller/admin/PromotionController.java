@@ -233,7 +233,13 @@ public class PromotionController {
     @GetMapping("/stop/{id}")
     public String stop(@PathVariable Integer id){
         Promotion promotion = promotionRepo.findeById(id);
-        promotion.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        if(promotion.getStatus()==0){
+            promotion.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+            promotion.setStartDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        }
+        else{
+            promotion.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        }
         promotionRepo.save(promotion);
         return "redirect:/admin/promotion";
     }
