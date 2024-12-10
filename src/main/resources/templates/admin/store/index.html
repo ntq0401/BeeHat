@@ -119,7 +119,7 @@
                                                             <!-- Input tìm kiếm -->
                                                             <div class="col-md-4">
                                                                 <label class="form-label">Từ khóa</label>
-                                                                <input type="text" class="form-control" name="keyword" placeholder="Nhập tên sản phẩm...">
+                                                                <input type="text" class="form-control" name="keyword" th:value="${param.keyword}" placeholder="Nhập tên sản phẩm...">
                                                             </div>
 
                                                             <!-- Khoảng giá -->
@@ -127,9 +127,12 @@
                                                                 <label class="form-label">Sắp xếp theo</label>
                                                                 <div class="d-flex align-items-center">
                                                                     <select class="form-select" name="sort">
-                                                                        <option value="" disabled selected>Sắp xếp</option>
-                                                                        <option value="Giá tăng dần">Giá tăng dần</option>
-                                                                        <option value="Giá giảm dần">Giá giảm dần</option>
+                                                                        <option value="">Tất cả</option>
+                                                                        <option value="Giá tăng dần"
+                                                                                th:selected="${param.sort != null and param.sort.toString() == param.sort.toString()}">Giá tăng dần</option>
+                                                                        <option
+                                                                                value="Giá giảm dần"
+                                                                                th:selected="${param.sort != null and param.sort.toString() == param.sort.toString()}">Giá tăng dần</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -137,16 +140,22 @@
                                                             <div class="col-md-4">
                                                                 <label class="form-label">Danh mục</label>
                                                                 <select class="form-select" name="categoryId">
-                                                                    <option value="" disabled selected>Chọn danh mục</option>
-                                                                    <option th:each="cate : ${listCate}" th:value="${cate.id}" th:text="${cate.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="cate : ${listCate}"
+                                                                            th:value="${cate.id}"
+                                                                            th:text="${cate.name}"
+                                                                            th:selected="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
                                                             <!-- Màu sắc -->
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Màu sắc</label>
                                                                 <select class="form-select" name="colorId">
-                                                                    <option value="" disabled selected>Chọn màu sắc</option>
-                                                                    <option th:each="c : ${listColor}" th:value="${c.id}" th:text="${c.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="c : ${listColor}" th:value="${c.id}" th:text="${c.name}"
+                                                                            th:selected="${param.colorId != null and param.colorId.toString() == c.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -154,8 +163,10 @@
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Kích cỡ</label>
                                                                 <select class="form-select" name="sizeId">
-                                                                    <option value="" disabled selected>Chọn kích cỡ</option>
-                                                                    <option th:each="size : ${listSize}" th:value="${size.id}" th:text="${size.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="size : ${listSize}" th:value="${size.id}" th:text="${size.name}"
+                                                                            th:selected="${param.sizeId != null and param.sizeId.toString() == size.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -163,8 +174,10 @@
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Kiểu dáng</label>
                                                                 <select class="form-select" name="styleId">
-                                                                    <option value="" disabled selected>Chọn kiểu dáng</option>
-                                                                    <option th:each="style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"
+                                                                            th:selected="${param.styleId != null and param.styleId.toString() == style.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -172,8 +185,10 @@
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Chất liệu</label>
                                                                 <select class="form-select" name="materialId">
-                                                                    <option value="" disabled selected>Chọn chất liệu</option>
-                                                                    <option th:each="m : ${listMater}" th:value="${m.id}" th:text="${m.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="m : ${listMater}" th:value="${m.id}" th:text="${m.name}"
+                                                                            th:selected="${param.materialId != null and param.materialId.toString() == m.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -182,8 +197,10 @@
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Vải lót</label>
                                                                 <select class="form-select" name="liningId">
-                                                                    <option value="" disabled selected>Chọn vải lót</option>
-                                                                    <option th:each="lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"
+                                                                            th:selected="${param.liningId != null and param.liningId.toString() == lining.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -191,8 +208,10 @@
                                                             <div class="col-md-2">
                                                                 <label class="form-label">Đai mũ</label>
                                                                 <select class="form-select" name="beltId">
-                                                                    <option value="" disabled selected>Chọn đai mũ</option>
-                                                                    <option th:each="belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
+                                                                    <option value="">Tất cả</option>
+                                                                    <option th:each="belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"
+                                                                            th:selected="${param.beltId != null and param.beltId.toString() == belt.id.toString()}">
+                                                                    </option>
                                                                 </select>
                                                             </div>
 
@@ -209,8 +228,8 @@
                                                         <tr>
                                                             <th>STT</th>
                                                             <th>Ảnh</th>
-                                                            <th>SKU</th>
-                                                            <th>Tên sản phẩm</th>
+                                                            <th>Mã sản phẩm</th>
+                                                            <th>Sản phẩm</th>
                                                             <th>Chất liệu</th>
                                                             <th>Danh mục</th>
                                                             <th>Vải lót</th>
@@ -234,7 +253,7 @@
                                                                 <img src="" alt="Ảnh mặc định"
                                                                      style="width: 80px; height: auto;"/>
                                                             </td>
-                                                            <td>[[${detail.product.sku}]]</td>
+                                                            <td>[[${detail.product.sku}]]-[[${detail.id}]]</td>
                                                             <td>
                                                                 <div class="flex-lg-grow-1 ms-3">
                                                                     <h5 class="small mb-0"><a href="#"
@@ -286,15 +305,18 @@
                                                                             class="btn btn-primary" type="button"
                                                                             onclick="showAlert(this)"
                                                                             th:data-quantity-product="${detail.stock}">
-                                                                        Thêm vào giỏ
+                                                                        <i class="ph ph-shopping-cart"></i>
                                                                     </button>
                                                                 </form>
                                                             </td>
                                                         </tr>
                                                         </tbody>
                                                     </table>
+                                                    <div th:if="${totalPages <= 0}" class="alert alert-warning">
+                                                        Không tìm thấy sản phẩm.
+                                                    </div>
                                                     <!-- Hiển thị nút phân trang -->
-                                                    <nav aria-label="Page navigation example">
+                                                    <nav aria-label="Page navigation example" th:if="${totalPages > 0}">
                                                         <ul class="pagination">
                                                             <li class="page-item"><a class="page-link"
                                                                                      th:href="@{/admin/store/invoice-detail/{id}(id=${invoiceId},page=${currentPage - 1}, size=${size})}">Previous</a>
@@ -627,9 +649,9 @@
                         <div class="mb-3" th:if="${infoInvoice != null && infoInvoice.totalPrice != null}">
                             <label for="totalAmount" class="form-label">Tổng tiền</label>
                             <input type="text" class="form-control" id="totalAmount" readonly>
-                            <input id="totalAmountRaw" name="totalPayment" type="" readonly>
+                            <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
                         </div>
-                        <select id="voucherPayment" class="form-select" name="voucherPayment" >
+                        <select id="voucherPayment" class="form-select" name="voucherPayment" disabled  >
                             <option value="">Chọn voucher</option>
                             <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
                                     th:text="${voucher.code} + ' - ' + ${voucher.name} + ' - ' + ${voucher.discountPercentage} + '%'"

@@ -90,7 +90,7 @@
                 <tr>
                     <th>STT</th>
                     <th>Ảnh</th>
-                    <th>SKU</th>
+                    <th>Mã sản phẩm</th>
                     <th>Tên sản phẩm</th>
                     <th>Danh mục</th>
                     <th>Số lượng</th>
@@ -132,23 +132,29 @@
                 </tr>
                 </tbody>
             </table>
-            <!-- Hiển thị nút phân trang -->
-            <nav aria-label="Page navigation example">
+            <div th:if="${totalPages <= 0}" class="alert alert-warning">
+                Không tìm thấy sản phẩm.
+            </div>
+            <nav aria-label="Page navigation example" th:if="${totalPages > 0}">
                 <ul class="pagination">
-                    <li class="page-item"><a class="page-link"
-                                             th:href="@{/admin/product/index(page=${currentPage - 1}, size=${size})}">Previous</a>
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/product/index(page=${currentPage - 1}, size=${size})}">Previous</a>
                     </li>
                     <li class="page-item"
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${i == currentPage} ? 'active'"><a
-                            class="page-link"
-                            th:href="@{/admin/product/index(page=${i}, size=${size})}">[[${i
-                        + 1}]]</a></li>
-                    <li class="page-item"><a class="page-link"
-                                             th:href="@{/admin/product/index(page=${currentPage + 1}, size=${size})}">Next</a>
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/admin/product/index(page=${i}, size=${size})}">
+                            [[${i + 1}]]
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/product/index(page=${currentPage + 1}, size=${size})}">Next</a>
                     </li>
                 </ul>
             </nav>
+
         </div>
     </div>
 </main>

@@ -111,7 +111,6 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
         Page<Product> productsPage = productRepo.findByCriteria(
                 name,categoryId, materialId, styleId, liningId, beltId, pageable);
-
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
         model.addAttribute("totalItems", productsPage.getTotalElements());

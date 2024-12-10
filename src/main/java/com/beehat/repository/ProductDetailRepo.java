@@ -25,7 +25,7 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     ProductDetail findByProductIdAndColorIdAndSizeId(Integer productId,Integer colorId, Integer sizeId);
     @Query("SELECT pd FROM ProductDetail pd " +
             "JOIN pd.product p " +
-            "WHERE pd.status = 1 " +
+            "WHERE pd.status = 1 " + // Trạng thái đang hoạt động
             "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
             "AND (:materialId IS NULL OR p.material.id = :materialId) " +
             "AND (:colorId IS NULL OR pd.color.id = :colorId) " +
@@ -33,7 +33,7 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
             "AND (:styleId IS NULL OR p.style.id = :styleId) " +
             "AND (:liningId IS NULL OR p.lining.id = :liningId) " +
             "AND (:beltId IS NULL OR p.belt.id = :beltId) " +
-            "AND (:keyword IS NULL OR p.name LIKE CONCAT('%', :keyword, '%'))") // Tìm kiếm theo tên sản phẩm
+            "AND (:keyword IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(TRIM(:keyword)), '%'))")
     Page<ProductDetail> findByCriteria(
             Integer categoryId,
             Integer materialId,
@@ -42,7 +42,8 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
             Integer styleId,
             Integer liningId,
             Integer beltId,
-            String keyword, // Thêm tham số tìm kiếm theo tên
+            String keyword,
             Pageable pageable
     );
+
 }

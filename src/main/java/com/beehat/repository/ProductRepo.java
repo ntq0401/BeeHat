@@ -49,14 +49,20 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     List<Product> findTop12ByOrderByCreatedDateDesc();
     List<Product> findByPromotionIdNotNull();
     @Query("SELECT P FROM Product P " +
-            "WHERE (:name IS NULL OR P.name LIKE CONCAT('%', :name, '%')) " +
+            "WHERE (:name IS NULL OR LOWER(P.name) LIKE (CONCAT('%', LOWER(TRIM(:name)), '%'))) " +
             "AND (:categoryId IS NULL OR P.category.id = :categoryId) " +
             "AND (:materialId IS NULL OR P.material.id = :materialId) " +
             "AND (:styleId IS NULL OR P.style.id = :styleId) " +
             "AND (:liningId IS NULL OR P.lining.id = :liningId) " +
             "AND (:beltId IS NULL OR P.belt.id = :beltId)")
     Page<Product> findByCriteria(
-            String name ,Integer categoryId, Integer materialId, Integer styleId, Integer liningId, Integer beltId,Pageable pageable
+            @Param("name") String name,
+            @Param("categoryId") Integer categoryId,
+            @Param("materialId") Integer materialId,
+            @Param("styleId") Integer styleId,
+            @Param("liningId") Integer liningId,
+            @Param("beltId") Integer beltId,
+            Pageable pageable
     );
     @Query("SELECT p FROM Product p " +
             "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
@@ -73,5 +79,4 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     );
     @Query("SELECT p FROM Product p WHERE p.category.id IN :categoryIds")
     List<Product> findByCategoryIds(@Param("categoryIds") List<Integer> categoryIds);
-
-}
+    }
