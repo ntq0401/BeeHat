@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "customer")
@@ -65,6 +67,8 @@ public class Customer {
 
     @Transient
     private String districtName;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Invoice> invoices = new ArrayList<>();
 
     @Transient
     private String wardName;
