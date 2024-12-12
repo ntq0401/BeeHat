@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -53,15 +54,38 @@ public class EmployeeController {
     public String employee(
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "searchValue", required = false) String searchValue,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "role", required = false) String role,
             Model model) {
         model.addAttribute("employee", new Employee());
         Pageable pageable = PageRequest.of(page, size);
-        List<Employee> employees = employeeRepository.findAll(pageable).getContent();
-
+        Page<Employee> employees ;
+        Byte statusValue = null;
+        Byte roleValue = null;
+        // Chuyển đổi status nếu không null hoặc rỗng
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusValue = Byte.parseByte(status);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        // Xử lý vai trò
+        if (role != null && !role.isEmpty()) {
+            roleValue = Byte.valueOf((byte) (role.equals("admin")?1:0));
+        }
+        // Nếu searchValue không được điền, tìm tất cả nhân viên
+        if (searchValue == null || searchValue.isEmpty()) {
+            employees = employeeRepository.findAllEmployees(statusValue, roleValue,pageable);
+        } else {
+            // Nếu có searchValue, tìm theo tên, username hoặc SĐT
+            employees = employeeRepository.findEmployeesBySearchValue(searchValue, statusValue, roleValue,pageable);
+        }
         model.addAttribute("employees", employees);
         model.addAttribute("currentPage", page);
         model.addAttribute("size", size);
-        model.addAttribute("totalPages", employeeRepository.findAll(pageable).getTotalPages());
+        model.addAttribute("totalPages", employees.getTotalPages());
 
         return "admin/employee/employee";
     }
@@ -176,40 +200,6 @@ public class EmployeeController {
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         employeeRepository.save(employee);
         return new ModelAndView("redirect:/admin/employee");
-    }
-
-    @GetMapping("/search")
-    public String searchEmployees(@RequestParam(value = "searchValue", required = false) String searchValue,
-                                  @RequestParam(value = "status", required = false) String status,
-                                  @RequestParam(value = "role", required = false) String role,
-                                  Model model) {
-        List<Employee> employees;
-        Byte statusValue = null;
-        Byte roleValue = null;
-        model.addAttribute("employee", new Employee());
-        // Chuyển đổi status nếu không null hoặc rỗng
-        if (status != null && !status.isEmpty()) {
-            try {
-                statusValue = Byte.parseByte(status);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-        // Xử lý vai trò
-        if (role != null && !role.isEmpty()) {
-            roleValue = Byte.valueOf((byte) (role.equals("admin")?1:0));
-        }
-        // Nếu searchValue không được điền, tìm tất cả nhân viên
-        if (searchValue == null || searchValue.isEmpty()) {
-            employees = employeeRepository.findAllEmployees(statusValue, roleValue);
-        } else {
-            // Nếu có searchValue, tìm theo tên, username hoặc SĐT
-            employees = employeeRepository.findEmployeesBySearchValue(searchValue, statusValue, roleValue);
-        }
-
-        // Gán danh sách nhân viên vào model
-        model.addAttribute("employees", employees);
-        return "/admin/employee/employee";
     }
     @GetMapping("/export")
     @ResponseBody

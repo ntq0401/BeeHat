@@ -777,7 +777,6 @@ public class ThemeTestController {
         customer.setStatus(existingCustomer.getStatus());
         customer.setUpdatedDate(LocalDateTime.now());
         customer.setCreatedDate(existingCustomer.getCreatedDate());
-        customer.setPhoto(existingCustomer.getPhoto());
         customerRepo.save(customer);
         return "redirect:/account";
     }
@@ -804,7 +803,6 @@ public class ThemeTestController {
                 .sum();
         Integer totalDiscount = totalPrice - invoice.getFinalPrice();
         model.addAttribute("totalDiscount", totalDiscount);
-//>>>>>>> dev5
         model.addAttribute("listInvoiceDetail",listInvoiceDetail);
         return "test-theme/orderdetail";
     }

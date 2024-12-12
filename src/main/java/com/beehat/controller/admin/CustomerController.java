@@ -57,10 +57,25 @@ public class CustomerController {
     public String customers(
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "searchValue", required = false) String searchValue,
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
+            @RequestParam(value = "status", required = false) String status,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Customer> customerPage = customerRepo.findAll(pageable);
+        Page<Customer> customerPage ;
+        Byte statusValue = null;
+        model.addAttribute("customer", new Customer());
+        // Chuyển đổi status nếu không null hoặc rỗng
+        if (status != null && !status.isEmpty()) {
+            try {
+                statusValue = Byte.parseByte(status);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        customerPage = customerRepo.searchCustomers(searchValue, statusValue, fromDate, toDate,pageable);
         List<Customer> customers = customerPage.getContent();
         for (Customer customer : customers) {
             // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
@@ -69,10 +84,10 @@ public class CustomerController {
             customer.setWardName(addressService.getWardNameByCode(customer.getWard()));
         }
         model.addAttribute("customer", new Customer());
-        model.addAttribute("customers", customers);
+        model.addAttribute("customers", customerPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("size", size);
-        model.addAttribute("totalPages", customerRepo.findAll(pageable).getTotalPages());
+        model.addAttribute("totalPages", customerPage.getTotalPages());
 
         return "admin/customer/customer";
     }
@@ -140,7 +155,7 @@ public class CustomerController {
     @PostMapping("/update")
     public String updateCustomer(@Valid @ModelAttribute Customer customer, BindingResult bindingResult) {
         Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
-
+        Customer customer1 = customer;
         if (existingCustomer != null) {
             // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
             if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
@@ -160,33 +175,6 @@ public class CustomerController {
         customer.setUpdatedDate(LocalDateTime.now());
         customerRepo.save(customer);
         return "redirect:/admin/customer";
-    }
-    @GetMapping("/search")
-    public String searchCustomers(@RequestParam(value = "searchValue", required = false) String searchValue,
-                                  @RequestParam(value = "fromDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime fromDate,
-                                  @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
-                                  @RequestParam(value = "status", required = false) String status,
-                                  Model model) {
-        List<Customer> customers;
-        Byte statusValue = null;
-        model.addAttribute("customer", new Customer());
-        // Chuyển đổi status nếu không null hoặc rỗng
-        if (status != null && !status.isEmpty()) {
-            try {
-                statusValue = Byte.parseByte(status);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-        customers = customerRepo.searchCustomers(searchValue, statusValue, fromDate, toDate);
-        for (Customer customer : customers) {
-            // Thêm tên vào đối tượng Customer (chỉ hiển thị tạm thời)
-            customer.setProvinceName(addressService.getProvinceNameByCode(customer.getCity()));
-            customer.setDistrictName(addressService.getDistrictNameByCode(customer.getDistrict()));
-            customer.setWardName(addressService.getWardNameByCode(customer.getWard()));
-        }
-        model.addAttribute("customers",customers);
-        return "/admin/customer/customer";
     }
 
     @GetMapping("/export")

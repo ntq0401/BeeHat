@@ -2,6 +2,8 @@ package com.beehat.repository;
 
 import com.beehat.entity.Employee;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,7 +27,7 @@ public interface EmployeeRepo extends JpaRepository<Employee,Integer> {
     // Phương thức tìm tất cả nhân viên theo trạng thái và vai trò
     @Query("SELECT e FROM Employee e WHERE (:status IS NULL OR e.status = :status) " +
             "AND (:role IS NULL OR e.role = :role)")
-    List<Employee> findAllEmployees(@Param("status") Byte statusValue, @Param("role") Byte roleValue);
+    Page<Employee> findAllEmployees(@Param("status") Byte statusValue, @Param("role") Byte roleValue, Pageable pageable);
 
     // Phương thức tìm nhân viên theo tên, username hoặc số điện thoại
     @Query("SELECT e FROM Employee e WHERE " +
@@ -34,7 +36,7 @@ public interface EmployeeRepo extends JpaRepository<Employee,Integer> {
             "LOWER(e.phone) LIKE LOWER(CONCAT('%', :searchValue, '%'))) " +
             "AND (:status IS NULL OR e.status = :status) " +
             "AND (:role IS NULL OR e.role = :role)")
-    List<Employee> findEmployeesBySearchValue(@Param("searchValue") String searchValue,
+    Page<Employee> findEmployeesBySearchValue(@Param("searchValue") String searchValue,
                                               @Param("status") Byte statusValue,
-                                              @Param("role") Byte roleValue);
+                                              @Param("role") Byte roleValue,Pageable pageable);
 }

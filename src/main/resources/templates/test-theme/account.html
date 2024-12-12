@@ -3,34 +3,41 @@
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        a{
+        a {
             text-decoration: none;
         }
+
         body {
             background-color: white;
         }
+
         .sidebar {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
         }
+
         .sidebar a {
             text-decoration: none;
             color: black;
             display: block;
             padding: 10px 0;
         }
+
         .sidebar a:hover {
             background-color: #f1f1f1;
         }
+
         .order-details {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
         }
+
         .order-details h5 {
             margin-bottom: 20px;
         }
+
         .order-details .btn {
             background-color: #ff5722;
             color: white;
@@ -70,13 +77,13 @@
                 .catch(error => console.error('Error fetching cities:', error));
 
             // Lắng nghe sự kiện thay đổi của tỉnh
-            document.getElementById('city').addEventListener('change', function() {
+            document.getElementById('city').addEventListener('change', function () {
                 const cityCode = this.value;
                 fetchDistricts(cityCode);
             });
 
             // Lắng nghe sự kiện thay đổi của huyện
-            document.getElementById('district').addEventListener('change', function() {
+            document.getElementById('district').addEventListener('change', function () {
                 const districtCode = this.value;
                 fetchWards(districtCode);
             });
@@ -114,7 +121,17 @@
                     .catch(error => console.error('Error fetching wards:', error));
             }
         });
-
+        function updatePhotoPreview(input) {
+            const preview = document.getElementById('customerPhoto'); // Sửa tên ID
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result; // Cập nhật src với kết quả đọc được
+                    preview.style.display = 'block'; // Hiển thị ảnh
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
     <meta charset="UTF-8">
     <title>Shop</title>
@@ -122,88 +139,98 @@
 <body>
 <main layout:fragment="main">
     <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="sidebar">
-                    <div class="text-center mb-4">
-                        <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle" height="100" width="100"/>
-                        <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
+        <form th:action="@{/account/update}" th:object="${customer}" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="sidebar">
+                        <div class="text-center mb-4">
+                            <div class="form-group mb-4" style="display: flex; justify-content: center;">
+                                <img  id="customerPhoto" th:src="@{'/images/employees/' + ${customer.photo}}" alt="Customer Photo" width="100" height="100" class="img-thumbnail rounded-circle" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
+                                <input type="file" maxlength="500" id="photoInput" name="photo" accept="image/*" style="display: none;" onchange="updatePhotoPreview(this);"/> <!-- Sửa tham số -->
+                            </div>
+<!--                            <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle"-->
+<!--                                 height="100"-->
+<!--                                 width="100"/>-->
+                            <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
+                        </div>
+                        <a href="/account">
+                            <i class="fas fa-home"></i>
+                            Trang tài khoản
+                        </a>
+                        <a href="/order">
+                            <i class="fas fa-shopping-cart"></i>
+                            Đơn hàng
+                        </a>
+                        <a href="/change-pass">
+                            <i class="fas fa-user"></i>
+                            Đổi mật khẩu
+                        </a>
+                        <a href="/">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Thoát
+                        </a>
                     </div>
-                    <a href="/account">
-                        <i class="fas fa-home"></i>
-                        Trang tài khoản
-                    </a>
-                    <a href="/order">
-                        <i class="fas fa-shopping-cart"></i>
-                        Đơn hàng
-                    </a>
-                    <a href="/change-pass">
-                        <i class="fas fa-user"></i>
-                        Đổi mật khẩu
-                    </a>
-                    <a href="/">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Thoát
-                    </a>
+                </div>
+                <div class="col-md-9">
+                    <input type="hidden" name="id" th:value="${customer.id}"/>
+                    <input type="text" name="username" th:value="${customer.username}" hidden>
+                    <input type="text" name="password" th:value="${customer.password}" hidden>
+                    <div id="customerData"
+                         th:data-id="${customer.id}"
+                         th:data-city="${customer.city}"
+                         th:data-district="${customer.district}"
+                         th:data-ward="${customer.ward}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Họ tên *</label>
+                        <input type="text" maxlength="100" class="form-control" id="fullname" name="fullname"
+                               th:value="${customer.fullname}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ email *</label>
+                        <input type="email" maxlength="100" name="email" th:value="${customer.email}"
+                               class="form-control" required/>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại *</label>
+                        <input type="text" name="phone" th:value="${customer.phone}" class="form-control" maxlength="10"
+                               pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0" required/>
+                        <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
+                    </div>
+                    <div class=" mb-3 row">
+                        <!-- Dropdown chọn tỉnh/thành phố -->
+                        <div class="form-group col-md-4">
+                            <label>Tỉnh/Thành phố</label>
+                            <select id="city" name="city" class="form-control" required>
+                                <option value="">Chọn tỉnh/thành phố</option>
+                            </select>
+                        </div>
+                        <!-- Dropdown chọn quận/huyện -->
+                        <div class="form-group col-md-4">
+                            <label>Quận/Huyện</label>
+                            <select id="district" name="district" class="form-control" required>
+                                <option value="">Chọn quận/huyên</option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown chọn phường/xã -->
+                        <div class="form-group col-md-4">
+                            <label>Phường/Xã</label>
+                            <select id="ward" name="ward" class="form-control" required>
+                                <option value="">Chọn phường/xã</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ *</label>
+                        <input type="text" maxlength="255" name="address" th:value="${customer.address}"
+                               class="form-control" required/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
                 </div>
             </div>
-            <div class="col-md-9">
-            <form th:action="@{/account/update}" th:object="${customer}" method="post">
-                <input type="hidden" name="id" th:value="${customer.id}" />
-                <input type="text" name="username" th:value="${customer.username}" hidden>
-                <input type="text" name="password" th:value="${customer.password}" hidden>
-                <div id="customerData"
-                     th:data-id="${customer.id}"
-                     th:data-city="${customer.city}"
-                     th:data-district="${customer.district}"
-                     th:data-ward="${customer.ward}">
-                </div>
-                <div class="mb-3">
-                        <label for="fullName" class="form-label">Họ tên *</label>
-                        <input type="text" maxlength="100" class="form-control" id="fullname" name="fullname" th:value="${customer.fullname}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Địa chỉ email *</label>
-                    <input type="email" maxlength="100" name="email" th:value="${customer.email}" class="form-control" required/>
-                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Số điện thoại *</label>
-                    <input type="text" name="phone" th:value="${customer.phone}" class="form-control" maxlength="10" pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0" required/>
-                    <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
-                </div>
-                <div class=" mb-3 row">
-                    <!-- Dropdown chọn tỉnh/thành phố -->
-                    <div class="form-group col-md-4">
-                        <label>Tỉnh/Thành phố</label>
-                        <select id="city" name="city" class="form-control" required>
-                            <option value="">Chọn tỉnh/thành phố</option>
-                        </select>
-                    </div>
-                    <!-- Dropdown chọn quận/huyện -->
-                    <div class="form-group col-md-4">
-                        <label>Quận/Huyện</label>
-                        <select id="district" name="district" class="form-control"  required>
-                            <option value="">Chọn quận/huyên</option>
-                        </select>
-                    </div>
-
-                    <!-- Dropdown chọn phường/xã -->
-                    <div class="form-group col-md-4">
-                        <label>Phường/Xã</label>
-                        <select id="ward" name="ward" class="form-control"  required>
-                            <option value="">Chọn phường/xã</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Địa chỉ *</label>
-                    <input type="text" maxlength="255" name="address" th:value="${customer.address}" class="form-control" required/>
-                </div>
-                <button type="submit" class="btn btn-primary">Cập nhật</button>
-            </form>
-        </div>
-    </div>
+        </form>
     </div>
 </main>
 </body>

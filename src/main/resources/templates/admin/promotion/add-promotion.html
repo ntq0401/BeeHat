@@ -104,43 +104,35 @@
         </div>
 
         <div class="card-body">
-            <div class="row mt-2">
-                <div>
-                    <form th:action="@{/admin/promotion/add}" method="get" id="searchForm">
-                        <div class="row">
-                            <div class="form-group">
+                    <form class="row" th:action="@{/admin/promotion/add}" method="get" id="searchForm">
+                            <div class="form-group col-md-6">
+                                <label>Tên sản phẩm</label>
                                 <input placeholder="Nhập tên" type="text" class="form-control" id="search"
                                        name="search">
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label>Từ ngày:</label>
-                                <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
-                            </div>
-                            <div class="col-md-3">
-                                <label>Tới ngày:</label>
-                                <input type="datetime-local" class="form-control" id="toDate" name="toDate">
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label>Danh mục</label>
                                 <select class="form-select" name="categoryId">
                                     <option value="">Tất cả</option>
                                     <option th:each=" cate : ${listCategory}" th:value="${cate.id}"
                                             th:text="${cate.name}"
                                             th:selected="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}"></option>
-
                                 </select>
                             </div>
-                            <div class="col-auto d-flex align-items-center">
-                                <button class="btn btn-info" type="submit">
-                                    <i class="ph ph-magnifying-glass"></i>
+                            <div class="col-md-6">
+                                <label>Từ ngày:</label>
+                                <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Tới ngày:</label>
+                                <input type="datetime-local" class="form-control" id="toDate" name="toDate">
+                            </div>
+                            <div class="col-12 mt-3 d-flex align-items-center">
+                                <button class="btn btn-primary" type="submit">
+                                    Tìm kiếm
                                 </button>
                             </div>
-                        </div>
                     </form>
-                </div>
-            </div>
         </div>
     </div>
     <div>
