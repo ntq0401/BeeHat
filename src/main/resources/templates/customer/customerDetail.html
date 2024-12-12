@@ -106,7 +106,7 @@
     </nav>
     <form th:action="@{/admin/customer/update}" th:object="${customer}" method="post">
         <div class="form-group mb-4" style="display: flex; justify-content: center;">
-            <img id="customerPhoto" th:src="@{'/images/customers/' + ${customer.photo}}" alt="customer Photo" width="150" height="150" class="img-thumbnail" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
+            <img id="customerPhoto" th:src="@{'/images/employees/' + ${customer.photo}}" alt="customer Photo" width="150" height="150" class="img-thumbnail" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
             <input type="file" id="photoInput" name="photo" accept="image/*" style="display: none;" onchange="updatePhotoPreview(this);"/> <!-- Sửa tham số -->
         </div>
         <input type="hidden" name="id" th:value="${customer.id}" />

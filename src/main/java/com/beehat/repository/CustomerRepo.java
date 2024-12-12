@@ -2,6 +2,8 @@ package com.beehat.repository;
 
 import com.beehat.entity.Customer;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,9 +27,9 @@ public interface CustomerRepo extends JpaRepository<Customer, Integer> {
             "AND (:status IS NULL OR c.status = :status) " +
             "AND (:fromDate IS NULL OR c.createdDate >= :fromDate) " +
             "AND (:toDate IS NULL OR c.createdDate <= :toDate)")
-    List<Customer> searchCustomers(@Param("searchValue") String searchValue,
+    Page<Customer> searchCustomers(@Param("searchValue") String searchValue,
                                    @Param("status") Byte status,
                                    @Param("fromDate") LocalDateTime fromDate,
-                                   @Param("toDate") LocalDateTime toDate);
+                                   @Param("toDate") LocalDateTime toDate, Pageable pageable);
     List<Customer> findByStatus(Byte status);
 }

@@ -26,27 +26,17 @@
             <li class="breadcrumb-item active" aria-current="page">Nhân viên</li>
         </ol>
     </nav>
-    <div class="d-flex justify-content-end mt-3">
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
-            Thêm mới
-        </button>
-        <button class="btn btn-outline-success ml-5" type="button"
-                onclick="window.location.href='/admin/employee/export'">Xuất file</button>
-        <form id="importForm" th:action="@{/admin/employee/import}" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" id="fileInput" required style="display: none;">
-            <button class="btn btn-outline-success" type="button" onclick="document.getElementById('fileInput').click();">Nhập file</button>
-        </form>
-    </div>
+
     <div class="card mt-3">
         <div class="card-header">
-            <h5 class="card-title">Tìm kiếm</h5>
+            Tìm kiếm nhân viên
         </div>
         <div class="card-body">
             <div class="row d-flex justify-content-center align-items-center">
-                <form th:action="@{/admin/employee/search}" method="get">
+                <form th:action="@{/admin/employee}" method="get">
                     <div class="row">
                         <div class="form-group col-md-4">
-                            <label for="search">Tìm kiếm:</label>
+                            <label for="search">Tên:</label>
                             <input placeholder="Nhập tên, username hoặc SĐT" type="text" class="form-control" id="search" name="searchValue">
                         </div>
                         <div class="form-group col-md-4">
@@ -68,8 +58,8 @@
                     </div>
                     <div class="row mt-3">
                         <div class="col-auto d-flex align-items-center">
-                            <button class="btn btn-info" type="submit">
-                                <i class="ph ph-magnifying-glass"></i>
+                            <button class="btn btn-primary" type="submit">
+                                Tìm kiếm
                             </button>
                         </div>
                     </div>
@@ -85,24 +75,35 @@
         <div class="alert alert-success" th:text="${success}"></div>
     </div>
     <div class="card mt-5">
-        <div class="card-header">
-            <h5 class="card-title">Danh sách nhân viên</h5>
-        </div>
-
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><strong>Danh sách nhân viên</strong></h5>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                        Thêm mới
+                    </button>
+                    <button class="btn btn-outline-success" type="button" onclick="window.location.href='/admin/employee/export'">
+                        Xuất file
+                    </button>
+                    <form id="importForm" th:action="@{/admin/employee/import}" method="POST" enctype="multipart/form-data" class="m-0">
+                        <input type="file" name="file" id="fileInput" required style="display: none;">
+                        <button class="btn btn-outline-success" type="button" onclick="document.getElementById('fileInput').click();">Nhập file</button>
+                    </form>
+                </div>
+            </div>
             <!-- Bảng Danh sách Nhân viên -->
-            <table class="table ">
+            <table class="table table-bordered table-hover mt-3">
                 <thead>
                 <tr>
                     <th scope="col">STT</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Fullname</th>
+                    <th scope="col">Tài khoản</th>
+                    <th scope="col">Họ tên</th>
                     <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">Created Date</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Action</th>
+                    <th scope="col">Số điện thoại</th>
+                    <th scope="col">Ngày tạo</th>
+                    <th scope="col">Chức vụ</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -120,41 +121,37 @@
                     </td>
                     <td>
                         <a th:href="@{/admin/employee/detail/{id}(id=${employee.id})}" class="btn btn-primary">
-                            <i class="ph ph-info" style="font-size: 1.2rem;"></i>
+                            <i class="ph ph-info" ></i>
                         </a>
-                        <a th:href="@{/admin/employee/delete/{id}(id=${employee.id})}" class="btn btn-outline-danger"
+                        <a th:href="@{/admin/employee/delete/{id}(id=${employee.id})}" class="btn btn-danger"
                            onclick="return confirm('Bạn có chắc muốn xóa')">
-                            <i class="ph ph-trash" style="font-size: 1.2rem;"></i>
+                            <i class="ph ph-trash" ></i>
                         </a>
                     </td>
                 </tr>
                 </tbody>
             </table>
-
-            <!-- Form chọn số lượng hiển thị -->
-            <form class="mt-2" id="dataTableForm" method="get" th:action="@{/admin/employee}">
-                <div class="dataTables_length">
-                    <label>Show
-                        <select name="size" onchange="this.form.submit()" class="custom-select custom-select-sm">
-                            <option value="10" th:selected="${size == 10}">10</option>
-                            <option value="25" th:selected="${size == 25}">25</option>
-                            <option value="50" th:selected="${size == 50}">50</option>
-                            <option value="100" th:selected="${size == 100}">100</option>
-                        </select> entries
-                    </label>
-                </div>
-            </form>
+            <nav aria-label="Page navigation example" th:if="${totalPages > 0}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/employee(page=${currentPage - 1}, size=${size},searchValue=${searchValue},role=${role},status=${status})}">Previous</a>
+                    </li>
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/admin/employee(page=${i}, size=${size},searchValue=${searchValue},role=${role},status=${status})}">
+                            [[${i + 1}]]
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/employee(page=${currentPage + 1}, size=${size},searchValue=${searchValue},role=${role},status=${status})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
-
-    <!--    <div class="pagination d-flex justify-content-center">-->
-    <!--        <li class="paginate_button page-item previous" th:class="${currentPage == 0} ? 'disabled'">-->
-    <!--            <a th:href="@{/admin/employee(page=${currentPage - 1}, size=${size})}" class="page-link">Previous</a>-->
-    <!--        </li>-->
-    <!--        <li class="paginate_button page-item next" th:class="${currentPage + 1 >= totalPages} ? 'disabled'">-->
-    <!--            <a th:href="@{/admin/employee(page=${currentPage + 1}, size=${size})}" class="btn btn-primary">Next</a>-->
-    <!--        </li>-->
-    <!--    </div>-->
 
 <!--     Modal Thêm Nhân Viên -->
     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true" >
