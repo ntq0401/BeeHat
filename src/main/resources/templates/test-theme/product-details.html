@@ -418,24 +418,6 @@
                 inputElement.value = stock; // Đặt về tồn kho tối đa
             }
         }
-        // Hàm hiển thị SweetAlert Toast
-        function showToast(icon, message) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 1500,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                },
-            });
-            Toast.fire({
-                icon: icon,
-                title: message,
-            });
-        }
 
 
     </script>

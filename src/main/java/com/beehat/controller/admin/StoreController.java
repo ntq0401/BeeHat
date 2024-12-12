@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.OutputStream;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -103,8 +104,8 @@ public class StoreController {
     }
 
     @ModelAttribute("listInvoice")
-    List<Invoice> listOrder() {
-        return invoiceRepo.findByStatusAndInvoiceStatus(Byte.valueOf("0"), (byte) 0);
+    List<Invoice> listOrder(Principal principal) {
+        return invoiceRepo.findByStatusAndInvoiceStatusAndEmployee(Byte.valueOf("0"), (byte) 0,employeeRepo.findByUsername(principal.getName()));
     }
 
     // ????
@@ -464,6 +465,12 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
         }
     }
+    private ResponseEntity<?> createErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", message);
+        return ResponseEntity.badRequest().body(response);
+    }
     @Transactional
     @PostMapping("/pay")
     @ResponseBody
@@ -476,14 +483,26 @@ public class StoreController {
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
         if (invoice == null) {
             // Xử lý lỗi nếu hóa đơn không tồn tại
-            throw new RuntimeException("Invoice not found");
+            return createErrorResponse("Không tìm thấy hoá đơn");
         }
 
         // Tìm voucher nếu có
         Voucher voucher = null;
         if (voucherPayment != -1) {
             voucher = voucherRepo.findById(voucherPayment).orElse(null);
-            if (voucher != null) {
+            if (voucher == null) {
+                return createErrorResponse("Không tìm thấy voucher");
+            }
+
+            // Kiểm tra số lượng voucher còn đủ không
+            if (voucher.getQuantity() <= 0) {
+                return createErrorResponse("Mã giảm giá này đã hết !");
+            }
+
+            // Kiểm tra thời hạn sử dụng của voucher
+            if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
+                return createErrorResponse("Mã giảm giá này đã hết hạn");
+            }
                 invoice.setVoucher(voucher);
                 Integer maxValue = voucher.getDiscountMax();
                 // Tính giá sau khi áp dụng voucher
@@ -492,11 +511,9 @@ public class StoreController {
                 Integer discountAmount =  ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100 > maxValue ? maxValue : ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100;
                 invoice.setVoucherDiscount(discountAmount);
                 invoice.setFinalPrice(totalPayment);
+                // Trừ số lượng voucher
                 voucher.setQuantity(voucher.getQuantity() - 1);
                 voucherRepo.save(voucher);
-            } else {
-                throw new RuntimeException("Invalid voucher ID");
-            }
         } else {
             invoice.setFinalPrice(totalPayment);
         }

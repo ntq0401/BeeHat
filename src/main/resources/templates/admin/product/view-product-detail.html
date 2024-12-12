@@ -13,14 +13,14 @@
             text-align: center; /* Căn giữa nội dung */
             display: inline-block; /* Đảm bảo chiều rộng áp dụng */
         }
-        .number-input input[type="number"] {
+        .number-input input[type="text"] {
             -webkit-appearance: textfield;
             -moz-appearance: textfield;
             appearance: textfield;
         }
 
-        .number-input input[type=number]::-webkit-inner-spin-button,
-        .number-input input[type=number]::-webkit-outer-spin-button {
+        .number-input input[type=text]::-webkit-inner-spin-button,
+        .number-input input[type=text]::-webkit-outer-spin-button {
             -webkit-appearance: none;
         }
 
@@ -48,7 +48,7 @@
             transform: translate(-50%, -50%) rotate(90deg);
         }
 
-        .number-input input[type=number] {
+        .number-input input[type=text] {
             text-align: center;
         }
 
@@ -73,7 +73,7 @@
             background-color: #495057;
         }
 
-        .number-input.number-input input[type=number] {
+        .number-input.number-input input[type=text] {
             max-width: 4rem;
             padding: .5rem;
             border: 1px solid #ced4da;
@@ -143,7 +143,7 @@
         <div class="card-body">
             <!-- Tiêu đề với nút chỉnh sửa bên phải -->
             <div class="d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0"><strong>Thông tin sản phẩm</strong></h6>
+                <h5  class="card-title mb-0"><strong>Thông tin sản phẩm</strong></h5>
                 <a th:href="@{/admin/product/update-product/{id}(id=${product.id})}" class="btn btn-link p-0">
                     <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
                 </a>
@@ -184,7 +184,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Lọc sản phẩm</h5>
+                <h5 class="card-title mb-3" style="font-weight: bold">Lọc sản phẩm</h5>
             </div>
             <form th:action="@{/admin/product/detail}" method="get">
                 <!-- Hàng đầu tiên: Lọc theo màu sắc và kích cỡ -->
@@ -261,18 +261,23 @@
             <td>
                 <center>
                 <div class="def-number-input number-input safari_only">
-                <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
+                <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=text]').stepDown()"
                         class="minus"></button>
-                <input class="quantity fw-bold bg-body-tertiary text-body" min="0" max="100000000" name="quantity" th:value="${variant.stock}"
-                       type="number" required>
-                <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                <input class="quantity fw-bold bg-body-tertiary text-body" type="text"
+                       inputmode="numeric"
+                       pattern="\d+" name="quantity" maxlength="8" th:value="${variant.stock}"
+                       required>
+                <button type="button" data-mdb-button-init onclick="this.parentNode.querySelector('input[type=text]').stepUp()"
                         class="plus"></button>
                 </div>
                 </center>
             </td>
             <td>
                 <div class="d-flex align-items-center justify-content-center">
-                    <input class="form-control me-1" type="number" min="0" max="100000000" th:value="${variant.price}" name="price" style="max-width: 100px;" required>
+                    <input class="form-control me-1"
+                        type="text"
+                        inputmode="numeric"
+                           pattern="\d+" name="price" style="max-width: 100px;" th:value="${variant.price}" maxlength="8" required>
                     <p class="mb-0">VND</p>
                 </div>
             </td>

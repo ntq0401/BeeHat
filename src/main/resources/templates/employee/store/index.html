@@ -24,12 +24,7 @@
       display: none;
     }
 
-    .suggestion-item {
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      cursor: pointer;
-    }
+
 
     .suggestion-item:hover {
       background-color: #f0f0f0;
@@ -369,7 +364,7 @@
                     <center>
                       <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
                       <input class="form-control"
-                             style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
+                             style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1px;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                              type="number" name="quantities" th:value="${invoiceDetail.quantity}"
                              min="1" step="1" max="1000000" pattern="\d+"
                              th:data-quantity-product="${invoiceDetail.productDetail.stock}"

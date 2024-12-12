@@ -113,11 +113,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6 class="coupon__link"><span class="icon_tag_alt"></span> <a href="#">Have a coupon?</a> Click
-                        here to enter your code.</h6>
+                    <h6 class="coupon__link"><span class="icon_tag_alt"></span> Thanh toán đơn hàng.</h6>
+                    <div th:if="${error}" class="alert alert-danger" style="margin-top: 15px" th:text="${error}"></div>
                 </div>
             </div>
-            <form th:action="@{/check-out}" class="checkout__form" method="post">
+            <form id="formCheckOut" th:action="@{/check-out}" class="checkout__form" method="post">
                 <input type="hidden"
                        th:name="${_csrf.parameterName}"
                        th:value="${_csrf.token}"/>
@@ -228,7 +228,7 @@
                                         Voucher giảm giá
                                         <form >
                                             <div class="d-flex">
-                                                <select class="form-control" style="margin-right: 5px" placeholder="Nhập mã giảm giá" name="code" onchange="updatePriceBasedOnVoucher(this)">
+                                                <select class="form-control" id="selectVoucher" style="margin-right: 5px" placeholder="Nhập mã giảm giá" name="code" onchange="updatePriceBasedOnVoucher(this)">
                                                     <option value="">Chọn voucher</option>
                                                     <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:data-min-value="${v.minOrderValue}" th:data-max-value="${v.discountMax}" th:text="${v.code}"></option>
                                                 </select>
@@ -266,7 +266,7 @@
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
-                            <button type="submit" class="site-btn">Hoàn tất đơn hàng</button>
+                            <button id="submitBtn" class="site-btn" >Hoàn tất đơn hàng</button>
                         </div>
                     </div>
                 </div>
@@ -275,7 +275,52 @@
     </section>
     <!-- Checkout Section End -->
 <script>
+    document.getElementById("submitBtn").addEventListener("click", function(event) {
+        event.preventDefault(); // Ngừng hành động gửi form mặc định để xử lý kiểm tra và xác nhận.
+
+        // Kiểm tra nếu form hợp lệ
+        const form = document.getElementById("formCheckOut");
+        if (form.checkValidity()) {
+            // Hiển thị SweetAlert Confirm khi form hợp lệ
+            showConfirmDialog('Are you sure?', 'Do you want to submit the form?', 'Submit', 'Cancel')
+                .then(result => {
+                    if (result.isConfirmed) {
+                        // Nếu xác nhận, gửi form
+                        form.submit();
+                    } else {
+                        // Nếu hủy, không làm gì
+                        console.log('Form submission canceled.');
+                    }
+                });
+        } else {
+            // Nếu form không hợp lệ (ví dụ trường `required` bị thiếu)
+            form.reportValidity(); // Hiển thị thông báo lỗi của form.
+        }
+    });
+    function checkVoucher() {
+        const selectElement = document.getElementById("selectVoucher");
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const minOrderValue = parseInt(selectedOption.getAttribute("data-min-value")) || 0;
+        const finalPriceElement = document.getElementById("finalPrice");
+        const finalPrice = parseInt(finalPriceElement.getAttribute('data-final-price')) || 0;
+        console.log(finalPrice)
+        if (finalPrice >= minOrderValue) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     function updatePriceBasedOnVoucher(selectElement) {
+        if (!checkVoucher()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Thất bại',
+                text: 'Hoá đơn của bạn chưa đạt giá trị tối thiểu!',
+            });
+            const selectElement = document.getElementById("selectVoucher");
+            selectElement.selectedIndex = 0;
+            return; // Dừng lại không thực hiện tiếp
+        }
         // Lấy phần tử chứa tổng giá và giá sau giảm
         const totalPriceElement = document.getElementById("totalPrice");
         const finalPriceElement = document.getElementById("finalPrice");

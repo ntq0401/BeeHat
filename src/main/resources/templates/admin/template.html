@@ -29,6 +29,27 @@
     </div>
 </div>
 </body>
+<script>
+    /**
+     * Hiển thị SweetAlert Confirm
+     * @param {string} title - Tiêu đề của thông báo.
+     * @param {string} text - Nội dung chi tiết của thông báo.
+     * @param {string} confirmButtonText - Văn bản trên nút xác nhận.
+     * @param {string} cancelButtonText - Văn bản trên nút hủy.
+     * @returns {Promise} - Trả về Promise resolve nếu người dùng chọn xác nhận, reject nếu hủy.
+     */
+    function showConfirmDialog(title, text, confirmButtonText = "Đồng ý", cancelButtonText = "Từ chối") {
+        return Swal.fire({
+            title: title,
+            text: text,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: confirmButtonText,
+            cancelButtonText: cancelButtonText,
+            reverseButtons: true
+        });
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

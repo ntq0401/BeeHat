@@ -24,12 +24,7 @@
             display: none;
         }
 
-        .suggestion-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            cursor: pointer;
-        }
+
 
         .suggestion-item:hover {
             background-color: #f0f0f0;
@@ -401,7 +396,7 @@
                                         <center>
                                             <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
                                             <input class="form-control"
-                                                   style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
+                                                   style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1px;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                                                    type="number" name="quantities" th:value="${invoiceDetail.quantity}"
                                                    min="1" step="1" max="1000000" pattern="\d+"
                                                    th:data-quantity-product="${invoiceDetail.productDetail.stock}"
@@ -651,7 +646,7 @@
                             <input type="text" class="form-control" id="totalAmount" readonly>
                             <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
                         </div>
-                        <select id="voucherPayment" class="form-select" name="voucherPayment" disabled  >
+                        <select id="voucherPayment" class="form-select" name="voucherPayment" style="display: none">
                             <option value="">Chọn voucher</option>
                             <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
                                     th:text="${voucher.code} + ' - ' + ${voucher.name} + ' - ' + ${voucher.discountPercentage} + '%'"
@@ -810,9 +805,6 @@
         // Gửi dữ liệu thanh toán, là hàm xác nhận thanh toán
         function submitPayment(button) {
             const paymentMethod = document.getElementById("paymentMethod").value;
-            // const totalAmount = document.getElementById("totalAmount").value;
-            // const voucherElement = document.getElementById("voucherPayment");
-            // const id = parseInt(button.getAttribute('data-invoice-submit-payment'));
             if (!paymentMethod) {
                 Swal.fire({
                     icon: 'error',
@@ -1129,18 +1121,8 @@
             const selectedOption = select.options[select.selectedIndex];
             const optionData = selectedOption.dataset;
             const discountAllRaw = document.getElementById("discountAll");
-            const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
             // Kiểm tra minValue có hợp lệ không
             const minValue = optionData.min ? parseInt(optionData.min) : 0;
-            // if (discountAll > 0){
-            //     Swal.fire({
-            //         icon: 'error',
-            //         title: 'Thất bại',
-            //         text: 'Chức năng đang phát triển !',
-            //     });
-            //     $('#voucherSelect').val(null).trigger('change');
-            //     return; // Dừng lại không thực hiện tiếp
-            // }
             if (finalPriceRaw >= minValue) {
                 return true;
             } else {

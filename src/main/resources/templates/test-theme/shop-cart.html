@@ -223,7 +223,16 @@
             if (hasOutOfStockItem) {
                 showToast("error","Giỏ hàng của bạn có sản phẩm hết hàng. Vui lòng xoá sản phẩm hết hàng trươc khi thanh toán")
             } else {
-                form.submit();
+                showConfirmDialog("Thanh toán đơn hàng","Bạn có muốn thanh toán đơn hàng ?").then((result) => {
+                    if (result.isConfirmed) {
+                        // Logic để lưu thay đổi
+                        form.submit();
+                    } else {
+                        // Logic khi không lưu thay đổi
+                        console.log("Save canceled.");
+                    }
+                });
+
             }
         }
         function validateQuantityInput(inputElement) {
@@ -244,24 +253,6 @@
             }
         }
 
-        // Hàm hiển thị SweetAlert Toast
-        function showToast(icon, message) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 1500,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                },
-            });
-            Toast.fire({
-                icon: icon,
-                title: message,
-            });
-        }
 
     </script>
 </main>

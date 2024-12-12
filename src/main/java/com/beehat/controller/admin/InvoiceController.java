@@ -1,17 +1,19 @@
 package com.beehat.controller.admin;
 
 import com.beehat.entity.*;
-import com.beehat.repository.InvoiceDetailRepo;
-import com.beehat.repository.InvoiceHistoryStatusRepo;
-import com.beehat.repository.InvoiceRepo;
-import com.beehat.repository.ProductDetailRepo;
+import com.beehat.repository.*;
 import com.beehat.service.InvoiceService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.OutputStream;
 import java.time.LocalDateTime;
@@ -30,16 +32,40 @@ public class InvoiceController {
     ProductDetailRepo productDetailRepo;
     @Autowired
     InvoiceService invoiceService;
+    @Autowired
+    VoucherRepo voucherRepo;
     @ModelAttribute("listInvoice")
-    List<Invoice> listInvoice() {
-        return invoiceRepo.findAll(Sort.by(Sort.Direction.DESC, "updatedDate"));
+    Page<Invoice> listInvoice(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(required = false) String searchTerm,
+                              @RequestParam(required = false) Byte invoiceType,
+                              @RequestParam(required = false) LocalDateTime startDate,
+                              @RequestParam(required = false) LocalDateTime endDate,
+                              Model model) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
+        Page<Invoice> invoicePage = invoiceRepo.searchInvoices(searchTerm,invoiceType,startDate,endDate,pageable);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", invoicePage.getTotalPages());
+        model.addAttribute("totalItems", invoicePage.getTotalElements());
+        return invoicePage;
     }
     @ModelAttribute("listInvoiceProcessing")
     List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 0);}
     @ModelAttribute("listInvoiceCanceled")
-    List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 1,(byte) 0);}
+    List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatus((byte) 1);}
     @ModelAttribute("listInvoiceCompleted")
     List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 2,(byte) 0);}
+    @ModelAttribute("listInvoicePreConfirm")
+    List<Invoice> listInvoicePreConfirm() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 3,(byte) 1);}
+    @ModelAttribute("listInvoiceConfirm")
+    List<Invoice> listInvoiceConfirm() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 4,(byte) 1);}
+    @ModelAttribute("listInvoicePickUp")
+    List<Invoice> listInvoicePickUp() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 5,(byte) 1);}
+    @ModelAttribute("listInvoiceShipping")
+    List<Invoice> listInvoiceShipping() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 6,(byte) 1);}
+    @ModelAttribute("listInvoiceDelivery")
+    List<Invoice> listInvoiceDelivery() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 7,(byte) 1);}
+    @ModelAttribute("listInvoiceOk")
+    List<Invoice> listInvoiceOk() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 8,(byte) 1);}
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-file-text fs-3";
@@ -60,18 +86,30 @@ public class InvoiceController {
         model.addAttribute("invoiceDetail", invoiceDetail);
         return "admin/invoice/view-invoice";
     }
+    @Transactional
     @PostMapping("/confirm-invoice")
-    public String confirmInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
-        updateInvoiceStatus(id, (byte) 4, description, (byte) 3);
-        List<InvoiceDetail> invoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
-        for(InvoiceDetail invoiceDetail1 : invoiceDetail) {
-            // Cập nhật số lượng trong kho
-            ProductDetail productDetail = invoiceDetail1.getProductDetail();
-            productDetail.setStock(productDetail.getStock() - invoiceDetail1.getQuantity());
+    public String confirmInvoice(@RequestParam("idINV") int id, @RequestParam("description") String description, RedirectAttributes redirectAttributes) {
+
+        List<InvoiceDetail> invoiceDetailList = invoiceDetailRepo.findByInvoiceId(id);
+
+        for (InvoiceDetail invoiceDetail : invoiceDetailList) {
+            ProductDetail productDetail = invoiceDetail.getProductDetail();
+
+            // Kiểm tra số lượng sản phẩm trong kho
+            if (productDetail.getStock() < invoiceDetail.getQuantity()) {
+                redirectAttributes.addFlashAttribute("error", "Sản phẩm " + productDetail.getProduct().getName() + " không đủ số lượng trong kho.");
+                return "redirect:/admin/order/view-invoice/" + id;
+            }
+            updateInvoiceStatus(id, (byte) 4, description, (byte) 3);
+            // Trừ số lượng sản phẩm trong kho
+            productDetail.setStock(productDetail.getStock() - invoiceDetail.getQuantity());
             productDetailRepo.save(productDetail);
         }
+
+        redirectAttributes.addFlashAttribute("success", "Đơn hàng đã được xác nhận thành công.");
         return "redirect:/admin/order/view-invoice/" + id;
     }
+
     @PostMapping("/pick-up")
     public String pickUpInvoice(@RequestParam("idINV") int id,@RequestParam("description") String description) {
         updateInvoiceStatus(id, (byte) 5, description, (byte) 4);
@@ -99,6 +137,7 @@ public class InvoiceController {
     @PostMapping("/cancel-invoice")
     public String canceledInvoice(@RequestParam("idINV") int id,@RequestParam("cancelDescription") String description) {
         Invoice invoice = invoiceRepo.findById(id).orElseThrow(() -> new RuntimeException("Invoice not found"));
+        // nếu như là hoá đơn tại quầy hoặc là hoá đơn chờ lấy hàng
         if(invoice.getInvoiceStatus() == (byte) 0 || invoice.getStatus() == (byte) 4) {
             List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findByInvoiceId(id);
             if (!invoiceDetails.isEmpty()) {
@@ -108,6 +147,12 @@ public class InvoiceController {
                     productDetailRepo.save(productDetail);
                 }
             }
+        }
+        // Nếu hoá đơn có voucher đã áp dụng, hoàn lại số lượng voucher
+        if (invoice.getVoucher() != null) {
+            Voucher appliedVoucher = invoice.getVoucher();
+            appliedVoucher.setQuantity(appliedVoucher.getQuantity() + 1); // Hoàn lại số lượng voucher
+            voucherRepo.save(appliedVoucher);
         }
         if (invoice.getInvoiceStatus() == (byte) 1) {
             InvoiceStatusHistory oldHistory = invoiceHistoryStatusRepo.findByInvoiceIdAndNewStatus(id,invoice.getStatus());

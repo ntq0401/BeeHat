@@ -27,9 +27,11 @@
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="shop__sidebar">
+                        <form id="filterForm" action="/shop" method="GET">
                         <div class="sidebar__categories">
                             <div class="section-title">
                                 <h4>Danh mục tìm kiếm</h4>
+                                <p></p>
                             </div>
                             <div class="categories__accordion">
                                 <div class="accordion" id="accordionExample">
@@ -43,7 +45,8 @@
                                                     <div class="size__list">
                                                         <label th:each="cate : ${listCate}" th:for="${cate.name}">
                                                             [[${cate.name}]]
-                                                            <input type="checkbox" th:id="${cate.name}" th:data-id="${cate.id}" onclick="filterProducts()">
+                                                            <input type="checkbox" name="categoryId" th:id="${cate.name}" th:data-id="${cate.id}" th:value="${cate.id}"
+                                                                   th:checked="${categoryId != null ? #lists.contains(paramValues.categoryId, cate.id) : false}">
                                                             <span class="checkmark"></span>
                                                         </label>
 
@@ -63,7 +66,8 @@
                                                         <ul>
                                                             <label th:each="mater : ${listMater}" th:for="${mater.name}">
                                                                 [[${mater.name}]]
-                                                                <input type="checkbox" th:id="${mater.name}">
+                                                                <input type="checkbox" name="materialId" th:id="${mater.name}" th:data-id="${mater.id}" th:value="${mater.id}"
+                                                                       th:checked="${materialId != null ? #lists.contains(paramValues.materialId, mater.id) : false}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -83,7 +87,9 @@
                                                         <ul>
                                                             <label th:each="style : ${listStyle}" th:for="${style.name}">
                                                                 [[${style.name}]]
-                                                                <input type="checkbox" th:id="${style.name}">
+                                                                <input type="checkbox" name="styleId" th:id="${style.name}" th:data-id="${style.id}" th:value="${style.id}"
+                                                                       th:checked="${styleId != null ? #lists.contains(paramValues.styleId, style.id) : false}">
+
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -103,7 +109,8 @@
                                                         <ul>
                                                             <label th:each="belt : ${listBelt}" th:for="${belt.name}">
                                                                 [[${belt.name}]]
-                                                                <input type="checkbox" th:id="${belt.name}">
+                                                                <input type="checkbox" name="beltId" th:id="${belt.name}" th:data-id="${belt.id}" th:value="${belt.id}"
+                                                                       th:checked="${beltId != null ? #lists.contains(paramValues.beltId, belt.id) : false}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -123,7 +130,8 @@
                                                         <ul>
                                                             <label th:each="lining : ${listLining}" th:for="${lining.name}">
                                                                 [[${lining.name}]]
-                                                                <input type="checkbox" th:id="${lining.name}">
+                                                                <input type="checkbox" name="liningId" th:id="${lining.name}" th:data-id="${lining.id}" th:value="${lining.id}"
+                                                                       th:checked="${liningId != null ? #lists.contains(paramValues.liningId, lining.id) : false}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -159,7 +167,8 @@
                             <div class="size__list">
                                 <label th:each="size : ${listSize}" th:for="${size.name}">
                                     [[${size.name}]]
-                                    <input type="checkbox" th:id="${size.name}">
+                                    <input type="checkbox" name="sizeId" th:id="${size.name}" th:data-id="${size.id}" th:value="${size.id}"
+                                           th:checked="${sizeId != null ? #lists.contains(paramValues.sizeId, size.id) : false}">
                                     <span class="checkmark"></span>
                                 </label>
 
@@ -172,17 +181,23 @@
                             <div class="size__list color__list">
                                 <label th:each="color : ${listColor}" th:for="${color.name}">
                                     [[${color.name}]]
-                                    <input type="checkbox" th:id="${color.name}">
+                                    <input type="checkbox" name="colorId" th:id="${color.name}" th:data-id="${color.id}" th:value="${color.id}"
+                                           th:checked="${colorId != null ? #lists.contains(paramValues.colorId, color.id) : false}">
+
                                     <span class="checkmark"></span>
                                 </label>
 
                             </div>
                         </div>
+                            <div class="sidebar__filter">
+                            <a href="#" onclick="document.getElementById('filterForm').submit();">Lọc sản phẩm</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <div class="col-lg-9 col-md-9">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6" th:each="p: ${products}">
+                        <div class="col-lg-4 col-md-6" th:each="p: ${listProductShop.content}">
                             <div class="product__item">
                                 <div class="product__item__pic set-bg" th:data-setbg="${p.images[0].getImageUrl()}">
                                     <div class="label new">New</div>
@@ -248,13 +263,31 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-12 text-center">
+                        <div class="col-lg-12 text-center" th:if="${totalPages > 0}">
                             <div class="pagination__option">
-                                <a href="#">1</a>
-                                <a href="#">2</a>
-                                <a href="#">3</a>
-                                <a href="#"><i class="fa fa-angle-right"></i></a>
+                                <!-- Nút "Previous" -->
+                                <a th:classappend="${currentPage == 0} ? 'disabled'"
+                                   th:href="${currentPage > 0} ? @{/shop(page=${currentPage - 1}, size=${size})} : '#'">
+                                    <i class="fa fa-angle-left"></i>
+                                </a>
+
+                                <!-- Danh sách các trang -->
+                                <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                   th:classappend="${i == currentPage} ? 'active'"
+                                   th:href="@{/shop(page=${i}, size=${size})}">
+                                    [[${i + 1}]]
+                                </a>
+
+                                <!-- Nút "Next" -->
+                                <a th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                                   th:href="${currentPage < totalPages - 1} ? @{/shop(page=${currentPage + 1}, size=${size})} : '#'">
+                                    <i class="fa fa-angle-right"></i>
+                                </a>
                             </div>
+                        </div>
+
+                        <div th:if="${totalPages <= 0}" class="alert alert-warning">
+                            Không tìm thấy sản phẩm.
                         </div>
                     </div>
                 </div>

@@ -42,6 +42,45 @@
     <footer class="footer" th:replace="~{/test-theme/menu :: footer}"></footer>
     <div class="search-model" th:replace="~{/test-theme/menu :: search}"></div>
 </body>
+<script>
+    // Hàm hiển thị SweetAlert Toast
+    function showToast(icon, message) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            },
+        });
+        Toast.fire({
+            icon: icon,
+            title: message,
+        });
+    }
+    /**
+     * Hiển thị SweetAlert Confirm
+     * @param {string} title - Tiêu đề của thông báo.
+     * @param {string} text - Nội dung chi tiết của thông báo.
+     * @param {string} confirmButtonText - Văn bản trên nút xác nhận.
+     * @param {string} cancelButtonText - Văn bản trên nút hủy.
+     * @returns {Promise} - Trả về Promise resolve nếu người dùng chọn xác nhận, reject nếu hủy.
+     */
+    function showConfirmDialog(title, text, confirmButtonText = "Đồng ý", cancelButtonText = "Từ chối") {
+        return Swal.fire({
+            title: title,
+            text: text,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: confirmButtonText,
+            cancelButtonText: cancelButtonText,
+            reverseButtons: true
+        });
+    }
+</script>
 <!-- Js Plugins -->
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>

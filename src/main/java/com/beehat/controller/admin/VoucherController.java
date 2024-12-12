@@ -6,11 +6,16 @@ import com.beehat.repository.InvoiceRepo;
 import com.beehat.repository.VoucherRepo;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -21,7 +26,19 @@ public class VoucherController {
     @Autowired
     private InvoiceRepo invoiceRepo;
     @ModelAttribute("listVoucher")
-    public List<Voucher> listVoucher() { return voucherRepo.findAll(); }
+    public Page<Voucher> listVoucher(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(required = false) String searchTerm,
+                                     @RequestParam(required = false) Byte status,
+                                     @RequestParam(required = false) LocalDateTime startDate,
+                                     @RequestParam(required = false) LocalDateTime endDate,
+                                     Model model) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
+        Page<Voucher> vouchers = voucherRepo.searchVouchers(searchTerm,status,startDate,endDate,pageable);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", vouchers.getTotalPages());
+        model.addAttribute("totalItems", vouchers.getTotalElements());
+        return vouchers;
+    }
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-tag fs-3";

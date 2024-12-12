@@ -13,75 +13,61 @@
       <li class="breadcrumb-item active" aria-current="page">Phiếu giảm giá</li>
     </ol>
   </nav>
-  <div class="card">
-    <div class="card-header">
-      <h5 class="card-title">Tìm kiếm</h5>
-    </div>
 
-    <div class="card-body">
-      <div class="row mt-2 d-flex justify-content-center align-items-center">
-        <div class="col-10">
-          <form  method="get">
-            <div class="row">
-              <div class="form-group">
-                <input placeholder="Nhập mã voucher" type="text" class="form-control" id="search" name="search">
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-3">
-                <label>Từ ngày:</label>
-                <input type="datetime-local" class="form-control" id="fromDate" name="fromDate">
-              </div>
-              <div class="col-md-3">
-                <label>Tới ngày:</label>
-                <input type="datetime-local" class="form-control" id="toDate" name="toDate">
-              </div>
-              <div class="col-md-3">
-                <label>Trạng thái:</label>
-                <select class="form-control" id="status" name="status">
-                  <option value="" th:selected="${status == null}">Tất cả</option>
-                  <option value="0" th:selected="${status == 0}">Sắp bắt đầu</option>
-                  <option value="1" th:selected="${status == 1}">Đang diễn ra</option>
-                  <option value="2" th:selected="${status == 2}">Đã kết thúc</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label>Loại giảm</label>
-                <select class="form-control" id="provalue" name="provalue">
-                  <option value="percent" >Phần trăm</option>
-                  <option value="amount" >Giá tiền</option>
-                  <option value="" >Tất cả</option>
-                </select>
-              </div>
-              <div class="col-auto d-flex align-items-center">
-                <button class="btn btn-info" type="submit">
-                  <i class="ph ph-magnifying-glass"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a th:href="@{/admin/voucher/add-voucher}"><button class="btn btn-primary">Thêm mới</button></a>
-        </div>
+
+    <!-- Card tìm kiếm hóa đơn -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Tìm kiếm mã giảm giá</h5>
+      </div>
+      <div class="card-body">
+        <form class="row g-3">
+          <div class="col-md-3">
+            <label for="invoiceCode" class="form-label">Tìm kiếm</label>
+            <input type="text" name="searchTerm" th:value="${param.searchTerm}" class="form-control" id="invoiceCode" placeholder="Nhập mã giảm giá, tên mã giảm...">
+          </div>
+          <div class="col-md-3">
+            <label for="invoiceCode" class="form-label">Trạng thái</label>
+            <select class="form-select" name="status">
+              <option value="" th:selected="${param.status == null || param.status == ''}">Tất cả</option>
+              <option value="0" th:selected="${param.status != null and param.status.toString() == '0'}">Đang diễn ra</option>
+              <option value="1" th:selected="${param.status != null and param.status.toString() == '1'}">Sắp diễn ra</option>
+              <option value="2" th:selected="${param.status != null and param.status.toString() == '2'}">Đã kết thúc</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="startDate" class="form-label">Từ ngày</label>
+            <input type="datetime-local" name="startDate" th:value="${param.startDate}" class="form-control" id="startDate" >
+          </div>
+          <div class="col-md-3">
+            <label for="endDate" class="form-label">Đến ngày</label>
+            <input type="datetime-local" name="endDate" th:value="${param.endDate}" class="form-control" id="endDate" >
+          </div>
+          <div class="col-md-12 text-center">
+            <button type="submit" class="btn btn-primary mt-3 px-4 py-2">Tìm kiếm</button>
+            <a th:href="@{/admin/voucher/index}"><button type="button" class="btn btn-secondary mt-3 px-4 py-2">Làm mới</button></a>
+          </div>
+        </form>
       </div>
     </div>
-  </div>
-  <div class="card mt-5">
-    <div class="card-header">
-      <h5 class="card-title">Danh sách voucher</h5>
-    </div>
+  <div class="card">
+
     <div class="card-body">
+      <!-- Tiêu đề với nút chỉnh sửa bên phải -->
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-3"><strong>Danh sách mã giảm giá</strong></h5>
+        <a th:href="@{/admin/voucher/add-voucher}" class="btn btn-primary mt-2 mb-3">Thêm mã giảm giá</a>
+      </div>
       <table class="table table-bordered table-hover">
         <thead class="thead-light">
         <tr>
           <th>STT</th>
           <th>ID</th>
-          <th>Tên Voucher</th>
-          <th>Mã Code</th>
+          <th>Tên mã giảm giá</th>
+          <th>Mã giảm giá</th>
           <th>Số Lượng</th>
           <th>Phần Trăm Giảm Giá</th>
-          <th>Số Tiền Giảm Giá</th>
           <th>Bắt Đầu</th>
           <th>Kết Thúc</th>
           <th>Trạng Thái</th>
@@ -89,20 +75,19 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="voucher, stat : ${listVoucher}">
+        <tr th:each="voucher, stat : ${listVoucher.content}">
           <td th:text="${stat.index + 1}"></td>
           <td th:text="${voucher.id}"></td>
           <td th:text="${voucher.name}"></td>
           <td th:text="${voucher.code}"></td>
           <td th:text="${voucher.quantity}"></td>
           <td th:text="${voucher.discountPercentage}"></td>
-          <td th:text="${voucher.discountAmount}"></td>
           <td th:text="${#temporals.format(voucher.startDate,'dd/MM/yyyy HH:mm:ss')}"></td>
           <td th:text="${#temporals.format(voucher.endDate,'dd/MM/yyyy HH:mm:ss')}"></td>
           <td>
-            <span th:if="${voucher.status == 0}" class="badge text-bg-warning">Chưa bắt đầu</span>
-            <span th:if="${voucher.status == 1}" class="badge bg-success">Đang diễn ra</span>
-            <span th:if="${voucher.status == 2}" class="badge bg-warning">Đã kết thúc</span>
+            <span class="badge rounded-pill bg-warning text-dark" th:if="${voucher.startDate.isAfter(#temporals.createNow())}">Sắp băt đầu</span>
+            <span class="badge rounded-pill bg-primary" th:if="${voucher.startDate.isBefore(#temporals.createNow()) && voucher.endDate.isAfter(#temporals.createNow())}">Đang diễn ra</span>
+            <span class="badge rounded-pill bg-danger" th:if="${voucher.endDate.isBefore(#temporals.createNow())}">Đã kết thúc</span>
           </td>
           <td>
             <a th:href="@{/admin/voucher/detail-voucher/{id}(id=${voucher.id})}">
@@ -115,6 +100,26 @@
         </tr>
         </tbody>
       </table>
+      <div th:if="${totalPages <= 0}" class="alert alert-warning">
+        Không có mã giảm giá nào.
+      </div>
+      <nav aria-label="Page navigation example" th:if="${totalPages > 0}">
+        <ul class="pagination justify-content-center" >
+          <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+            <a class="page-link" th:href="@{/admin/voucher/index(page=${currentPage - 1}, size=${size})}">Previous</a>
+          </li>
+          <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+              th:classappend="${i == currentPage} ? 'active'">
+            <a class="page-link" th:href="@{/admin/voucher/index(page=${i}, size=${size})}">
+              [[${i + 1}]]
+            </a>
+          </li>
+          <li class="page-item"  th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/admin/voucher/index(page=${currentPage + 1}, size=${size})}">Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </main>

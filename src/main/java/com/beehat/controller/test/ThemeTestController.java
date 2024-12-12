@@ -10,6 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
@@ -106,6 +110,29 @@ public class ThemeTestController {
     @ModelAttribute("listCate")
     List<Category> listCategory() {
         return categoryRepo.findByStatus(Byte.valueOf("1"));
+    }
+
+    @ModelAttribute("listProductShop")
+    public Page<ProductDTO> products(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer materialId,
+            @RequestParam(required = false) Integer styleId,
+            @RequestParam(required = false) Integer liningId,
+            @RequestParam(required = false) Integer beltId,
+            @RequestParam(required = false) String name,
+            Model model) {
+        if (page < 0) {
+            page = 0; // Đảm bảo phân trang hợp lệ
+        }
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
+        Page<Product> productsPage = productRepo.findByCriteria(
+                name,categoryId, materialId, styleId, liningId, beltId, pageable);
+        Page<ProductDTO> productDTOs = productsPage.map(ProductDTO::new);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productDTOs.getTotalPages());
+        model.addAttribute("totalItems", productDTOs.getTotalElements());
+        return productDTOs;
     }
 
     @ModelAttribute("listBelt")
@@ -419,20 +446,32 @@ public class ThemeTestController {
                            @RequestParam("emailInv") String emailInv,
                            @RequestParam("paymentInv") Integer idPayment,
                            //thêm voucher
-                           @RequestParam("code") String code, HttpServletRequest request, HttpSession session
+                           @RequestParam("code") String code, HttpServletRequest request,
+                           HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy phương thức thanh toán
         PaymentMethod paymentMethod = paymentMethodRepo.findById(idPayment).orElse(null);
         if (paymentMethod == null) {
-            return "redirect:/cart";
+            redirectAttributes.addFlashAttribute("error", "Phương thức thanh toán không tồn tại.");
+            return "redirect:/checkout";
         }
-
         // Lấy hóa đơn tạm thời
         Invoice temporaryInvoice = cartService.getTemporaryInvoice();
         if (temporaryInvoice == null) {
             return "redirect:/cart";
         }
         Voucher voucher = voucherRepo.findByCode(code);
+        if (voucher == null || voucher.getQuantity() <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Mã giảm giá không hợp lệ hoặc đã hết.");
+            return "redirect:/checkout";
+        }
+        // Kiểm tra thời hạn sử dụng của voucher
+        if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
+            redirectAttributes.addFlashAttribute("error", "Mã giảm giá này đã hết hạn.");
+            return "redirect:/checkout";
+        }
+
+
         // Cập nhật thông tin vận chuyển và thanh toán cho hóa đơn tạm
         temporaryInvoice.setShippingAddress(addressInv);
         temporaryInvoice.setShippingCity(cityInv);
@@ -571,7 +610,6 @@ public class ThemeTestController {
         // Áp dụng voucher nếu có
         if (invoice.getVoucher() != null) {
             Voucher voucher = invoice.getVoucher();
-
             // Tính giảm giá từ voucher
             int voucherDiscount = (totalPriceAfterPromotion * voucher.getDiscountPercentage()) / 100;
             if (voucherDiscount > voucher.getDiscountMax()) {
@@ -582,6 +620,8 @@ public class ThemeTestController {
             invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
             invoice.setVoucherDiscount(voucherDiscount);
             invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
         } else {
             // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
             invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
@@ -633,7 +673,18 @@ public class ThemeTestController {
         return savedInvoice;
     }
     public Invoice saveInvoiceVnPay(Invoice invoice, List<CartDetail> cartDetails){
-        // Tính tổng giá hóa đơn sau khi áp dụng chương trình giảm giá
+        // Tạo một bản sao của hóa đơn
+        Invoice invoiceVnPay = new Invoice();
+        invoiceVnPay.setShippingAddress(invoice.getShippingAddress());
+        invoiceVnPay.setShippingCity(invoice.getShippingCity());
+        invoiceVnPay.setShippingDistrict(invoice.getShippingDistrict());
+        invoiceVnPay.setShippingWard(invoice.getShippingWard());
+        invoiceVnPay.setPhone(invoice.getPhone());
+        invoiceVnPay.setPaymentMethod(invoice.getPaymentMethod());
+        invoiceVnPay.setVoucher(invoice.getVoucher());
+        invoiceVnPay.setCustomer(invoice.getCustomer());
+        invoiceVnPay.setInvoiceTrackingNumber(invoice.getInvoiceTrackingNumber());
+
         int totalPriceAfterPromotion = 0;
         for (CartDetail cartDetail : cartDetails) {
             ProductDetail productDetail = cartDetail.getProductDetail();
@@ -643,14 +694,15 @@ public class ThemeTestController {
             int discountedPrice = getDiscountedPrice(productDetail, product);
             totalPriceAfterPromotion += discountedPrice * cartDetail.getQuantity();
         }
+
         int totalPrice = cartDetails.stream()
                 .mapToInt(carts -> carts.getProductDetail().getPrice() * carts.getQuantity())
                 .sum();
-        invoice.setTotalPrice(totalPrice);
+        invoiceVnPay.setTotalPrice(totalPrice);
 
         // Áp dụng voucher nếu có
-        if (invoice.getVoucher() != null) {
-            Voucher voucher = invoice.getVoucher();
+        if (invoiceVnPay.getVoucher() != null) {
+            Voucher voucher = invoiceVnPay.getVoucher();
 
             // Tính giảm giá từ voucher
             int voucherDiscount = (totalPriceAfterPromotion * voucher.getDiscountPercentage()) / 100;
@@ -658,16 +710,15 @@ public class ThemeTestController {
                 voucherDiscount = voucher.getDiscountMax();
             }
 
-            // Cập nhật giá trị cuối cùng sau khi áp dụng voucher
-            invoice.setVoucherDiscount(voucherDiscount);
-            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
-            invoice.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
+            invoiceVnPay.setVoucherDiscount(voucherDiscount);
+            invoiceVnPay.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
+            invoiceVnPay.setFinalPrice((totalPriceAfterPromotion - voucherDiscount) + 30000);
         } else {
-            // Nếu không có voucher, finalPrice = totalPrice sau khuyến mãi
-            invoice.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
-            invoice.setFinalPrice(totalPriceAfterPromotion + 30000);
+            invoiceVnPay.setPromotionDiscount(totalPrice - totalPriceAfterPromotion);
+            invoiceVnPay.setFinalPrice(totalPriceAfterPromotion + 30000);
         }
-        return invoice;
+
+        return invoiceVnPay;
     }
 
     @GetMapping("/confirmation")
