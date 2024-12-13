@@ -12,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.YearMonth;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/doanhthu")
@@ -35,29 +34,35 @@ public class AdminDashboard {
 
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getMonthlySales(
-            @RequestParam int month,
-            @RequestParam int year,
-            @RequestParam String type) {
+    public ResponseEntity<Map<String, Object>> getSales(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
 
-        List<Integer> sales = dashBoard.getDoanhThuTheoThang(month, year, type);
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        if(start.isAfter(end)) {
+            start = end.minusDays(30);
+        }
 
-        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
-        List<Integer> labels = IntStream.rangeClosed(1, daysInMonth).boxed().collect(Collectors.toList());
+        // Lấy dữ liệu tổng hợp từ service
+        Map<String, List<Integer>> salesData = dashBoard.getDoanhThuTongHop(start, end);
 
-        int totalSales = sales.stream().mapToInt(Integer::intValue).sum();
-        List<Integer> salesByType = List.of(
-                totalSales / 2,
-                totalSales / 2
-        );
+        // Tạo danh sách ngày (labels)
+        List<String> labels = start.datesUntil(end.plusDays(1))
+                .map(LocalDate::toString)
+                .collect(Collectors.toList());
 
+        // Kết quả trả về
         Map<String, Object> result = new HashMap<>();
         result.put("labels", labels);
-        result.put("sales", sales);
-        result.put("salesByType", salesByType);
+        result.put("onlineSales", salesData.get("onlineSales"));
+        result.put("offlineSales", salesData.get("offlineSales"));
 
         return ResponseEntity.ok(result);
     }
+
+
+
     @GetMapping("/banchay")
     public ResponseEntity<List<ProductResponse>> getTopSellingProducts(
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -71,7 +76,6 @@ public class AdminDashboard {
     @GetMapping("/tileOnline")
     public ResponseEntity<Map<String, Double>> getTopSellingProducts() {
         Map<String, Double> salesData = new HashMap<>();
-        Double phanTram = dashBoard.tileOnlineTrenOffline();
         salesData.put("offline", 100.0 -dashBoard.tileOnlineTrenOffline()); // Example data: replace with dynamic data
         salesData.put("online", dashBoard.tileOnlineTrenOffline()); // Example data: replace with dynamic data
         return ResponseEntity.ok(salesData);
