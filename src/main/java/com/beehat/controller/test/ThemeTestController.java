@@ -446,7 +446,7 @@ public class ThemeTestController {
                            @RequestParam("emailInv") String emailInv,
                            @RequestParam("paymentInv") Integer idPayment,
                            //thêm voucher
-                           @RequestParam("code") String code, HttpServletRequest request,
+                           @RequestParam(value = "code", required = false) String code, HttpServletRequest request,
                            HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy phương thức thanh toán
@@ -460,15 +460,20 @@ public class ThemeTestController {
         if (temporaryInvoice == null) {
             return "redirect:/cart";
         }
-        Voucher voucher = voucherRepo.findByCode(code);
-        if (voucher == null || voucher.getQuantity() <= 0) {
-            redirectAttributes.addFlashAttribute("error", "Mã giảm giá không hợp lệ hoặc đã hết.");
-            return "redirect:/checkout";
-        }
-        // Kiểm tra thời hạn sử dụng của voucher
-        if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
-            redirectAttributes.addFlashAttribute("error", "Mã giảm giá này đã hết hạn.");
-            return "redirect:/checkout";
+        // Kiểm tra voucher nếu mã voucher được nhập
+        if (code != null && !code.trim().isEmpty()) {
+            Voucher voucher = voucherRepo.findByCode(code);
+            if (voucher == null || voucher.getQuantity() <= 0) {
+                redirectAttributes.addFlashAttribute("error", "Mã giảm giá không hợp lệ hoặc đã hết.");
+                return "redirect:/checkout";
+            }
+
+            // Kiểm tra thời hạn sử dụng của voucher
+            if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute("error", "Mã giảm giá này đã hết hạn.");
+                return "redirect:/checkout";
+            }
+            temporaryInvoice.setVoucher(voucher);
         }
 
 
@@ -479,7 +484,7 @@ public class ThemeTestController {
         temporaryInvoice.setShippingWard(wardInv);
         temporaryInvoice.setPhone(phoneInv);
         temporaryInvoice.setPaymentMethod(paymentMethod);
-        temporaryInvoice.setVoucher(voucher);
+
         // Kiểm tra giỏ hàng
         List<CartDetail> cartDetails;
         if (temporaryInvoice.getCustomer() != null) {

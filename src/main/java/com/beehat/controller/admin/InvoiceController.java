@@ -2,6 +2,7 @@ package com.beehat.controller.admin;
 
 import com.beehat.entity.*;
 import com.beehat.repository.*;
+import com.beehat.service.AddressService;
 import com.beehat.service.InvoiceService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class InvoiceController {
     InvoiceService invoiceService;
     @Autowired
     VoucherRepo voucherRepo;
+    @Autowired
+    AddressService addressService;
     @ModelAttribute("listInvoice")
     Page<Invoice> listInvoice(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(required = false) String searchTerm,
@@ -83,6 +86,8 @@ public class InvoiceController {
         Invoice invoice = invoiceRepo.findById(id).get();
         List<InvoiceDetail> invoiceDetail = invoiceDetailRepo.findByInvoiceId(id);
         model.addAttribute("invoice", invoice);
+        String addressC = addressService.getWardNameByCode(invoice.getShippingWard())+ ' '+ addressService.getDistrictNameByCode(invoice.getShippingDistrict())+' '+ addressService.getProvinceNameByCode(invoice.getShippingCity());
+        model.addAttribute("addressC", addressC);
         model.addAttribute("invoiceDetail", invoiceDetail);
         return "admin/invoice/view-invoice";
     }

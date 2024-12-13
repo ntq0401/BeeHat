@@ -45,5 +45,13 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
             String keyword,
             Pageable pageable
     );
-
+    @Query("SELECT pd FROM ProductDetail pd " +
+            "WHERE (:colorId IS NULL OR pd.color.id = :colorId) " +
+            "AND (:sizeId IS NULL OR pd.size.id = :sizeId) " +
+            "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR pd.price <= :maxPrice)")
+    List<ProductDetail> findByColorSizeAndPrice(@Param("colorId") Integer colorId,
+                                                @Param("sizeId") Integer sizeId,
+                                                @Param("minPrice") Integer minPrice,
+                                                @Param("maxPrice") Integer maxPrice);
 }

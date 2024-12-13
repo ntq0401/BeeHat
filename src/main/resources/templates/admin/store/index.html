@@ -398,7 +398,8 @@
                                             <input class="form-control"
                                                    style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1px;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                                                    type="number" name="quantities" th:value="${invoiceDetail.quantity}"
-                                                   min="1" step="1" max="1000000" pattern="\d+"
+                                                   min="1" step="1" max="1000000" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190"
+                                                   oninput="this.value = this.value.replace(/\D|^0|\./g, '')"
                                                    th:data-quantity-product="${invoiceDetail.productDetail.stock}"
                                                    th:data-quantity-invoice-detail="${invoiceDetail.quantity}"
                                                    onchange="checkQuantityAndSubmit(this)"/>
@@ -531,11 +532,15 @@
                                 <table class="table mb-5 mt-3">
                                     <tbody>
                                     <form th:object="${infoInvoice}">
-                                        <tr>
+                                        <tr class="bg-light">
                                             <td>Tổng tiền :</td>
-                                            <td id="totalPrice" th:if="${infoInvoice != null}" class="text-end"
-                                                th:field="*{totalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}"
-                                                th:data-totalprice="*{totalPrice}"></td>
+                                            <td class="text-end">
+                                                <span id="totalPrice" th:if="${infoInvoice != null}"
+                                                      th:field="*{totalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}"
+                                                      th:data-totalprice="*{totalPrice}">
+                                            </span>
+
+                                            </td>
                                         </tr>
                                         <tr id="discountRow" style="display: none;">
                                             <td>Giảm giá voucher :</td>
@@ -705,10 +710,10 @@
                                     th:data-invoice-submit-payment="${infoInvoice != null ? infoInvoice.id : null}"
                                     onclick="submitPayment(this)">Xác nhận thanh toán
                             </button>
+
                         </div>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
@@ -771,8 +776,13 @@
             const maxQuantity = parseInt(inputElement.getAttribute('data-quantity-product')); // Số lượng trong kho
             const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
 
-            if (isNaN(quantity) ||quantity <= 0) {
-                alert("Số lượng sản phẩm không hợp lệ !")
+            if (isNaN(quantity) || quantity <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thất bại',
+                    text: 'Kí tự không hợp lệ !',
+                    showConfirmButton: true
+                });
                 inputElement.value = lastQuantity;
                 form.onsubmit = function () {
                     return false; // Ngăn không cho form được submit
@@ -903,14 +913,14 @@
                 });
                 return; // Dừng lại không thực hiện tiếp
             }
-            if (customerSelect == "") {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Thanh toán thất bại',
-                    text: 'Không thể thanh toán vì bạn chưa chọn khách hàng!',
-                });
-                return; // Dừng lại không thực hiện tiếp
-            }
+            // if (customerSelect == "") {
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Thanh toán thất bại',
+            //         text: 'Không thể thanh toán vì bạn chưa chọn khách hàng!',
+            //     });
+            //     return; // Dừng lại không thực hiện tiếp
+            // }
             Swal.fire({
                 title: 'Bạn có chắc chắn muốn thanh toán?',
                 icon: 'warning',

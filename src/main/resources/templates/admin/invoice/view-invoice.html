@@ -483,10 +483,10 @@
                         <span>Khách hàng :</span> <span th:if="${invoice.customer != null}">[[${invoice.customer.fullname}]]</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1 small">
-                        <span>Số điện thoại :</span> <span th:if="${invoice.customer != null}">[[${invoice.customer.phone}]]</span>
+                        <span th:if="${invoice.invoiceStatus == 1}">Số điện thoại :</span> <span >[[${invoice.phone}]]</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1 small" th:if="${invoice.status == 1}">
-                        <span>Địa chỉ giao hàng : </span> <span class="text-danger" th:if="${invoice.customer != null}">[[${invoice.customer.allAddress}]]</span>
+                        <span>Địa chỉ giao hàng : </span> <span class="text-danger text-end" th:if="${invoice != null}">[[${invoice.shippingAddress+' '+ addressC}]]</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1 small">
                         <span>Ngày tạo đơn hàng : </span> <span class="text-danger">[[${#temporals.format(invoice.createdDate, 'dd/MM/yyyy HH:mm')}]]</span>

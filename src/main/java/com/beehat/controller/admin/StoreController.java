@@ -432,20 +432,6 @@ public class StoreController {
         return productDetail.getPrice();
     }
 
-
-    @PostMapping("/add-customer-to-invoice")
-    public String addCustomerToInvoice(@RequestParam("customerId") int customerId, @RequestParam("invoiceId") int invoiceId) {
-        Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
-        Customer customer = customerRepo.findById(customerId).orElse(null);
-
-        if (invoice != null && customer != null) {
-            invoice.setCustomer(customer);
-            invoiceRepo.save(invoice);
-        }
-
-        return "redirect:/admin/store/invoice-detail/" + invoiceId;
-    }
-
     @PostMapping("/updateCustomer")
     public ResponseEntity<String> updateCustomer(
             @RequestParam("invoiceId") Integer invoiceId,

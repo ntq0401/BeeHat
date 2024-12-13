@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,6 +59,7 @@ public class ProductController {
     String iconTitle() {
         return "ph ph-baseball-cap fs-3";
     }
+
     @ModelAttribute("pageTitle")
     String pageTitle() {
         return "Sản phẩm";
@@ -97,6 +99,7 @@ public class ProductController {
     List<Size> listSize() {
         return sizeRepo.findByStatus(Byte.valueOf("1"));
     }
+
     @ModelAttribute("listProduct")
     public Page<Product> products(
             @RequestParam(defaultValue = "0") int page,
@@ -110,17 +113,19 @@ public class ProductController {
 
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
         Page<Product> productsPage = productRepo.findByCriteria(
-                name,categoryId, materialId, styleId, liningId, beltId, pageable);
+                name, categoryId, materialId, styleId, liningId, beltId, pageable);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productsPage.getTotalPages());
         model.addAttribute("totalItems", productsPage.getTotalElements());
         return productsPage;
     }
+
     @GetMapping("/index")
     public String product(Model model) {
         model.addAttribute("product", productRepo.findAll());
         return "admin/product/product";
     }
+
     @GetMapping("/add-product")
     public String addProduct(Model model) {
         model.addAttribute("p", new Product());
@@ -321,17 +326,31 @@ public class ProductController {
         productRepo.save(p);
         return "redirect:/admin/product/index";
     }
+
     @GetMapping("/detail-product/{id}")
     public String detailProduct(@PathVariable("id") int id, Model model) {
         model.addAttribute("product", productRepo.findById(id).orElse(null));
+        model.addAttribute("listProductDetails", productDetailRepo.findByProductId(id));
         return "admin/product/view-product-detail";
     }
+    @GetMapping("/detail-product/search")
+    public String detailProductSearch(@RequestParam (required = false) int color,
+                                      @RequestParam (required = false) int size,
+                                      @RequestParam (defaultValue = "0", required = false) int minPrice,
+                                      @RequestParam (defaultValue = "0", required = false) int maxPrice, Model model) {
+        List<ProductDetail> productDetails = productDetailRepo.findByColorSizeAndPrice(color, size, minPrice, maxPrice);
+        model.addAttribute("product", productRepo.findById(productDetails.getFirst().getProduct().getId()).orElse(null));
+        model.addAttribute("listProductDetails",productDetails);
+        return "admin/product/view-product-detail";
+    }
+
     @PostMapping("/add-category")
     @ResponseBody
     public ResponseEntity<Category> addCategory(@RequestBody Category categorydto) {
         Category category = categoryRepo.save(categorydto); // Lưu danh mục mới
         return ResponseEntity.ok(category); // Trả về đối tượng danh mục vừa thêm
     }
+
     @GetMapping("/test-page")
     public String viewProducts(Model model,
                                @RequestParam(defaultValue = "1") int page) {
@@ -348,11 +367,12 @@ public class ProductController {
         model.addAttribute("productPage", productPage);
         return "admin/product/productTable :: productTable";
     }
+
     @PostMapping("/change-product-detail")
     public String changeProductDetail(@RequestParam("id") int id,
                                       @RequestParam("quantity") int quantity,
-                                      @RequestParam("price") int price,
-                                      Model model) {
+                                      @RequestParam("price") int price
+    ) {
         ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
         if (productDetail == null) {
             return "redirect:/admin/product/index";
@@ -363,22 +383,61 @@ public class ProductController {
         promotionService.resetALLInvoiceDetailPrice();
         return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
     }
+
     @PostMapping("/change-status-product-detail")
-    public String changeStatusProductDetail(@RequestParam("id") int id){
+    public String changeStatusProductDetail(@RequestParam("id") int id) {
         ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
         if (productDetail == null) {
             return "redirect:/admin/product/index";
         }
-        if (productDetail.getStatus() == 1){
+        if (productDetail.getStatus() == 1) {
             productDetail.setStatus((byte) 2);
             productDetailRepo.save(productDetail);
             return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
         }
-        if (productDetail.getStatus() == 2){
+        if (productDetail.getStatus() == 2) {
             productDetail.setStatus((byte) 1);
             productDetailRepo.save(productDetail);
             return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
         }
         return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
+    }
+
+    @PostMapping("/update-product-details")
+    public String updateBulkProductDetails(@RequestParam List<Integer> selectedVariants,
+                                           @RequestParam int productId,
+                                           @RequestParam List<Integer> quantity,
+                                           @RequestParam List<Integer> price,
+                                           RedirectAttributes redirectAttributes) {
+        // Đảm bảo `selectedVariants` không rỗng
+        if (selectedVariants.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Bạn chưa chọn sản phẩm nào để cập nhật!");
+            return "redirect:/admin/product/detail-product/";
+        }
+
+        // Duyệt qua danh sách selectedVariants và tìm dữ liệu tương ứng
+        for (Integer variantId : selectedVariants) {
+            // Lấy index của variantId trong danh sách full
+            int index = selectedVariants.indexOf(variantId);
+
+            // Lấy số lượng và giá tại vị trí tương ứng
+            Integer sl = quantity.get(index);
+            Integer gia = price.get(index);
+
+            // Lấy sản phẩm biến thể từ DB
+            ProductDetail variant = productDetailRepo.findById(variantId).orElse(null);
+            if (variant != null) {
+                // Cập nhật số lượng và giá
+                variant.setStock(sl);
+                variant.setPrice(gia);
+                productDetailRepo.save(variant);
+            } else {
+                // Ghi log nếu không tìm thấy biến thể
+                System.out.println("Không tìm thấy sản phẩm biến thể với ID: " + variantId);
+            }
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công các sản phẩm được chọn!");
+        return "redirect:/admin/product/detail-product/" + productId;
     }
 }
