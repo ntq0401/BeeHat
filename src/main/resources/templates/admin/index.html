@@ -203,53 +203,80 @@
             </div>
         </div>
 
-
-            <div class="card" >
-                <div class="card-header" >
-                    <div class="fw-semibold fs-6">Doanh số bán hàng</div>
-                    <div class="d-flex" style="gap: 10px;">
-                        <select id="salesType" class="form-control mr-2">
-                            <option value="offline">Tại quầy</option>
-                            <option value="online">Bán online</option>
-                        </select>
-                        <input id="salesDate" type="date" class="form-control" value="2024-12-11">
-                    </div>
+        <div class="card" >
+            <div class="card-header">
+                <div class="fw-semibold fs-6">Bán Hàng</div>
+                <div class="d-flex" style="gap: 10px;">
+                    <input id="startDate" type="date" class="form-control" value="2024-12-01">
+                    <input id="endDate" type="date" class="form-control" value="2024-12-17">
                 </div>
-                <div class="card-body d-flex chart-container-wrapper">
-
-                    <!-- Biểu đồ cột -->
-                    <div class="chart-container">
-                        <canvas id="salesChart" style="height: 300px; width: 100%;"></canvas>
-                    </div>
-                    <!-- Biểu đồ tròn -->
-                    <div class="chart-container1" style="padding-left: 180px;">
-                        <canvas id="pieChart1" style="height: 300px; width: 100%;"></canvas>
-                    </div>
-                </div>
-
-
-                <strong>Sản phẩm bán chạy</strong>
-                <table id="topSellingProductsTable" border="1" class="table table-hover">
-                    <!-- Bảng sẽ được cập nhật từ script -->
-                </table>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="d-flex chart-container-wrapper">
+                <!-- Biểu đồ cột -->
+                <div class="chart-container">
+                    <canvas id="salesChart" style="height: 300px; width: 100%;"></canvas>
+                </div>
+                <!-- Biểu đồ tròn -->
+                <div class="chart-container1" style="padding-left: 180px;">
+                    <canvas id="pieChart1" style="height: 300px; width: 100%;"></canvas>
+                </div>
+            </div>
+            <hr>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                <!-- Bảng Sản phẩm bán chạy -->
+                <div style="flex: 1;">
+                    <strong>Sản phẩm bán chạy</strong>
+                    <table id="topSellingProductsTable" border="1" style="width: 100%; border-collapse: collapse;" class="table table-hover">
+                        <!-- Bảng sẽ được cập nhật từ script -->
+                    </table>
+                </div>
 
-            <script>
-                // Hàm fetch danh sách sản phẩm bán chạy
-                async function fetchTopSellingProducts(limit) {
-                    try {
-                        const response = await fetch(`/doanhthu/banchay?limit=${limit}`);
-                        const productCountMap = await response.json(); // Dữ liệu trả về từ server
+                <!-- Bảng Top khách hàng -->
+                <div style="flex: 1;">
+                    <strong>Top khách hàng</strong>
+                    <table style="width: 100%; border-collapse: collapse;" border="1"  class="table table-hover">
+                        <thead>
+                        <tr style="text-align: center">
+                            <th scope="col">STT</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Tổng đơn hàng</th>
+                            <th scope="col">Tổng giá trị</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="customer, stt : ${topCustomers}" style="text-align: center">
+                            <td >[[${stt.index + 1}]]</td>
+                            <td>[[${customer.nameCustomer}]]</td>
+                            <td>[[${customer.phoneNumber}]]</td>
+                            <td>[[${customer.totalOrders}]]</td>
+                            <td>[[${customer.totalPayments}]] đ</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                        // Hiển thị danh sách sản phẩm dưới dạng bảng
-                        const productTable = document.getElementById("topSellingProductsTable");
-                        productTable.innerHTML = ""; // Xóa bảng cũ
+        </div>
 
-                        // Tạo tiêu đề cho bảng
-                        const tableHeader = document.createElement("thead");
-                        tableHeader.innerHTML = `
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            // Hàm fetch danh sách sản phẩm bán chạy
+            async function fetchTopSellingProducts(limit) {
+                try {
+                    const response = await fetch(`/doanhthu/banchay?limit=${limit}`);
+                    const productCountMap = await response.json(); // Dữ liệu trả về từ server
+
+                    // Hiển thị danh sách sản phẩm dưới dạng bảng
+                    const productTable = document.getElementById("topSellingProductsTable");
+                    productTable.innerHTML = ""; // Xóa bảng cũ
+
+                    // Tạo tiêu đề cho bảng
+                    const tableHeader = document.createElement("thead");
+                    tableHeader.innerHTML = `
                 <tr>
                     <th scope="col">Hình ảnh</th>
                     <th scope="col">Tên sản phẩm</th>
@@ -257,190 +284,191 @@
                     <th scope="col">Giá</th>
                 </tr>
             `;
-                        productTable.appendChild(tableHeader);
+                    productTable.appendChild(tableHeader);
 
-                        // Tạo phần thân bảng
-                        const tableBody = document.createElement("tbody");
+                    // Tạo phần thân bảng
+                    const tableBody = document.createElement("tbody");
 
-                        // Duyệt qua danh sách sản phẩm bán chạy
-                        productCountMap.forEach(product => {
-                            const row = document.createElement("tr");
+                    // Duyệt qua danh sách sản phẩm bán chạy
+                    productCountMap.forEach(product => {
+                        const row = document.createElement("tr");
 
-                            // Tạo thẻ img để hiển thị hình ảnh sản phẩm
-                            const imageCell = document.createElement("td");
-                            const imageElement = document.createElement("img");
-                            imageElement.src = product.image; // Đặt nguồn ảnh
-                            imageElement.alt = product.name; // Thêm tên sản phẩm vào alt cho ảnh
-                            imageElement.style.width = "100px"; // Đặt kích thước ảnh nếu cần
-                            imageElement.style.height = "100px"; // Đặt kích thước ảnh nếu cần
-                            imageCell.appendChild(imageElement);
 
-                            // Tạo các ô dữ liệu cho tên, số lượng bán và giá
-                            const nameCell = document.createElement("td");
-                            nameCell.textContent = product.name;
+                        const imageCell = document.createElement("td");
+                        const imageElement = document.createElement("img");
+                        imageElement.src = product.image;
+                        imageElement.alt = product.name;
+                        imageElement.style.width = "100px";
+                        imageElement.style.height = "100px";
+                        imageCell.appendChild(imageElement);
 
-                            const quantityCell = document.createElement("td");
-                            quantityCell.textContent = product.sl;
+                        const nameCell = document.createElement("td");
+                        nameCell.textContent = product.name;
 
-                            const priceCell = document.createElement("td");
-                            priceCell.textContent = product.price;
+                        const quantityCell = document.createElement("td");
+                        quantityCell.textContent = product.sl;
 
-                            // Thêm các ô vào dòng
-                            row.appendChild(imageCell);
-                            row.appendChild(nameCell);
-                            row.appendChild(quantityCell);
-                            row.appendChild(priceCell);
+                        const priceCell = document.createElement("td");
+                        priceCell.textContent = product.price + " đ";
 
-                            // Thêm dòng vào thân bảng
-                            tableBody.appendChild(row);
-                        });
+                        row.appendChild(imageCell);
+                        row.appendChild(nameCell);
+                        row.appendChild(quantityCell);
+                        row.appendChild(priceCell);
 
-                        // Thêm thân bảng vào bảng chính
-                        productTable.appendChild(tableBody);
-                    } catch (error) {
-                        console.error("Lỗi khi tải danh sách sản phẩm bán chạy:", error);
-                    }
+                        tableBody.appendChild(row);
+                    });
+
+                    productTable.appendChild(tableBody);
+                } catch (error) {
+                    console.error("Lỗi khi tải danh sách sản phẩm bán chạy:", error);
                 }
+            }
 
-                // Gọi hàm lấy danh sách sản phẩm bán chạy với giới hạn 5 sản phẩm
-                fetchTopSellingProducts(5);
-            </script>
-
-
+            fetchTopSellingProducts(5);
+        </script>
 
 
 
-        </div>
-        <script>
-            const ctx = document.getElementById('salesChart').getContext('2d');
 
-            // Tạo biểu đồ ban đầu
-            const salesChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [], // Sẽ được cập nhật từ API
-                    datasets: [
-                        {
-                            label: 'Doanh số',
-                            data: [], // Sẽ được cập nhật từ API
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            fill: true,
-                        }
-                    ]
+
+    </div>
+
+
+    <script>
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        // Tạo biểu đồ ban đầu
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Sẽ được cập nhật từ API
+                datasets: [
+                    {
+                        label: 'Doanh thu Online',
+                        data: [], // Dữ liệu online
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Doanh thu Tại quầy',
+                        data: [], // Dữ liệu offline
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ngày'
                         }
                     },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'tháng theo năm'
-                            }
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Doanh thu (đ)'
                         },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Doanh thu (đ)'
-                            },
-                            beginAtZero: true
-                        }
+                        beginAtZero: true
                     }
                 }
-            });
-
-            // Hàm fetch dữ liệu từ RestController
-            async function fetchMonthlySales(month, year, type) {
-                try {
-                    const response = await fetch(`/doanhthu?month=${month}&year=${year}&type=${type}`);
-                    const data = await response.json();
-
-                    // Cập nhật dữ liệu cho biểu đồ
-                    salesChart.data.labels = data.labels; // Mảng ngày [1, 2, ..., 31]
-                    salesChart.data.datasets[0].data = data.sales; // Mảng doanh thu
-                    salesChart.update(); // Cập nhật biểu đồ
-                } catch (error) {
-                    console.error('Lỗi khi lấy dữ liệu:', error);
-                }
             }
+        });
 
-            // Lấy giá trị tháng, năm và loại bán hàng từ người dùng
-            function updateSalesChart() {
-                const dateInput = document.getElementById('salesDate').value;
-                const salesType = document.getElementById('salesType').value;
+        // Hàm fetch dữ liệu từ RestController
+        async function fetchSalesData(startDate, endDate) {
+            try {
+                const response = await fetch(`/doanhthu?startDate=${startDate}&endDate=${endDate}`);
+                const data = await response.json();
 
-                // Chuyển ngày thành tháng và năm
-                const selectedDate = new Date(dateInput);
-                const month = selectedDate.getMonth() + 1; // Tháng (1-12)
-                const year = selectedDate.getFullYear(); // Năm
-
-                // Gọi hàm fetch dữ liệu
-                fetchMonthlySales(month, year, salesType);
+                // Cập nhật dữ liệu cho biểu đồ
+                salesChart.data.labels = data.labels; // Ngày
+                salesChart.data.datasets[0].data = data.onlineSales; // Doanh thu online
+                salesChart.data.datasets[1].data = data.offlineSales; // Doanh thu offline
+                salesChart.update(); // Cập nhật biểu đồ
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu:', error);
             }
+        }
 
-            // Lắng nghe sự kiện thay đổi
-            document.getElementById('salesDate').addEventListener('change', updateSalesChart);
-            document.getElementById('salesType').addEventListener('change', updateSalesChart);
+        // Lấy giá trị từ người dùng
+        function updateSalesChart() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
-            // Gọi hàm fetch dữ liệu lần đầu (tháng hiện tại)
-            updateSalesChart();
+            // Gọi hàm fetch dữ liệu
+            fetchSalesData(startDate, endDate);
+        }
 
-        </script>
-        <script>
-            // Ensure you are using the right chart data
-            const ctxPie = document.getElementById('pieChart1').getContext('2d');
+        // Lắng nghe sự kiện thay đổi
+        document.getElementById('startDate').addEventListener('change', updateSalesChart);
+        document.getElementById('endDate').addEventListener('change', updateSalesChart);
 
-            // Create Pie Chart with empty data (we'll update this after fetching data)
-            const pieChart = new Chart(ctxPie, {
-                type: 'pie', // or 'doughnut' if you want a doughnut chart
-                data: {
-                    labels: ['Offline', 'Online'], // Label for each section
-                    datasets: [{
-                        label: 'Sales Distribution',
-                        data: [0, 0], // Initially empty, will update after fetch
-                        backgroundColor: ['#FF5733', '#33FF57'], // Colors for the slices
-                        borderColor: ['#FF5733', '#33FF57' ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': ' + tooltipItem.raw + '%';
-                                }
+        // Gọi lần đầu tiên với ngày mặc định
+        updateSalesChart();
+
+    </script>
+
+    <script>
+        // Ensure you are using the right chart data
+        const ctxPie = document.getElementById('pieChart1').getContext('2d');
+
+        // Create Pie Chart with empty data (we'll update this after fetching data)
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie', // or 'doughnut' if you want a doughnut chart
+            data: {
+                labels: ['Offline', 'Online'], // Label for each section
+                datasets: [{
+                    label: 'Sales Distribution',
+                    data: [0, 0], // Initially empty, will update after fetch
+                    backgroundColor: ['#FF5733', '#33FF57'], // Colors for the slices
+                    borderColor: ['#FF5733', '#33FF57' ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + '%';
                             }
                         }
                     }
                 }
-            });
+            }
+        });
 
-            // Fetch data from the controller
-            fetch('/doanhthu/tileOnline')  // Call your API
-                .then(response => response.json())
-                .then(data => {
-                    // Update chart with data from the controller
-                    const offline = data.offline;
-                    const online = data.online;
+        // Fetch data from the controller
+        fetch('/doanhthu/tileOnline')  // Call your API
+            .then(response => response.json())
+            .then(data => {
+                // Update chart with data from the controller
+                const offline = data.offline;
+                const online = data.online;
 
-                    // Update the chart data
-                    pieChart.data.datasets[0].data = [offline, online];
-                    pieChart.update();  // Re-render the chart with updated data
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
+                // Update the chart data
+                pieChart.data.datasets[0].data = [offline, online];
+                pieChart.update();  // Re-render the chart with updated data
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
 
 
-    </main>
+</main>
 </body>
 </html>
