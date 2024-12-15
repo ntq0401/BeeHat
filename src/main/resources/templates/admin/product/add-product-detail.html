@@ -14,23 +14,34 @@
             <input class="form-control" th:field="*{product}" th:value="*{product.id}" readonly>
         </p>
         <p th:if="${#fields.hasErrors('product')}" class="text-danger" th:errors="*{product}"></p>
-        <p>Màu sắc:</p>
-        <div th:each="color : ${listColor}">
-            <input class="form-color" type="checkbox"
-                   th:value="${color.id}"
-                   th:name="colors"
-                   th:checked="${selectedColors != null and selectedColors.contains(color.id)}"
-            /> [[${color.name}]]
+        <div class="row mb-3">
+            <label class="form-label">Màu sắc:</label>
+            <div class="col-md-12 d-flex flex-wrap">
+                <div class="form-check me-3 mb-2" th:each="color : ${listColor}">
+                    <input class="form-check-input" type="checkbox"
+                           th:id="'color-' + ${color.id}"
+                           th:value="${color.id}"
+                           th:name="colors"
+                           th:checked="${selectedColors != null and selectedColors.contains(color.id)}" />
+                    <label class="form-check-label" th:for="'color-' + ${color.id}">[[${color.name}]]</label>
+                </div>
+            </div>
+            <div th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></div>
         </div>
-        <p th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></p>
 
-        <p>Kích cỡ:</p>
-        <div th:each="size : ${listSize}">
-            <input type="checkbox"
-                   th:value="${size.id}"
-                   th:name="sizes"
-                   th:checked="${selectedSizes != null and selectedSizes.contains(size.id)}"
-            /> [[${size.name}]]
+        <div class="row mb-3">
+            <label class="form-label">Kích cỡ:</label>
+            <div class="col-md-12 d-flex flex-wrap">
+                <div class="form-check me-3 mb-2" th:each="size : ${listSize}">
+                    <input class="form-check-input" type="checkbox"
+                           th:id="'size-' + ${size.id}"
+                           th:value="${size.id}"
+                           th:name="sizes"
+                           th:checked="${selectedSizes != null and selectedSizes.contains(size.id)}" />
+                    <label class="form-check-label" th:for="'size-' + ${size.id}">[[${size.name}]]</label>
+                </div>
+            </div>
+            <div th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></div>
         </div>
         <p th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></p>
 
@@ -53,12 +64,9 @@
         <button type="submit" class="btn btn-success">Create</button>
     </form>
 
-    <div th:each="entry : ${groupedByColor}">
-        <!-- Hiển thị tên màu từ đối tượng Color -->
-        <h3>Danh sách chi tiết sản phẩm màu : [[${entry.key.name}]]</h3>
-        <!-- entry.key là đối tượng Color, có thuộc tính name -->
-
-        <table class="table">
+    <div th:each="entry : ${groupedByColor}" class="mt-4">
+        <h3>Danh sách chi tiết sản phẩm màu: [[${entry.key.name}]]</h3>
+        <table class="table table-bordered table-hover mt-3">
             <thead>
             <tr>
                 <th>ID sản phẩm</th>
@@ -71,7 +79,6 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Hiển thị danh sách sản phẩm theo màu -->
             <tr th:each="productDetail : ${entry.value}">
                 <td>[[${productDetail.product.id}]]</td>
                 <td>[[${productDetail.product.name}]]</td>
@@ -79,11 +86,12 @@
                 <td>[[${productDetail.size.name}]]</td>
                 <td>[[${productDetail.price}]]</td>
                 <td>[[${productDetail.stock}]]</td>
-                <td>[[${productDetail.status ==1 ?'Hoạt động' : 'Không hoạt động'}]]</td>
+                <td>[[${productDetail.status == 1 ? 'Hoạt động' : 'Không hoạt động'}]]</td>
             </tr>
             </tbody>
         </table>
     </div>
+
 </main>
 </body>
 </html>

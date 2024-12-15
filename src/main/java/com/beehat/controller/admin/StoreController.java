@@ -471,9 +471,13 @@ public class StoreController {
             // Xử lý lỗi nếu hóa đơn không tồn tại
             return createErrorResponse("Không tìm thấy hoá đơn");
         }
-
+        String productError = checkProductAvailability(invoice.getInvoiceDetails());
+        if (productError != null) {
+            return createErrorResponse(productError);
+        }
         // Tìm voucher nếu có
         Voucher voucher = null;
+        int voucherDiscount = 0;
         if (voucherPayment != -1) {
             voucher = voucherRepo.findById(voucherPayment).orElse(null);
             if (voucher == null) {
@@ -489,27 +493,47 @@ public class StoreController {
             if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
                 return createErrorResponse("Mã giảm giá này đã hết hạn");
             }
-                invoice.setVoucher(voucher);
-                Integer maxValue = voucher.getDiscountMax();
-                // Tính giá sau khi áp dụng voucher
-                Integer totalPrice = invoice.getTotalPrice();
-                Integer promotionDiscount = invoice.getPromotionDiscount();
-                Integer discountAmount =  ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100 > maxValue ? maxValue : ((totalPrice - promotionDiscount) * voucher.getDiscountPercentage()) / 100;
-                invoice.setVoucherDiscount(discountAmount);
-                invoice.setFinalPrice(totalPayment);
-                // Trừ số lượng voucher
-                voucher.setQuantity(voucher.getQuantity() - 1);
-                voucherRepo.save(voucher);
-        } else {
-            invoice.setFinalPrice(totalPayment);
+            // Kiểm tra hạn mức tối thiểu của voucher
+            int totalPrice = invoice.getTotalPrice();
+            int promotionDiscount = invoice.getPromotionDiscount();
+            int subtotal = totalPrice - promotionDiscount; // Tổng tiền sau khi trừ giảm giá khuyến mãi
+            if (subtotal < voucher.getMinOrderValue()) {
+                return createErrorResponse("Hoá đơn không đạt giá trị tối thiểu để áp dụng mã giảm giá.");
+            }
+
+            // Tính toán giảm giá
+            int discountPercentage = voucher.getDiscountPercentage();
+            int maxDiscount = voucher.getDiscountMax();
+            voucherDiscount = Math.min(
+                    (invoice.getTotalPrice() - invoice.getPromotionDiscount()) * discountPercentage / 100,
+                    maxDiscount
+            );
         }
+        // Tính toán finalPrice
+        int finalPrice = invoice.getTotalPrice() - invoice.getPromotionDiscount() - voucherDiscount;
+        if (finalPrice < 0) {
+            return createErrorResponse("Giảm giá vượt quá giá trị hoá đơn. Vui lòng kiểm tra lại.");
+        }
+
+        // Cập nhật thông tin hóa đơn
+        invoice.setVoucher(voucher);
+        invoice.setVoucherDiscount(voucherDiscount);
+        invoice.setFinalPrice(finalPrice);
 
         // Tìm phương thức thanh toán
         PaymentMethod paymentMethodEntity = paymentMethodRepo.findById(paymentMethod).orElse(null);
         if (paymentMethodEntity == null) {
-            throw new RuntimeException("Invalid payment method");
+            return createErrorResponse("Phương thức thanh toán này không hợp lệ");
         }
         invoice.setPaymentMethod(paymentMethodEntity);
+        // Cập nhật trạng thái hóa đơn
+        invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất
+        invoiceRepo.save(invoice);
+
+        if (voucher != null) {
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
+        }
 
         // Tạo mã giao dịch
         String transactionCode = UUID.randomUUID().toString().substring(0, 5).toUpperCase()
@@ -518,26 +542,26 @@ public class StoreController {
         // Tạo bản ghi lịch sử thanh toán
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.setInvoice(invoice);
-        paymentHistory.setAmountPaid(totalPayment);
+        paymentHistory.setAmountPaid(finalPrice);
         paymentHistory.setPaymentDate(LocalDateTime.now());
         paymentHistory.setTransactionCode(transactionCode);
         paymentHistory.setPaymentMethod(paymentMethodEntity);
-
-        // Kiểm tra số tiền thanh toán
-        if (totalPayment < invoice.getFinalPrice()) {
-            throw new RuntimeException("Insufficient payment amount");
-        }
-        // Cập nhật trạng thái hóa đơn
-        invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất
-        invoiceRepo.save(invoice);
-
         // Lưu lịch sử thanh toán
         paymentHistoryRepo.save(paymentHistory);
-// Trả về JSON bao gồm ID của hóa đơn
+
+        // Trả về JSON bao gồm ID của hóa đơn
         Map<String, Object> response = new HashMap<>();
         response.put("invoiceId", invoice.getId());
         response.put("status", "success");
         return ResponseEntity.ok(response);
     }
-
+    private String checkProductAvailability(List<InvoiceDetail> invoiceDetails) {
+        for (InvoiceDetail invoiceDetail : invoiceDetails) {
+            ProductDetail productDetail = productDetailRepo.findById(invoiceDetail.getProductDetail().getId()).orElse(null);
+            if (productDetail == null || productDetail.getStatus() == (byte) 2) {
+                return "Sản phẩm " + (productDetail != null ? productDetail.getProduct().getName() : "không xác định") + " không còn khả dụng! Vui lòng xóa khỏi giỏ hàng.";
+            }
+        }
+        return null;
+    }
 }

@@ -63,7 +63,9 @@ public class CartService {
             }
             return cart.getQuantity() * price;
         }).sum());
-        invoice.setPromotionDiscount(invoice.getFinalPrice() - invoice.getTotalPrice());
+        int promotionDiscount = invoice.getTotalPrice() - invoice.getFinalPrice();
+        invoice.setPromotionDiscount(promotionDiscount);
+
         this.temporaryInvoice = invoice;
     }
 

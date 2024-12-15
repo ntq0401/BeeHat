@@ -64,6 +64,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             @Param("beltId") Integer beltId,
             Pageable pageable
     );
+
+
     @Query("SELECT p FROM Product p " +
             "WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
             "AND (:fromDate IS NULL OR p.createdDate >= :fromDate) " +

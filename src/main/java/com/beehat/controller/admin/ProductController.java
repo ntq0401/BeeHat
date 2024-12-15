@@ -2,7 +2,6 @@ package com.beehat.controller.admin;
 
 import com.beehat.entity.*;
 import com.beehat.repository.*;
-import com.beehat.service.ProductService;
 import com.beehat.service.PromotionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +47,6 @@ public class ProductController {
     ColorRepo colorRepo;
     @Autowired
     SizeRepo sizeRepo;
-    @Autowired
-    ProductService productService;
     @Autowired
     PromotionService promotionService;
     @Autowired
@@ -350,24 +347,6 @@ public class ProductController {
         Category category = categoryRepo.save(categorydto); // Lưu danh mục mới
         return ResponseEntity.ok(category); // Trả về đối tượng danh mục vừa thêm
     }
-
-    @GetMapping("/test-page")
-    public String viewProducts(Model model,
-                               @RequestParam(defaultValue = "1") int page) {
-        Pageable pageable = PageRequest.of(page, 5);
-        Page<Product> productPage = productRepo.findAll(pageable);
-        model.addAttribute("productPage", productPage);
-        return "admin/product/test-product"; // Tên file Thymeleaf HTML
-    }
-
-    @GetMapping("/test-page/{page}")
-    public String getProductsByPage(@PathVariable("page") int page, Model model) {
-        Pageable pageable = PageRequest.of(page, 5);
-        Page<Product> productPage = productRepo.findAll(pageable);
-        model.addAttribute("productPage", productPage);
-        return "admin/product/productTable :: productTable";
-    }
-
     @PostMapping("/change-product-detail")
     public String changeProductDetail(@RequestParam("id") int id,
                                       @RequestParam("quantity") int quantity,
@@ -390,16 +369,25 @@ public class ProductController {
         if (productDetail == null) {
             return "redirect:/admin/product/index";
         }
-        if (productDetail.getStatus() == 1) {
+        int currentStatus = productDetail.getStatus();
+        if (currentStatus == 1) {
             productDetail.setStatus((byte) 2);
-            productDetailRepo.save(productDetail);
-            return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
-        }
-        if (productDetail.getStatus() == 2) {
+        } else if (currentStatus == 2) {
             productDetail.setStatus((byte) 1);
-            productDetailRepo.save(productDetail);
-            return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
         }
+        productDetailRepo.save(productDetail);
+        // Kiểm tra lại trạng thái của sản phẩm chính sau khi thay đổi trạng thái sản phẩm chi tiết
+        Product product = productDetail.getProduct();
+        List<ProductDetail> allProductDetails = productDetailRepo.findByProductId(product.getId());
+        boolean hasActiveProductDetail = allProductDetails.stream().anyMatch(pd -> pd.getStatus() == 1);
+
+        if (!hasActiveProductDetail) {
+            product.setStatus((byte) 0); // Nếu không còn sản phẩm chi tiết nào bán được, ngừng bán sản phẩm chính
+        } else {
+            product.setStatus((byte) 1); // Nếu có sản phẩm chi tiết bán được, bật trạng thái sản phẩm chính
+        }
+
+        productRepo.save(product);
         return "redirect:/admin/product/detail-product/" + productDetail.getProduct().getId();
     }
 
@@ -439,5 +427,41 @@ public class ProductController {
 
         redirectAttributes.addFlashAttribute("success", "Cập nhật thành công các sản phẩm được chọn!");
         return "redirect:/admin/product/detail-product/" + productId;
+    }
+    @GetMapping("/turn-on-all/{id}")
+    public String turnOnAll(@PathVariable ("id") int id) {
+        List<ProductDetail> productDetails = productDetailRepo.findByProductId(id);
+        for (ProductDetail productDetail : productDetails) {
+            productDetail.setStatus((byte) 1);
+            productDetailRepo.save(productDetail);
+        }
+
+        // Kiểm tra trạng thái các sản phẩm chi tiết và cập nhật trạng thái sản phẩm chính
+        Product product = productRepo.findById(id).orElse(null);
+        boolean hasActiveProductDetail = productDetails.stream().anyMatch(pd -> pd.getStatus() == 1);
+
+        if (hasActiveProductDetail) {
+            product.setStatus((byte) 1); // Bật trạng thái sản phẩm chính khi có sản phẩm chi tiết còn bán
+        }
+        productRepo.save(product);
+        return "redirect:/admin/product/detail-product/" + id;
+    }
+    @GetMapping("/turn-off-all/{id}")
+    public String turnOffAll(@PathVariable ("id") int id) {
+        List<ProductDetail> productDetails = productDetailRepo.findByProductId(id);
+        for (ProductDetail productDetail : productDetails) {
+            productDetail.setStatus((byte) 2); // Tắt tất cả sản phẩm chi tiết
+            productDetailRepo.save(productDetail);
+        }
+
+        // Kiểm tra nếu không còn sản phẩm chi tiết nào có trạng thái = 1, thì chuyển trạng thái sản phẩm chính về 0
+        Product product = productRepo.findById(id).orElse(null);
+        boolean hasActiveProductDetail = productDetails.stream().anyMatch(pd -> pd.getStatus() == 1);
+
+        if (!hasActiveProductDetail) {
+            product.setStatus((byte) 0); // Nếu không còn sản phẩm chi tiết bán được, ngừng bán sản phẩm chính
+        }
+        productRepo.save(product);
+        return "redirect:/admin/product/detail-product/" + id;
     }
 }

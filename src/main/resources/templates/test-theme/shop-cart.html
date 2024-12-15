@@ -20,6 +20,7 @@
     <!-- Shop Cart Section Begin -->
     <section class="shop-cart spad">
         <div class="container">
+            <div th:if="${error}" class="alert alert-danger" style="margin-top: 15px" th:text="${error}"></div>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="shop__cart__table">
@@ -51,7 +52,7 @@
 
                                 </td>
                                 <td th:if="${cart.productDetail.stock > 0}" class="cart__product__item">
-                                    <img th:if="${cart.customer != null}" style="height: 100px"
+                                    <img  style="height: 100px"
                                          th:src="${cart.productDetail.product.images[0].getImageUrl()}" alt="">
                                     <div class="cart__product__item__title">
                                         <h6 th:text="${cart.productDetail.product.name}"></h6>
@@ -87,7 +88,8 @@
                                                   th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}" >-</span>
                                             <input name="productId" type="hidden" th:value="${cart.productDetail.id}">
                                             <input id="quantityInput" class="quantity-input" name="quantity" type="number" pattern="\d+" th:data-value-quantity="${cart.quantity}"
-                                                   th:value="${cart.quantity}"  th:data-stock="${cart.productDetail.stock}" oninput="validateQuantityInput(this)">
+                                                   th:value="${cart.quantity}"  th:data-stock="${cart.productDetail.stock}" oninput="validateQuantityInput(this)"
+                                                   onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190">
                                             <span class="inc qtybtn" onclick="checkQuantityAndSubmit(this, 'increase')"
                                                   th:data-quantity-invoice-detail="${cart.quantity}" th:data-stock="${cart.productDetail.stock}">+</span>
                                         </div>
@@ -137,7 +139,7 @@
                             <li>Tổng tiền :
                                 <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
                             <li>Thực thu :
-                                <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}]]</span></li>
+                                <span>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(finalPrice)}]]</span></li>
                         </ul>
                         <form method="post" th:action="@{/proceed-to-checkout}">
                             <a href="javascript:void(0);" onclick="checkCartBeforeCheckout(this)" class="primary-btn">Thanh toán</a>

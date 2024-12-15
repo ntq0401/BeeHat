@@ -197,16 +197,7 @@ public class ThemeTestController {
     }
 
     @GetMapping("/shop")
-    public String shop(Model model) {
-        // Lấy tất cả sản phẩm từ cơ sở dữ liệu
-        List<Product> products = productRepo.findAll();
-
-        // Chuyển đổi sản phẩm thành DTO và nhóm theo từng sản phẩm
-        List<ProductDTO> productDTOs = products.stream()
-                .map(ProductDTO::new)  // Tạo DTO cho từng sản phẩm
-                .collect(Collectors.toList());  // Collect các DTO vào danh sách
-        // Truyền danh sách DTO vào model
-        model.addAttribute("products", productDTOs);
+    public String shop() {
         return "test-theme/shop";
     }
 
@@ -218,7 +209,8 @@ public class ThemeTestController {
             Customer customer = customerRepo.findByUsername(principal.getName());
             List<CartDetail> cartDetail = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
             model.addAttribute("cartDetail", cartDetail);
-            int totalPrice = cartDetail.stream().mapToInt(cart -> {
+            int totalPrice = cartDetail.stream().mapToInt(cart -> cart.getProductDetail().getPrice() * cart.getQuantity()).sum();
+            int finalPrice = cartDetail.stream().mapToInt(cart -> {
                 int price = cart.getProductDetail().getPrice();
                 if (cart.getProductDetail().getProduct().getPromotion() != null) {
                     Promotion promotion = cart.getProductDetail().getProduct().getPromotion();
@@ -238,6 +230,7 @@ public class ThemeTestController {
                 return cart.getQuantity() * price;
             }).sum();
             model.addAttribute("totalPrice", totalPrice);
+            model.addAttribute("finalPrice", finalPrice);
             return "test-theme/shop-cart";
         } else {
             List<CartDetail> cartDetails = cartService.getCartDetails();
@@ -248,7 +241,8 @@ public class ThemeTestController {
                 }
             }
             model.addAttribute("cartDetail", cartService.getCartDetails());
-            int totalPrice = cartDetails.stream().mapToInt(cart -> {
+            int totalPrice = cartDetails.stream().mapToInt(cart -> cart.getProductDetail().getPrice() * cart.getQuantity()).sum();
+            int finalPrice = cartDetails.stream().mapToInt(cart -> {
                 int price = cart.getProductDetail().getPrice();
                 if (cart.getProductDetail().getProduct().getPromotion() != null) {
                     Promotion promotion = cart.getProductDetail().getProduct().getPromotion();
@@ -267,7 +261,8 @@ public class ThemeTestController {
                 }
                 return cart.getQuantity() * price;
             }).sum();
-            model.addAttribute("totalPrice", totalPrice);
+            model.addAttribute("totalPrice", totalPrice)
+            ;model.addAttribute("finalPrice", finalPrice);
             return "test-theme/shop-cart";
         }
 
@@ -284,15 +279,26 @@ public class ThemeTestController {
     }
 
     @PostMapping("/proceed-to-checkout")
-    public String proceedToCheckout(Principal principal) {
+    public String proceedToCheckout(Principal principal,RedirectAttributes redirectAttributes) {
         if (principal != null) {
             // Khách hàng đã đăng nhập
             Customer customer = customerRepo.findByUsername(principal.getName());
             List<CartDetail> cartDetail = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
+            String productError = checkProductAvailability(cartDetail);
+            if (productError != null) {
+                redirectAttributes.addFlashAttribute("error", productError);
+                return "redirect:/shop-cart";
+            }
             cartService.createTemporaryInvoice(customer, cartDetail);
         } else {
+            List<CartDetail> cartDetails = cartService.getCartDetails();
+            String productError = checkProductAvailability(cartDetails);
+            if (productError != null) {
+                redirectAttributes.addFlashAttribute("error", productError);
+                return "redirect:/shop-cart";
+            }
             // Khách hàng chưa đăng nhập
-            cartService.createTemporaryInvoice(null, cartService.getCartDetails());
+            cartService.createTemporaryInvoice(null, cartDetails);
         }
         return "redirect:/checkout";
     }
@@ -319,36 +325,6 @@ public class ThemeTestController {
         return "test-theme/contact";
     }
 
-    //tạm thời thêm nhanh ở trang shop
-    @PostMapping("/add-product-to-cart/{id}")
-    public String addProductToCart(@PathVariable Integer id,
-                                   @RequestParam(value = "username", defaultValue = "") String username) {
-        ProductDetail productDetail = productDetailRepo.findById(id).orElse(null);
-        Customer customer = customerRepo.findByUsername(username);
-        if (customer != null) {
-            List<CartDetail> cartDetail = cartDetailRepo.findByCustomerIdAndStatus(customer.getId(), (byte) 1);
-            boolean isNone = true;
-            for (CartDetail cart : cartDetail) {
-                if (productDetail.getId() == cart.getProductDetail().getId()) {
-                    isNone = false;
-                    cart.setQuantity(cart.getQuantity() + 1);
-                    cartDetailRepo.save(cart);
-                }
-            }
-            if (isNone) {
-                CartDetail cartDetail1 = new CartDetail();
-                cartDetail1.setProductDetail(productDetail);
-                cartDetail1.setCustomer(customer);
-                cartDetail1.setQuantity(1);
-                cartDetailRepo.save(cartDetail1);
-            }
-            return "redirect:/shop";
-        } else {
-            cartService.add(id,1);
-            return "redirect:/shop";
-        }
-    }
-
     @GetMapping("/getProductPrice")
     @ResponseBody
     public Map<String, Object> getProductPrice(@RequestParam Integer product, @RequestParam Integer color, @RequestParam Integer size,Principal principal) {
@@ -367,7 +343,7 @@ public class ThemeTestController {
             }
         }
         try {
-            ProductDetail productDetail = productDetailRepo.findByProductIdAndColorIdAndSizeId(product, color, size);
+            ProductDetail productDetail = productDetailRepo.findByProductIdAndColorIdAndSizeIdAndStatus(product, color, size,(byte) 1);
             if (productDetail != null) {
                 response.put("id", productDetail.getId());
                 response.put("price", CurrencyUtil.formatCurrency(productDetail.getPrice()));
@@ -389,8 +365,9 @@ public class ThemeTestController {
         } catch (Exception e) {
             e.printStackTrace();
             response.put("id", -1);   // Giá trị id lỗi
-            response.put("price", "-1"); // Giá trị price lỗi
-            response.put("stock", "-1"); // Giá trị stock lỗi
+            response.put("price", "Sản phẩm không tồn tại"); // Giá trị price lỗi
+            response.put("stock", "Sản phẩm không tồn tại"); // Giá trị stock lỗi
+            response.put("sale", "Sản phẩm không tồn tại");
         }
         return response;
     }
@@ -473,6 +450,10 @@ public class ThemeTestController {
                 redirectAttributes.addFlashAttribute("error", "Mã giảm giá này đã hết hạn.");
                 return "redirect:/checkout";
             }
+            if (voucher.getMinOrderValue() > temporaryInvoice.getFinalPrice()) {
+                redirectAttributes.addFlashAttribute("error", "Giá trị đơn hàng của bạn chưa đủ để sử dụng voucher này.");
+                return "redirect:/checkout";
+            }
             temporaryInvoice.setVoucher(voucher);
         }
 
@@ -488,8 +469,7 @@ public class ThemeTestController {
         // Kiểm tra giỏ hàng
         List<CartDetail> cartDetails;
         if (temporaryInvoice.getCustomer() != null) {
-            cartDetails = cartDetailRepo.findByCustomerIdAndStatus(
-                    temporaryInvoice.getCustomer().getId(), (byte) 1);
+            cartDetails = cartDetailRepo.findByCustomerIdAndStatus(temporaryInvoice.getCustomer().getId(), (byte) 1);
         } else {
             cartDetails = cartService.getCartDetails();
         }
@@ -497,6 +477,12 @@ public class ThemeTestController {
         if (cartDetails == null || cartDetails.isEmpty()) {
             return "redirect:/cart";
         }
+        String productError = checkProductAvailability(cartDetails);
+        if (productError != null) {
+            redirectAttributes.addFlashAttribute("error", productError);
+            return "redirect:/checkout";
+        }
+
         session.setAttribute("emailInv", emailInv);
         if(paymentMethod.getId()==1){
             Invoice savedInvoice = saveInvoice(temporaryInvoice, cartDetails,null);
@@ -527,6 +513,25 @@ public class ThemeTestController {
                 return "redirect:/checkout?error=payment_error"; // Xử lý lỗi tạo thanh toán
             }
         }
+    }
+    private String checkProductAvailability(List<CartDetail> cartDetails) {
+        for (CartDetail cartDetail : cartDetails) {
+            ProductDetail productDetail = productDetailRepo.findById(cartDetail.getProductDetail().getId()).orElse(null);
+
+            // Kiểm tra nếu không tìm thấy sản phẩm hoặc sản phẩm không còn khả dụng (status = 2)
+            if (productDetail == null || productDetail.getStatus() == (byte) 2) {
+                return "Sản phẩm " + (productDetail != null ? productDetail.getProduct().getName() : "không xác định") + " không còn khả dụng! Vui lòng xóa khỏi giỏ hàng.";
+            }
+
+            // Kiểm tra số lượng trong kho so với số lượng yêu cầu
+            int stockQuantity = productDetail.getStock(); // Số lượng trong kho
+            int requestedQuantity = cartDetail.getQuantity(); // Số lượng yêu cầu
+
+            if (requestedQuantity > stockQuantity) {
+                return "Sản phẩm " + productDetail.getProduct().getName() + " không đủ số lượng trong kho! Chỉ còn " + stockQuantity + " sản phẩm.";
+            }
+        }
+        return null; // Tất cả đều hợp lệ
     }
     @GetMapping("/checkout/vnpay/return")
     public String vnpayReturn(@RequestParam Map<String, String> params, Model model, HttpSession session, Principal principal) {

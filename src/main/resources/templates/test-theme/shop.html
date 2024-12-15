@@ -45,8 +45,8 @@
                                                     <div class="size__list">
                                                         <label th:each="cate : ${listCate}" th:for="${cate.name}">
                                                             [[${cate.name}]]
-                                                            <input type="checkbox" name="categoryId" th:id="${cate.name}" th:data-id="${cate.id}" th:value="${cate.id}"
-                                                                   th:checked="${categoryId != null ? #lists.contains(paramValues.categoryId, cate.id) : false}">
+                                                            <input type="radio" name="categoryId" th:id="${cate.name}" th:data-id="${cate.id}" th:value="${cate.id}"
+                                                                   th:checked="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}">
                                                             <span class="checkmark"></span>
                                                         </label>
 
@@ -66,8 +66,8 @@
                                                         <ul>
                                                             <label th:each="mater : ${listMater}" th:for="${mater.name}">
                                                                 [[${mater.name}]]
-                                                                <input type="checkbox" name="materialId" th:id="${mater.name}" th:data-id="${mater.id}" th:value="${mater.id}"
-                                                                       th:checked="${materialId != null ? #lists.contains(paramValues.materialId, mater.id) : false}">
+                                                                <input type="radio" name="materialId" th:id="${mater.name}" th:data-id="${mater.id}" th:value="${mater.id}"
+                                                                       th:checked="${param.materialId != null and param.materialId.toString() == mater.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -87,9 +87,8 @@
                                                         <ul>
                                                             <label th:each="style : ${listStyle}" th:for="${style.name}">
                                                                 [[${style.name}]]
-                                                                <input type="checkbox" name="styleId" th:id="${style.name}" th:data-id="${style.id}" th:value="${style.id}"
-                                                                       th:checked="${styleId != null ? #lists.contains(paramValues.styleId, style.id) : false}">
-
+                                                                <input type="radio" name="styleId" th:id="${style.name}" th:data-id="${style.id}" th:value="${style.id}"
+                                                                       th:checked="${param.styleId != null and param.styleId.toString() == style.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -109,8 +108,8 @@
                                                         <ul>
                                                             <label th:each="belt : ${listBelt}" th:for="${belt.name}">
                                                                 [[${belt.name}]]
-                                                                <input type="checkbox" name="beltId" th:id="${belt.name}" th:data-id="${belt.id}" th:value="${belt.id}"
-                                                                       th:checked="${beltId != null ? #lists.contains(paramValues.beltId, belt.id) : false}">
+                                                                <input type="radio" name="beltId" th:id="${belt.name}" th:data-id="${belt.id}" th:value="${belt.id}"
+                                                                       th:checked="${param.beltId != null and param.beltId.toString() == belt.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -130,8 +129,8 @@
                                                         <ul>
                                                             <label th:each="lining : ${listLining}" th:for="${lining.name}">
                                                                 [[${lining.name}]]
-                                                                <input type="checkbox" name="liningId" th:id="${lining.name}" th:data-id="${lining.id}" th:value="${lining.id}"
-                                                                       th:checked="${liningId != null ? #lists.contains(paramValues.liningId, lining.id) : false}">
+                                                                <input type="radio" name="liningId" th:id="${lining.name}" th:data-id="${lining.id}" th:value="${lining.id}"
+                                                                       th:checked="${param.liningId != null and param.liningId.toString() == lining.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </ul>
@@ -168,7 +167,7 @@
                                 <label th:each="size : ${listSize}" th:for="${size.name}">
                                     [[${size.name}]]
                                     <input type="checkbox" name="sizeId" th:id="${size.name}" th:data-id="${size.id}" th:value="${size.id}"
-                                           th:checked="${sizeId != null ? #lists.contains(paramValues.sizeId, size.id) : false}">
+                                           th:checked="${param.sizeId != null and param.sizeId.toString() == size.id.toString()}">
                                     <span class="checkmark"></span>
                                 </label>
 
@@ -182,8 +181,7 @@
                                 <label th:each="color : ${listColor}" th:for="${color.name}">
                                     [[${color.name}]]
                                     <input type="checkbox" name="colorId" th:id="${color.name}" th:data-id="${color.id}" th:value="${color.id}"
-                                           th:checked="${colorId != null ? #lists.contains(paramValues.colorId, color.id) : false}">
-
+                                           th:checked="${param.colorId != null and param.colorId.toString() == color.id.toString()}">
                                     <span class="checkmark"></span>
                                 </label>
 
@@ -197,23 +195,29 @@
                 </div>
                 <div class="col-lg-9 col-md-9">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6" th:each="p: ${listProductShop.content}">
-                            <div class="product__item">
+                        <div class="col-lg-4 col-md-6" th:each="p: ${listProductShop.content}" th:if="${p.status == 1}">
+                            <div class="product__item" th:classappend="${p.promotion != null && p.totalStock > 0} ? 'sale' : ''">
                                 <div class="product__item__pic set-bg" th:data-setbg="${p.images[0].getImageUrl()}">
-                                    <div class="label new">New</div>
-                                    <form method="post" th:action="@{/add-product-to-cart/{id}(id=${p.id})}">
+                                    <!-- Label: Sale -->
+                                    <div class="label" th:if="${p.promotion != null && p.totalStock > 0}">
+                                        Sale
+                                    </div>
+                                    <!-- Label: New (ưu tiên hơn Sale nếu cả hai thỏa mãn điều kiện) -->
+                                    <div class="label new"
+                                         th:if="${p.promotion == null && p.totalStock > 0 && T(java.time.LocalDateTime).now().minusDays(7).isBefore(p.createdDate)}">
+                                        New
+                                    </div>
+                                    <!-- Label: Hết hàng -->
+                                    <div class="label stockout stockblue" th:if="${p.totalStock == 0}">
+                                        Hết hàng
+                                    </div>
                                         <input type="hidden" name="username" th:value="${username}">
                                         <ul class="product__hover">
                                             <li><a th:href="${p.images[0].getImageUrl()}" class="image-popup"><span
                                                     class="arrow_expand"></span></a></li>
                                             <li><a th:href="@{/detail/{sku}(sku=${p.sku})}"><span
                                                     class="icon_info_alt"></span></a></li>
-                                            <li><!-- Chuyển onclick vào thẻ <a> và sử dụng closest() để tìm form -->
-                                                <a href="javascript:void(0);" onclick="this.closest('form').submit()">
-                                                    <span class="icon_bag_alt"></span>
-                                                </a></li>
                                         </ul>
-                                    </form>
                                 </div>
                                 <div class="product__item__text">
                                     <h6><a th:href="@{/detail/{sku}(sku=${p.sku})}">[[${p.name}]]</a></h6>

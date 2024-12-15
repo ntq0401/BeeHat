@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +30,7 @@ public class ProductDTO {
     private Promotion promotion;
     private Byte status;
     private LocalDateTime createdDate;
+
     // Constructor
     public ProductDTO(Product product) {
         this.id = product.getId();
@@ -43,15 +43,24 @@ public class ProductDTO {
         this.material = product.getMaterial();
         this.style = product.getStyle();
         this.category = product.getCategory();
-        this.productDetail = product.getProductDetail();
-        this.lowestPrice = calculateLowestPrice(product.getProductDetail());
-        this.highestPrice = calculateHighestPrice(product.getProductDetail());
-        this.totalStock = product.getTotalStock();
-        this.colors = getColors(product.getProductDetail());
-        this.sizes = getSizes(product.getProductDetail());
+        this.productDetail = product.getProductDetail().stream()
+                .filter(detail -> detail.getStatus() == 1)
+                .collect(Collectors.toList());
+        this.lowestPrice = calculateLowestPrice(this.productDetail);
+        this.highestPrice = calculateHighestPrice(this.productDetail);
+        this.totalStock = getTotalStock();
+        this.colors = getColors(this.productDetail);
+        this.sizes = getSizes(this.productDetail);
         this.promotion = product.getPromotion();
         this.status = product.getStatus();
-        this.createdDate=product.getCreatedDate();
+        this.createdDate = product.getCreatedDate();
+    }
+
+    public int getTotalStock() {
+        return productDetail.stream()
+                .filter(detail -> detail.getStock() != null)
+                .mapToInt(ProductDetail::getStock)
+                .sum();
     }
 
     // Method to calculate lowest price
@@ -62,13 +71,14 @@ public class ProductDTO {
                 .orElse(0);  // Default to 0 if no prices found
     }
 
-    // Method to calculate highest price
+    // Method to calculate
     private int calculateHighestPrice(List<ProductDetail> productDetails) {
         return productDetails.stream()
                 .mapToInt(ProductDetail::getPrice)
                 .max()
                 .orElse(0);  // Default to 0 if no prices found
     }
+
     private List<Color> getColors(List<ProductDetail> productDetails) {
         return productDetails.stream()
                 .map(ProductDetail::getColor)

@@ -22,7 +22,7 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     ProductDetail findTopByProductIdOrderByPriceAsc(int id);
 
     ProductDetail findTopByProductIdOrderByPriceDesc(int id);
-    ProductDetail findByProductIdAndColorIdAndSizeId(Integer productId,Integer colorId, Integer sizeId);
+    ProductDetail findByProductIdAndColorIdAndSizeIdAndStatus(Integer productId,Integer colorId, Integer sizeId, Byte status);
     @Query("SELECT pd FROM ProductDetail pd " +
             "JOIN pd.product p " +
             "WHERE pd.status = 1 " + // Trạng thái đang hoạt động
@@ -54,4 +54,6 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
                                                 @Param("sizeId") Integer sizeId,
                                                 @Param("minPrice") Integer minPrice,
                                                 @Param("maxPrice") Integer maxPrice);
+    @Query("SELECT COUNT(pd) FROM ProductDetail pd WHERE pd.product = ?1 and pd.status = 1")
+    int countProductDetailsByStatus(int productId);
 }

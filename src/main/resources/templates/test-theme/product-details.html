@@ -54,40 +54,43 @@
                 <div class="col-lg-6">
                     <div class="product__details__text">
                         <h3>[[${product.name}]] <span>SKU: [[${product.sku}]]</span></h3>
-
+                        <!--hiển thị giá gốc khi không có chương trình với các sản phẩm có giá khác nhau trong cùng 1 dòng sản phẩm-->
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice && product.promotion == null}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
                         </div>
+                        <!--hiển thị giá gốc khi không có chương trình với các sản phẩm có giá giống nhau trong 1 dòng sản phẩm-->
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice && product.promotion == null}">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
                         </div>
+                        <!--hiển thị giá gốc khi có chương trình với các sản phẩm có giá khác nhau trong cùng 1 dòng sản phẩm-->
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice < product.highestPrice && product.promotion != null}">
-                            <del style="color: #939393">
+                            <del style="color: #939393" id="originalPrice">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice)}]]
                             </del><br>
-                            <div class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
+                            <div id="discountedPrice" class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - (product.lowestPrice * product.promotion.discountPercentage / 100))}]] -
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice - (product.highestPrice * product.promotion.discountPercentage / 100))}]]
                             </div>
-                            <div class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
+                            <div id="discountedPrice" class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]] -
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.highestPrice - product.promotion.discountAmount)}]]
                             </div>
                         </div>
+                        <!--hiển thị giá gốc khi có chương trình với các sản phẩm có giá giống nhau trong cùng 1 dòng sản phẩm-->
                         <div class="product__details__price" id="productPrice"
                              th:if="${product.productDetail != null and !product.productDetail.isEmpty() && product.lowestPrice == product.highestPrice && product.promotion != null}">
-                            <del style="color: #939393">
+                            <del style="color: #939393" id="originalPrice">
                             [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]]
                             </del>
-                            <div class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
+                            <div id="discountedPrice" class="product__details__price" th:if="${product.promotion.discountPercentage != null && product.promotion.discountPercentage > 0}">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - (product.lowestPrice * product.promotion.discountPercentage / 100))}]]
                             </div>
-                            <div class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
+                            <div id="discountedPrice" class="product__details__price" th:if="${product.promotion.discountAmount != null && product.promotion.discountAmount > 0}">
                                 [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice - product.promotion.discountAmount)}]]
                             </div>
                         </div>
@@ -102,7 +105,9 @@
                             <div class="quantity">
                                 <span>Số lượng:</span>
                                 <div class="pro-qty">
-                                    <input type="number" oninput="validateQuantityInput(this)" name="quantity" id="quantityInput" value="1" data-stock="" min="1" step="1" max="1000000" data-stock-in-cart="" pattern="\d+">
+                                    <input type="number" oninput="validateQuantityInput(this)" name="quantity" id="quantityInput" value="1" data-stock="" min="1" step="1" max="1000000"
+                                           onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190"
+                                           data-stock-in-cart="" pattern="\d+">
                                 </div>
                             </div>
                             <input type="hidden" name="username" th:value="${username}">
@@ -323,7 +328,8 @@
                             if (response.id && response.price) {
                                 // Cập nhật giá, id và số lượng tồn kho trên giao diện
                                 if (response.sale != null){
-                                    $("#productPrice").text(response.sale);
+                                    $("#originalPrice").text(response.price);
+                                    $("#discountedPrice").text(response.sale);
                                 }else{
                                     $("#productPrice").text(response.price);
                                 }
@@ -348,7 +354,7 @@
         function checkSelection() {
             const selectedColor = $("input[name='color__radio']:checked").val();
             const selectedSize = $("input[name='size__radio']:checked").val();
-
+            console.log(selectedSize + " " + selectedColor)
             if (!selectedColor || !selectedSize) {
                 showToast("error", "Vui lòng chọn đầy đủ màu sắc và kích cỡ!");
                 return false; // Ngăn hành động tiếp theo
@@ -363,9 +369,14 @@
             const form = element.closest('form'); // Lấy form gần nhất
             const stockElement = document.getElementById("productStock");
             const stockInput = document.getElementById("quantityInput"); // Lấy ô input số lượng
-            const stockValue = parseInt(stockElement?.innerText || stockElement?.textContent || -1); // Lấy giá trị tồn kho (-1 nếu không tồn tại)
+            const stockValue = parseInt(stockElement?.innerText || stockElement?.textContent || -1);
             const requestedQuantity = parseInt(stockInput?.value || 0); // Lấy số lượng yêu cầu từ input
             const stockInCart = stockInput.getAttribute('data-stock-in-cart')
+            // Kiểm tra nếu stockValue không phải là số hoặc trả về giá trị "không tồn tại"
+            if (isNaN(stockValue)) {
+                showToast("error", "Sản phẩm không tồn tại với lựa chọn này!");
+                return;
+            }
             // Trường hợp số lượng tồn kho = -1 (không tồn tại sản phẩm với lựa chọn)
             if (stockValue === -1) {
                 showToast("error", "Sản phẩm không tồn tại với lựa chọn này!");

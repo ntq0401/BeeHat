@@ -91,13 +91,14 @@ public class InvoiceService {
         document.add(new Paragraph(" ")); // Blank line for spacing
 
         // Product Section
-        Table productTable = new Table(UnitValue.createPercentArray(new float[]{1, 4, 2, 1, 2}))
+        Table productTable = new Table(UnitValue.createPercentArray(new float[]{1, 4, 2, 2 , 1, 2}))
                 .useAllAvailableWidth();
 
         // Table Header
         productTable.addHeaderCell(new Cell().add(new Paragraph("STT").setBold()));
         productTable.addHeaderCell(new Cell().add(new Paragraph("Sản phẩm").setBold()));
         productTable.addHeaderCell(new Cell().add(new Paragraph("Đơn giá").setBold()));
+        productTable.addHeaderCell(new Cell().add(new Paragraph("Giá giảm").setBold()));
         productTable.addHeaderCell(new Cell().add(new Paragraph("SL").setBold()));
         productTable.addHeaderCell(new Cell().add(new Paragraph("Thành tiền").setBold()));
 
@@ -107,6 +108,7 @@ public class InvoiceService {
             productTable.addCell(new Cell().add(new Paragraph(String.valueOf(index++))));
             productTable.addCell(new Cell().add(new Paragraph(invoiceDetail.getProductDetail().getProduct().getName())));
             productTable.addCell(new Cell().add(new Paragraph(invoiceDetail.getUnitPrice()+"")));
+            productTable.addCell(new Cell().add(new Paragraph(invoiceDetail.getDiscountAmount() +"")));
             productTable.addCell(new Cell().add(new Paragraph(String.valueOf(invoiceDetail.getQuantity()))));
             productTable.addCell(new Cell().add(new Paragraph(invoiceDetail.getFinalPrice()+"")));
         }
@@ -130,7 +132,11 @@ public class InvoiceService {
         } else {
             totalTable.addCell(new Cell().add(new Paragraph("Giảm giá voucher").setBold().setTextAlignment(TextAlignment.RIGHT)));
             totalTable.addCell(new Cell().add(new Paragraph("0")));
-        }        totalTable.addCell(new Cell().add(new Paragraph("Thực thu").setBold().setTextAlignment(TextAlignment.RIGHT)));
+        }if (invoice.getInvoiceStatus() == (byte) 1) {
+            totalTable.addCell(new Cell().add(new Paragraph("Phí ship").setBold().setTextAlignment(TextAlignment.RIGHT)));
+            totalTable.addCell(new Cell().add(new Paragraph("30000")));
+        }
+        totalTable.addCell(new Cell().add(new Paragraph("Thực thu").setBold().setTextAlignment(TextAlignment.RIGHT)));
         totalTable.addCell(new Cell().add(new Paragraph(String.format(invoice.getFinalPrice()+"")).setBold()));
         document.add(totalTable);
 

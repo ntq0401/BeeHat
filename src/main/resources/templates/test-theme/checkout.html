@@ -230,7 +230,7 @@
                                             <div class="d-flex">
                                                 <select class="form-control" id="selectVoucher" style="margin-right: 5px" placeholder="Nhập mã giảm giá" name="code" onchange="updatePriceBasedOnVoucher(this)">
                                                     <option value="">Chọn voucher</option>
-                                                    <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:data-min-value="${v.minOrderValue}" th:data-max-value="${v.discountMax}" th:text="${v.code}"></option>
+                                                    <option th:each="v : ${voucherList}" th:value="${v.code}" th:data-discount="${v.discountPercentage}" th:data-min-value="${v.minOrderValue}" th:data-max-value="${v.discountMax}" th:text="${v.name + ' - '+v.code + ' - GIẢM ' + v.discountPercentage +'%'}"></option>
                                                 </select>
                                             </div>
                                         </form>
@@ -282,7 +282,7 @@
         const form = document.getElementById("formCheckOut");
         if (form.checkValidity()) {
             // Hiển thị SweetAlert Confirm khi form hợp lệ
-            showConfirmDialog('Are you sure?', 'Do you want to submit the form?', 'Submit', 'Cancel')
+            showConfirmDialog('Xác nhận thanh toán', 'Bạn muốn thanh toán hoá đơn ?', 'Đồng ý', 'Từ chối')
                 .then(result => {
                     if (result.isConfirmed) {
                         // Nếu xác nhận, gửi form
@@ -340,7 +340,7 @@
 
 
         // Tính toán giá sau khi giảm
-        const discountAmount = (finalPrice * discountPercent) / 100 > discountMax ? discountMax : (finalPrice * discountPercent) / 100 ;
+        const discountAmount = parseInt((finalPrice * discountPercent) / 100) > discountMax ? discountMax : parseInt((finalPrice * discountPercent) / 100) ;
         console.log(discountAmount)
         discountedPriceElement.textContent = "-"+ discountAmount.toLocaleString() +"đ";
         const discountedPrice = (finalPrice - discountAmount) + 30000;

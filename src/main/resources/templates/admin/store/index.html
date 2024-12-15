@@ -5,6 +5,9 @@
     <title>Bán hàng tại quầy</title>
     <link rel="stylesheet" href="/admin/store/style.css">
     <style>
+        body {
+            padding-right: 0 !important;
+        }
         .search-container {
             position: relative;
             width: 300px;
@@ -56,6 +59,12 @@
 <body>
 
 <main class="content px-3 py-4" layout:fragment="main">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Bán hàng tại quầy</li>
+        </ol>
+    </nav>
     <div class="container-fluid">
         <div class="row">
             <!-- Nội dung trang chính ở bên trái (nếu có) -->
@@ -391,7 +400,7 @@
                                         <strong class="text-danger">Sản phẩm này đã bị ngừng bán</strong>
                                     </div>
                                 </td>
-                                    <td>
+                                    <td th:if="${invoiceDetail.productDetail.status == 1}">
                                         <form th:action="@{/admin/store/update-quantity}" method="post">
                                         <center>
                                             <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
@@ -406,6 +415,7 @@
                                         </center>
                                         </form>
                                     </td>
+                                <td th:if="${invoiceDetail.productDetail.status == 2}"></td>
                                 <td>
                                     <span th:if="${invoiceDetail.productDetail.product.promotion != null}"
                                           style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
@@ -512,15 +522,15 @@
                                                 GREEN2023
                                             </div>
                                             <div id="previewQuantity" class="voucher-details"
-                                                 style="font-size: 12px; color: #777;">Quantity : 50
+                                                 style="font-size: 11px; color: #777; padding-top: 5px" >Quantity : 50
                                                 purchase.
                                             </div>
                                             <div id="previewDescription" class="voucher-details"
-                                                 style="font-size: 12px; color: #777;">Get 25% off on your next
+                                                 style="font-size: 11px; color: #777;">Get 25% off on your next
                                                 order.
                                             </div>
                                             <div id="previewValidity" class="validity"
-                                                 style="font-size: 10px; color: #555; text-align: center;">Valid:
+                                                 style="font-size: 11px; color: #555; text-align: center;">Hạn sử dụng:
                                                 01/06/2023 - 30/06/2023
                                             </div>
                                         </div>
@@ -662,7 +672,7 @@
                         <div class="mb-3" th:if="${infoInvoice != null}">
                             <label class="form-label me-2">Phương thức thanh toán</label>
                             <div class="d-flex align-items-center">
-                                <select class="form-control flex-grow-1" id="paymentMethod" name="methodPayment">
+                                <select class="form-control flex-grow-1" id="paymentMethod" onchange="changePaymentMethod()" name="methodPayment">
                                     <option value="" hidden="hidden">Chọn phương thức thanh toán</option>
                                     <option th:each="payment : ${listPayment}"
                                             th:text="${payment.name}"
@@ -1059,8 +1069,9 @@
             }
         }
         //hàm kiểm tra thay đổi của ô select phương thức thanh toán
-        document.getElementById("paymentMethod").addEventListener("change", function () {
-            const selectedMethod = this.options[this.selectedIndex].text;
+        function changePaymentMethod() {
+            const paymentMethod = document.getElementById("paymentMethod");
+            const selectedMethod = paymentMethod.options[paymentMethod.selectedIndex].text;
             const cashCalculationDiv = document.getElementById("cashCalculation");
             const bankTransferDetailsDiv = document.getElementById("bankTransferDetails");
             const finalPriceElement = parseInt(document.getElementById("totalAmount").value.replace(/[^\d]/g, "") || 0);
@@ -1092,7 +1103,7 @@
                 cashCalculationDiv.style.display = "none";
                 bankTransferDetailsDiv.style.display = "none";
             }
-        });
+        }
 
 
         function calculateChange() {
@@ -1208,9 +1219,12 @@
             document.getElementById("previewName").innerText = optionData.name || "Voucher";
             document.getElementById("previewCode").innerText = optionData.code || "CODE";
             document.getElementById("previewDiscount").innerText = `${discountPer}% OFF`;
-            document.getElementById("previewQuantity").innerText = `Quantity: ${optionData.quantity || "0"}`;
-            document.getElementById("previewDescription").innerText = optionData.description || "Mô tả";
-            document.getElementById("previewValidity").innerText = `Valid: ${
+            document.getElementById("previewQuantity").innerText = `Số lượng: ${optionData.quantity || "0"}`;
+            document.getElementById("previewDescription").innerText =
+                `Đơn tối thiểu: ${optionData.min ? optionData.min.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Mô tả"},
+     Đơn tối đa: ${optionData.max ? optionData.max.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Không xác định"}`;
+
+            document.getElementById("previewValidity").innerText = `Thời gian: ${
                 optionData.startdate ? new Date(optionData.startdate).toLocaleDateString() : "--"
             } - ${
                 optionData.enddate ? new Date(optionData.enddate).toLocaleDateString() : "--"

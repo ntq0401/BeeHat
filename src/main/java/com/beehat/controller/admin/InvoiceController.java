@@ -105,12 +105,11 @@ public class InvoiceController {
                 redirectAttributes.addFlashAttribute("error", "Sản phẩm " + productDetail.getProduct().getName() + " không đủ số lượng trong kho.");
                 return "redirect:/admin/order/view-invoice/" + id;
             }
-            updateInvoiceStatus(id, (byte) 4, description, (byte) 3);
             // Trừ số lượng sản phẩm trong kho
             productDetail.setStock(productDetail.getStock() - invoiceDetail.getQuantity());
             productDetailRepo.save(productDetail);
         }
-
+        updateInvoiceStatus(id, (byte) 4, description, (byte) 3);
         redirectAttributes.addFlashAttribute("success", "Đơn hàng đã được xác nhận thành công.");
         return "redirect:/admin/order/view-invoice/" + id;
     }

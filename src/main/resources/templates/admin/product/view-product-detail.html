@@ -225,13 +225,21 @@
         </div>
     </div>
 
-
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-3" style="font-weight: bold">Chi tiết sản phẩm</h5>
+                <a class="mb-3" th:href="@{/admin/product/add-product-detail/{id}(id=${product.id})}">
+                    <button class="btn btn-success"><i class="ph ph-plus"></i></button>
+                </a>
+            </div>
     <!-- Danh sách các biến thể sản phẩm -->
     <table class="table table-bordered table-hover">
         <thead>
         <tr>
             <th></th>
             <th>#</th>
+            <th>Mã biến thể</th>
             <th>Ảnh</th>
             <th>Màu sắc</th>
             <th>Kích cỡ</th>
@@ -252,6 +260,7 @@
                 <input type="hidden" name="id" th:value="${variant.id}" /> <!-- Để xác định sản phẩm nào -->
             </td>
             <td>[[${stt.index + 1}]]</td>
+            <td>[[${variant.product.sku}]]-[[${variant.id}]]</td>
             <td th:if="${variant.product.images.size() > 0}">
                 <img th:src="${variant.product.images[0].imageUrl}" alt="Ảnh sản phẩm" style="width: 50px; height: auto;">
             </td>
@@ -286,7 +295,7 @@
                 <span th:if="${variant.status == 2}" class="badge rounded-pill bg-danger status-badge">Không hoạt động</span>
             </td>
             <td>
-                <button th:formaction="@{/admin/product/change-product-detail}" type="submit" class="btn btn-info"><i class="ph ph-arrows-clockwise"></i></button>
+                <button th:formaction="@{/admin/product/change-product-detail}" onclick="return confirm('Bạn có chắc chắn muốn cập nhật sản phẩm này?')" type="submit" class="btn btn-info"><i class="ph ph-arrows-clockwise"></i></button>
                 <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 1}" type="submit" class="btn btn-danger"><i class="ph ph-power"></i></button>
                 <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 2}" type="submit" class="btn btn-success"><i class="ph ph-power"></i></button>
             </td>
@@ -294,6 +303,10 @@
         </tr>
         </tbody>
     </table>
+            <a th:href="@{/admin/product/turn-on-all/{id}(id=${product.id})}"><button class="btn btn-success">Bật hoạt động tất cả</button></a>
+            <a th:href="@{/admin/product/turn-off-all/{id}(id=${product.id})}"><button class="btn btn-danger">Dừng hoạt động tất cả</button></a>
+        </div>
+    </div>
 </main>
 </body>
 </html>
