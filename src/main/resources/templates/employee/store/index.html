@@ -5,6 +5,9 @@
   <title>Bán hàng tại quầy</title>
   <link rel="stylesheet" href="/employee/store/style.css">
   <style>
+    body {
+      padding-right: 0 !important;
+    }
     .search-container {
       position: relative;
       width: 300px;
@@ -41,11 +44,27 @@
       font-size: 14px;
     }
   </style>
+  <script type="text/javascript">
+    function printInvoice(invoiceId) {
+      // Mở cửa sổ mới và tải PDF từ Spring Boot backend
+      var invoiceWindow = window.open('/employee/store/' + invoiceId + '/pdf', '_blank');
+      invoiceWindow.onload = function() {
+        // Khi PDF đã tải xong, tự động gọi window.print()
+        invoiceWindow.print();
+      };
+    }
+  </script>
 </head>
 
 <body>
 
 <main class="content px-3 py-4" layout:fragment="main">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a th:href="@{/employee/dashboard}">Trang chủ</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Bán hàng tại quầy</li>
+    </ol>
+  </nav>
   <div class="container-fluid">
     <div class="row">
       <!-- Nội dung trang chính ở bên trái (nếu có) -->
@@ -104,7 +123,7 @@
                               <!-- Input tìm kiếm -->
                               <div class="col-md-4">
                                 <label class="form-label">Từ khóa</label>
-                                <input type="text" class="form-control" name="keyword" placeholder="Nhập tên sản phẩm...">
+                                <input type="text" class="form-control" name="keyword" th:value="${param.keyword}" placeholder="Nhập tên sản phẩm...">
                               </div>
 
                               <!-- Khoảng giá -->
@@ -112,9 +131,12 @@
                                 <label class="form-label">Sắp xếp theo</label>
                                 <div class="d-flex align-items-center">
                                   <select class="form-select" name="sort">
-                                    <option value="" disabled selected>Sắp xếp</option>
-                                    <option value="Giá tăng dần">Giá tăng dần</option>
-                                    <option value="Giá giảm dần">Giá giảm dần</option>
+                                    <option value="">Tất cả</option>
+                                    <option value="Giá tăng dần"
+                                            th:selected="${param.sort != null and param.sort.toString() == param.sort.toString()}">Giá tăng dần</option>
+                                    <option
+                                            value="Giá giảm dần"
+                                            th:selected="${param.sort != null and param.sort.toString() == param.sort.toString()}">Giá tăng dần</option>
                                   </select>
                                 </div>
                               </div>
@@ -122,16 +144,22 @@
                               <div class="col-md-4">
                                 <label class="form-label">Danh mục</label>
                                 <select class="form-select" name="categoryId">
-                                  <option value="" disabled selected>Chọn danh mục</option>
-                                  <option th:each="cate : ${listCate}" th:value="${cate.id}" th:text="${cate.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="cate : ${listCate}"
+                                          th:value="${cate.id}"
+                                          th:text="${cate.name}"
+                                          th:selected="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
                               <!-- Màu sắc -->
                               <div class="col-md-2">
                                 <label class="form-label">Màu sắc</label>
                                 <select class="form-select" name="colorId">
-                                  <option value="" disabled selected>Chọn màu sắc</option>
-                                  <option th:each="c : ${listColor}" th:value="${c.id}" th:text="${c.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="c : ${listColor}" th:value="${c.id}" th:text="${c.name}"
+                                          th:selected="${param.colorId != null and param.colorId.toString() == c.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -139,8 +167,10 @@
                               <div class="col-md-2">
                                 <label class="form-label">Kích cỡ</label>
                                 <select class="form-select" name="sizeId">
-                                  <option value="" disabled selected>Chọn kích cỡ</option>
-                                  <option th:each="size : ${listSize}" th:value="${size.id}" th:text="${size.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="size : ${listSize}" th:value="${size.id}" th:text="${size.name}"
+                                          th:selected="${param.sizeId != null and param.sizeId.toString() == size.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -148,8 +178,10 @@
                               <div class="col-md-2">
                                 <label class="form-label">Kiểu dáng</label>
                                 <select class="form-select" name="styleId">
-                                  <option value="" disabled selected>Chọn kiểu dáng</option>
-                                  <option th:each="style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="style : ${listStyle}" th:value="${style.id}" th:text="${style.name}"
+                                          th:selected="${param.styleId != null and param.styleId.toString() == style.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -157,8 +189,10 @@
                               <div class="col-md-2">
                                 <label class="form-label">Chất liệu</label>
                                 <select class="form-select" name="materialId">
-                                  <option value="" disabled selected>Chọn chất liệu</option>
-                                  <option th:each="m : ${listMater}" th:value="${m.id}" th:text="${m.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="m : ${listMater}" th:value="${m.id}" th:text="${m.name}"
+                                          th:selected="${param.materialId != null and param.materialId.toString() == m.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -167,8 +201,10 @@
                               <div class="col-md-2">
                                 <label class="form-label">Vải lót</label>
                                 <select class="form-select" name="liningId">
-                                  <option value="" disabled selected>Chọn vải lót</option>
-                                  <option th:each="lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="lining : ${listLining}" th:value="${lining.id}" th:text="${lining.name}"
+                                          th:selected="${param.liningId != null and param.liningId.toString() == lining.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -176,8 +212,10 @@
                               <div class="col-md-2">
                                 <label class="form-label">Đai mũ</label>
                                 <select class="form-select" name="beltId">
-                                  <option value="" disabled selected>Chọn đai mũ</option>
-                                  <option th:each="belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"></option>
+                                  <option value="">Tất cả</option>
+                                  <option th:each="belt : ${listBelt}" th:value="${belt.id}" th:text="${belt.name}"
+                                          th:selected="${param.beltId != null and param.beltId.toString() == belt.id.toString()}">
+                                  </option>
                                 </select>
                               </div>
 
@@ -194,8 +232,8 @@
                             <tr>
                               <th>STT</th>
                               <th>Ảnh</th>
-                              <th>SKU</th>
-                              <th>Tên sản phẩm</th>
+                              <th>Mã sản phẩm</th>
+                              <th>Sản phẩm</th>
                               <th>Chất liệu</th>
                               <th>Danh mục</th>
                               <th>Vải lót</th>
@@ -219,7 +257,7 @@
                                 <img src="" alt="Ảnh mặc định"
                                      style="width: 80px; height: auto;"/>
                               </td>
-                              <td>[[${detail.product.sku}]]</td>
+                              <td>[[${detail.product.sku}]]-[[${detail.id}]]</td>
                               <td>
                                 <div class="flex-lg-grow-1 ms-3">
                                   <h5 class="small mb-0"><a href="#"
@@ -271,15 +309,18 @@
                                           class="btn btn-primary" type="button"
                                           onclick="showAlert(this)"
                                           th:data-quantity-product="${detail.stock}">
-                                    Thêm vào giỏ
+                                    <i class="ph ph-shopping-cart"></i>
                                   </button>
                                 </form>
                               </td>
                             </tr>
                             </tbody>
                           </table>
+                          <div th:if="${totalPages <= 0}" class="alert alert-warning">
+                            Không tìm thấy sản phẩm.
+                          </div>
                           <!-- Hiển thị nút phân trang -->
-                          <nav aria-label="Page navigation example">
+                          <nav aria-label="Page navigation example" th:if="${totalPages > 0}">
                             <ul class="pagination">
                               <li class="page-item"><a class="page-link"
                                                        th:href="@{/employee/store/invoice-detail/{id}(id=${invoiceId},page=${currentPage - 1}, size=${size})}">Previous</a>
@@ -359,20 +400,22 @@
                     <strong class="text-danger">Sản phẩm này đã bị ngừng bán</strong>
                   </div>
                 </td>
-                <td>
+                <td th:if="${invoiceDetail.productDetail.status == 1}">
                   <form th:action="@{/employee/store/update-quantity}" method="post">
                     <center>
                       <input type="hidden" name="ids" th:value="${invoiceDetail.id}"/>
                       <input class="form-control"
                              style="width:60px; text-align: center; align-items: center;border-left: 0;border-bottom: 1px;;border-right: 0;border-top:0;border-radius: 0;padding-right: 2px "
                              type="number" name="quantities" th:value="${invoiceDetail.quantity}"
-                             min="1" step="1" max="1000000" pattern="\d+"
+                             min="1" step="1" max="1000000" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190"
+                             oninput="this.value = this.value.replace(/\D|^0|\./g, '')"
                              th:data-quantity-product="${invoiceDetail.productDetail.stock}"
                              th:data-quantity-invoice-detail="${invoiceDetail.quantity}"
                              onchange="checkQuantityAndSubmit(this)"/>
                     </center>
                   </form>
                 </td>
+                <td th:if="${invoiceDetail.productDetail.status == 2}"></td>
                 <td>
                                     <span th:if="${invoiceDetail.productDetail.product.promotion != null}"
                                           style="color: #939393; background-image: url('https://file.hstatic.net/1000306633/file/111_ae69cf24dc964f258349efab9c4ae975.png'); background-size: cover; background-color: initial;">
@@ -381,12 +424,12 @@
                   <div th:if="${invoiceDetail.productDetail.product.promotion != null}">
                     <!-- Kiểm tra nếu có discountPercentage -->
                     <span th:if="${invoiceDetail.productDetail.product.promotion.discountPercentage != null && invoiceDetail.productDetail.product.promotion.discountPercentage > 0}">
-                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - (invoiceDetail.productDetail.price * invoiceDetail.productDetail.product.promotion.discountPercentage / 100))}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.discountAmount)}"></span>
                                                                 </span>
 
                     <!-- Kiểm tra nếu có discountAmount -->
                     <span th:if="${invoiceDetail.productDetail.product.promotion.discountAmount != null && invoiceDetail.productDetail.product.promotion.discountAmount > 0}">
-                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.productDetail.price - invoiceDetail.productDetail.product.promotion.discountAmount)}"></span>
+                                                                    <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(invoiceDetail.discountAmount)}"></span>
                                                                 </span>
                   </div>
                   <!-- Nếu không có giảm giá -->
@@ -433,7 +476,7 @@
                             th:text="${customer.fullname}+' - '+${customer.phone}"
                             th:selected="${infoInvoice != null && infoInvoice.customer != null && customer.id == infoInvoice.customer.id}"></option>
                   </select>
-                  <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+                  <button th:if="${invoiceId != null}" type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
                           data-bs-target="#addCustomerModal">+
                   </button>
                 </div>
@@ -450,6 +493,8 @@
                             th:data-discount="${voucher.discountPercentage}"
                             th:data-description="${voucher.description}"
                             th:data-quantity="${voucher.quantity}"
+                            th:data-min="${voucher.minOrderValue}"
+                            th:data-max="${voucher.discountMax}"
                             th:data-startdate="${voucher.startDate}"
                             th:data-enddate="${voucher.endDate}"
                             th:selected="${infoInvoice != null && infoInvoice.voucher != null && voucher.id == infoInvoice.voucher.id}"></option>
@@ -477,15 +522,15 @@
                         GREEN2023
                       </div>
                       <div id="previewQuantity" class="voucher-details"
-                           style="font-size: 12px; color: #777;">Quantity : 50
+                           style="font-size: 11px; color: #777; padding-top: 5px" >Quantity : 50
                         purchase.
                       </div>
                       <div id="previewDescription" class="voucher-details"
-                           style="font-size: 12px; color: #777;">Get 25% off on your next
+                           style="font-size: 11px; color: #777;">Get 25% off on your next
                         order.
                       </div>
                       <div id="previewValidity" class="validity"
-                           style="font-size: 10px; color: #555; text-align: center;">Valid:
+                           style="font-size: 11px; color: #555; text-align: center;">Hạn sử dụng:
                         01/06/2023 - 30/06/2023
                       </div>
                     </div>
@@ -497,11 +542,15 @@
                 <table class="table mb-5 mt-3">
                   <tbody>
                   <form th:object="${infoInvoice}">
-                    <tr>
+                    <tr class="bg-light">
                       <td>Tổng tiền :</td>
-                      <td id="totalPrice" th:if="${infoInvoice != null}" class="text-end"
-                          th:field="*{totalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}"
-                          th:data-totalprice="*{totalPrice}"></td>
+                      <td class="text-end">
+                                                <span id="totalPrice" th:if="${infoInvoice != null}"
+                                                      th:field="*{totalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(totalPrice)}"
+                                                      th:data-totalprice="*{totalPrice}">
+                                            </span>
+
+                      </td>
                     </tr>
                     <tr id="discountRow" style="display: none;">
                       <td>Giảm giá voucher :</td>
@@ -515,14 +564,11 @@
                       <td>Giảm giá sản phẩm :</td>
                       <td id="discountAll" class="text-end" data-discount-raw-value="0"></td>
                     </tr>
-                    <tr th:if="${infoInvoice != null and infoInvoice.deliverDate != null}">
-                      <td>Phí ship :</td>
-                      <td class="text-end">$ 25</td>
-                    </tr>
+
                     <tr class="bg-light">
                       <th>Thực thu :</th>
                       <td class="text-end">
-                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold" data-raw-value=""
+                                            <span id="finalPrice" th:if="${infoInvoice != null}" class="fw-bold" th:data-raw-value="*{finalPrice}"
                                                   th:field="*{finalPrice}" th:text="*{T(com.beehat.service.CurrencyUtil).formatCurrency(finalPrice)}">
                                             </span>
                       </td>
@@ -599,7 +645,7 @@
   </div>
 
   <!-- Modal -->
-  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -612,10 +658,10 @@
             <!-- Hiển thị tổng tiền -->
             <div class="mb-3" th:if="${infoInvoice != null && infoInvoice.totalPrice != null}">
               <label for="totalAmount" class="form-label">Tổng tiền</label>
-              <input type="text" class="form-control" id="totalAmount"  readonly>
-              <input id="totalAmountRaw" name="totalPayment" readonly>
+              <input type="text" class="form-control" id="totalAmount" readonly>
+              <input id="totalAmountRaw" name="totalPayment" type="hidden" readonly>
             </div>
-            <select id="voucherPayment" class="form-select" name="voucherPayment" hidden="hidden">
+            <select id="voucherPayment" class="form-select" name="voucherPayment" style="display: none">
               <option value="">Chọn voucher</option>
               <option th:each="voucher : ${listVoucher}" th:value="${voucher.id}"
                       th:text="${voucher.code} + ' - ' + ${voucher.name} + ' - ' + ${voucher.discountPercentage} + '%'"
@@ -626,7 +672,7 @@
             <div class="mb-3" th:if="${infoInvoice != null}">
               <label class="form-label me-2">Phương thức thanh toán</label>
               <div class="d-flex align-items-center">
-                <select class="form-control flex-grow-1" id="paymentMethod" name="methodPayment">
+                <select class="form-control flex-grow-1" id="paymentMethod" onchange="changePaymentMethod()" name="methodPayment">
                   <option value="" hidden="hidden">Chọn phương thức thanh toán</option>
                   <option th:each="payment : ${listPayment}"
                           th:text="${payment.name}"
@@ -674,10 +720,10 @@
                       th:data-invoice-submit-payment="${infoInvoice != null ? infoInvoice.id : null}"
                       onclick="submitPayment(this)">Xác nhận thanh toán
               </button>
+
             </div>
           </form>
         </div>
-
       </div>
     </div>
   </div>
@@ -740,8 +786,13 @@
       const maxQuantity = parseInt(inputElement.getAttribute('data-quantity-product')); // Số lượng trong kho
       const lastQuantity = parseInt(inputElement.getAttribute('data-quantity-invoice-detail')); // Số lượng trong hóa đơn hiện tại
 
-      if (isNaN(quantity) ||quantity <= 0) {
-        alert("Số lượng sản phẩm không hợp lệ !")
+      if (isNaN(quantity) || quantity <= 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: 'Kí tự không hợp lệ !',
+          showConfirmButton: true
+        });
         inputElement.value = lastQuantity;
         form.onsubmit = function () {
           return false; // Ngăn không cho form được submit
@@ -762,14 +813,10 @@
     // Mở modal chọn phương thức thanh toán và set tổng tiền
     function openPaymentModal() {
       var finalPriceElement = document.getElementById('finalPrice');
-      console.log(finalPriceElement)
       var finalPrice = finalPriceElement.textContent; // Hoặc dùng innerText
       const finalPriceRaw = finalPriceElement.getAttribute("data-raw-value")
-      console.log(finalPriceRaw); // In giá trị ra console
       const totalAmount = document.getElementById("totalAmount");
-      console.log(totalAmount)
       const totalAmountRaw = document.getElementById("totalAmountRaw");
-      console.log(totalAmountRaw);
       totalAmount.value = finalPrice;
       totalAmountRaw.value = finalPriceRaw;
       new bootstrap.Modal(document.getElementById('paymentModal')).show();
@@ -778,8 +825,6 @@
     // Gửi dữ liệu thanh toán, là hàm xác nhận thanh toán
     function submitPayment(button) {
       const paymentMethod = document.getElementById("paymentMethod").value;
-      const totalAmount = document.getElementById("totalAmount").value;
-      const id = parseInt(button.getAttribute('data-invoice-submit-payment'));
       if (!paymentMethod) {
         Swal.fire({
           icon: 'error',
@@ -789,46 +834,49 @@
         return; // Dừng lại không thực hiện tiếp
       }
 
-      // Thực hiện logic thanh toán ở đây, ví dụ: gửi yêu cầu thanh toán qua AJAX
       Swal.fire({
-        title: 'Bạn có chắc chắn muốn thanh toán hoá đơn này?',
+        title: 'Bạn có chắc chắn muốn thanh toán?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Đồng ý',
         cancelButtonText: 'Hủy',
-        reverseButtons: true
       }).then((result) => {
         if (result.isConfirmed) {
-          // Nếu đồng ý, hiển thị thông báo Toast
-          const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-              toast.onmouseenter = Swal.stopTimer;
-              toast.onmouseleave = Swal.resumeTimer;
-            }
-          });
-          Toast.fire({
-            icon: "success",
-            title: "Thanh toán thành công"
-          });
-
-          // Chờ toast hoàn thành rồi submit form
-          setTimeout(() => {
-            const newTab = window.open('/employee/store/' + id + '/pdf', '_blank');
-            if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-              alert("Trình duyệt của bạn đã chặn tab mới. Hãy kiểm tra cài đặt popup!");
-            } else {
-              window.location.href = '/employee/store/index';
-            }
-            const form = button.closest("form");
-            form.submit(); // Submit form mà không cần click lại button
-          }, 1500);
+          const form = button.closest("form");
+          // Tạo đối tượng FormData từ form
+          const formData = new FormData(form);
+          fetch('/employee/store/pay', {
+            method: 'POST',
+            body: formData,
+          })
+                  .then(response => {
+                    if (!response.ok) {
+                      return response.json().then(errorData => {
+                        throw new Error(errorData.message || "Lỗi không xác định");
+                      });
+                    }
+                    return response.json();
+                  })
+                  .then(data => {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Thanh toán thành công',
+                      text: 'Hóa đơn đã được lưu!',
+                    }).then(() => {
+                      printInvoice(data.invoiceId); // Gọi hàm in sau khi server trả về ID hóa đơn mới.
+                      window.location.href = '/employee/store/index';
+                    });
+                  })
+                  .catch(error => {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Thanh toán thất bại',
+                      text: error.message,
+                    });
+                  });
         }
       });
+
 
       // Đóng modal sau khi thanh toán thành công
       bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
@@ -875,14 +923,14 @@
         });
         return; // Dừng lại không thực hiện tiếp
       }
-      if (customerSelect == "") {
-        Swal.fire({
-          icon: 'error',
-          title: 'Thanh toán thất bại',
-          text: 'Không thể thanh toán vì bạn chưa chọn khách hàng!',
-        });
-        return; // Dừng lại không thực hiện tiếp
-      }
+      // if (customerSelect == "") {
+      //     Swal.fire({
+      //         icon: 'error',
+      //         title: 'Thanh toán thất bại',
+      //         text: 'Không thể thanh toán vì bạn chưa chọn khách hàng!',
+      //     });
+      //     return; // Dừng lại không thực hiện tiếp
+      // }
       Swal.fire({
         title: 'Bạn có chắc chắn muốn thanh toán?',
         icon: 'warning',
@@ -894,6 +942,7 @@
         if (result.isConfirmed) {
           const selectElement = document.getElementById('paymentMethod');
           const selectValue = document.getElementById("voucherSelect").value;
+          console.log(selectValue)
           if (!selectValue){
             const finalPriceElement = document.getElementById('finalPrice');
             const totalPriceElement = document.getElementById("totalPrice");
@@ -1020,8 +1069,9 @@
       }
     }
     //hàm kiểm tra thay đổi của ô select phương thức thanh toán
-    document.getElementById("paymentMethod").addEventListener("change", function () {
-      const selectedMethod = this.options[this.selectedIndex].text;
+    function changePaymentMethod() {
+      const paymentMethod = document.getElementById("paymentMethod");
+      const selectedMethod = paymentMethod.options[paymentMethod.selectedIndex].text;
       const cashCalculationDiv = document.getElementById("cashCalculation");
       const bankTransferDetailsDiv = document.getElementById("bankTransferDetails");
       const finalPriceElement = parseInt(document.getElementById("totalAmount").value.replace(/[^\d]/g, "") || 0);
@@ -1053,7 +1103,7 @@
         cashCalculationDiv.style.display = "none";
         bankTransferDetailsDiv.style.display = "none";
       }
-    });
+    }
 
 
     function calculateChange() {
@@ -1082,88 +1132,105 @@
         placeholder: "Chọn voucher",
         allowClear: true
       });
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-      updateVoucherPreview(); // Gọi khi trang tải để hiển thị voucher đã có
+
     });
 
-    function updateVoucherPreview() {
+    function checkVoucher(){
+      const finalPrice = document.getElementById('finalPrice');
+      const finalPriceRaw = finalPrice.getAttribute("data-raw-value") || 0
       const select = document.getElementById("voucherSelect");
-      const selectValue = document.getElementById("voucherSelect").value;
       const selectedOption = select.options[select.selectedIndex];
-      const selectPayment = document.getElementById("voucherPayment");
-
-      selectPayment.value = selectValue;
-
-      // Lấy phần preview container
-      const previewContainer = document.querySelector(".card-body .preview-block");
-
-      if (!selectedOption || !selectedOption.value) {
-        const finalPriceElement = document.getElementById('finalPrice');
-        const totalPriceElement = document.getElementById("totalPrice");
-        const totalPrice = totalPriceElement.getAttribute("data-totalprice");
-        const discountAllRaw = document.getElementById("discountAll");
-        const discountAll = discountAllRaw.getAttribute("data-discount-raw-value");
-        const finalPrice = totalPrice - discountAll;
-        finalPriceElement.setAttribute("data-raw-value", finalPrice);
-        finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
-          style: "currency",
-          currency: "VND"
+      const optionData = selectedOption.dataset;
+      const discountAllRaw = document.getElementById("discountAll");
+      // Kiểm tra minValue có hợp lệ không
+      const minValue = optionData.min ? parseInt(optionData.min) : 0;
+      if (finalPriceRaw >= minValue) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    function updateVoucherPreview() {
+      if (!checkVoucher()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: 'Hoá đơn của bạn chưa đạt giá trị tối thiểu!',
         });
-        const discountRow = document.getElementById("discountRow");
-        discountRow.style.display = "none";
-        previewContainer.style.display = "none";
-        return;
+        $('#voucherSelect').val(null).trigger('change');
+        return; // Dừng lại không thực hiện tiếp
       }
 
+      const select = document.getElementById("voucherSelect");
+      const selectValue = select.value;
+      const selectedOption = select.options[select.selectedIndex];
+      const optionData = selectedOption.dataset;
+      const selectPayment = document.getElementById("voucherPayment");
+      const maxValue = optionData.max || 0;
+      selectPayment.value = selectValue;
+      // Lấy phần tử giá trị
       const totalPriceElement = document.getElementById("totalPrice");
       const discountRow = document.getElementById("discountRow");
       const discountAmountElement = document.getElementById("discountAmount");
       const finalPriceElement = document.getElementById("finalPrice");
       const discountAllRaw = document.getElementById("discountAll");
-      // Lấy tổng tiền từ phần tử tổng tiền và loại bỏ định dạng VND
-      const totalPrice = totalPriceElement.getAttribute("data-totalprice") || 0;
+
+      // Giá trị gốc của hóa đơn (tổng tiền - giảm giá chung)
+      const totalPrice = parseInt(totalPriceElement.getAttribute("data-totalprice")) || 0;
+      const discountAll = parseInt(discountAllRaw.getAttribute("data-discount-raw-value")) || 0;
+      const baseFinalPrice = totalPrice - discountAll;
+
+      // Nếu không có voucher được chọn
+      if (!selectValue) {
+        finalPriceElement.setAttribute("data-raw-value", baseFinalPrice);
+        finalPriceElement.innerText = baseFinalPrice.toLocaleString("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        });
+        discountRow.style.display = "none";
+        document.querySelector(".card-body .preview-block").style.display = "none";
+        return;
+      }
+
+      // Áp dụng giảm giá từ voucher
       const discountPer = parseInt(selectedOption.getAttribute("data-discount")) || 0;
-      const discountAmount = (totalPrice * discountPer) / 100;
-      const discountALL = discountAllRaw.getAttribute("data-discount-raw-value") || 0;
-      const finalPrice = totalPrice - discountALL - discountAmount ;
-      console.log(finalPrice)
-      // Hiển thị dòng giảm giá và cập nhật giá trị
+      const discountAmount = Math.min(
+              Math.floor((baseFinalPrice * discountPer) / 100),
+              maxValue
+      );
+      const lastPrice = baseFinalPrice - discountAmount;
+
+      // Cập nhật giá trị hiển thị
       discountRow.style.display = "table-row";
-
-      discountAmountElement.innerText = '-' + discountAmount.toLocaleString("vi-VN", {
+      discountAmountElement.innerText = `-${discountAmount.toLocaleString("vi-VN", {
         style: "currency",
-        currency: "VND"
-      });
-
-      finalPriceElement.innerText = finalPrice.toLocaleString("vi-VN", {
+        currency: "VND",
+      })}`;
+      finalPriceElement.innerText = lastPrice.toLocaleString("vi-VN", {
         style: "currency",
-        currency: "VND"
+        currency: "VND",
       });
-      // Cập nhật data-raw-value bằng giá trị mới
-      finalPriceElement.setAttribute("data-raw-value", finalPrice);
-      // Hiển thị phần preview nếu có lựa chọn
+      finalPriceElement.setAttribute("data-raw-value", lastPrice);
+
+      // Hiển thị thông tin voucher trong phần preview
+      const previewContainer = document.querySelector(".card-body .preview-block");
       previewContainer.style.display = "block";
 
-      // Lấy thông tin voucher từ các thuộc tính data
-      const name = selectedOption.getAttribute("data-name") || "Voucher";
-      const code = selectedOption.getAttribute("data-code") || "CODE";
-      const discount = selectedOption.getAttribute("data-discount") || "0";
-      const description = selectedOption.getAttribute("data-description") || "Mô tả";
-      const quantity = selectedOption.getAttribute("data-quantity") || "0";
-      const startDate = selectedOption.getAttribute("data-startdate") || "--";
-      const endDate = selectedOption.getAttribute("data-enddate") || "--";
+      document.getElementById("previewName").innerText = optionData.name || "Voucher";
+      document.getElementById("previewCode").innerText = optionData.code || "CODE";
+      document.getElementById("previewDiscount").innerText = `${discountPer}% OFF`;
+      document.getElementById("previewQuantity").innerText = `Số lượng: ${optionData.quantity || "0"}`;
+      document.getElementById("previewDescription").innerText =
+              `Đơn tối thiểu: ${optionData.min ? optionData.min.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Mô tả"},
+     Đơn tối đa: ${optionData.max ? optionData.max.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Không xác định"}`;
 
-      const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : "--";
-      const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString() : "--";
-
-      document.getElementById("previewName").innerText = name;
-      document.getElementById("previewCode").innerText = code;
-      document.getElementById("previewDiscount").innerText = `${discount}% OFF`;
-      document.getElementById("previewQuantity").innerText = `Quantity: ${quantity}`;
-      document.getElementById("previewDescription").innerText = description;
-      document.getElementById("previewValidity").innerText = `Valid: ${formattedStartDate} - ${formattedEndDate}`;
+      document.getElementById("previewValidity").innerText = `Thời gian: ${
+              optionData.startdate ? new Date(optionData.startdate).toLocaleDateString() : "--"
+      } - ${
+              optionData.enddate ? new Date(optionData.enddate).toLocaleDateString() : "--"
+      }`;
     }
+
 
   </script>
   <script src="/employee/store/script.js"></script>

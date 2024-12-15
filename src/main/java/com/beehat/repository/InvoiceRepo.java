@@ -37,5 +37,18 @@ public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
                                  @Param("invoiceType") Byte invoiceType,
                                  @Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate, Pageable pageable);
-
+    @Query("SELECT i FROM Invoice i " +
+            "LEFT JOIN i.customer c " +
+            "WHERE (:searchTerm IS NULL OR " +
+            "       LOWER(i.invoiceTrackingNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "       LOWER(i.phone) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "       LOWER(c.fullname) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
+            "AND (:invoiceType IS NULL OR i.invoiceStatus = :invoiceType) " +
+            "AND (:startDate IS NULL OR i.createdDate >= :startDate) " +
+            "AND (:endDate IS NULL OR i.createdDate <= :endDate)"+
+            "AND i.invoiceStatus=1")
+    Page<Invoice> searchInvoices1(@Param("searchTerm") String searchTerm,
+                                 @Param("invoiceType") Byte invoiceType,
+                                 @Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate, Pageable pageable);
 }

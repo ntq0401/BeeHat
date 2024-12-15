@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,9 @@ import java.io.OutputStream;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -101,8 +104,6 @@ public class EmployeeStoreController {
 
     @ModelAttribute("listInvoice")
     List<Invoice> listOrder(Principal principal) {
-        String user = principal.getName();
-        Employee employee = employeeRepo.findByUsername(user);
         return invoiceRepo.findByStatusAndInvoiceStatusAndEmployee(Byte.valueOf("0"), (byte) 0,employeeRepo.findByUsername(principal.getName()));
     }
 
@@ -124,7 +125,7 @@ public class EmployeeStoreController {
 
     @ModelAttribute("listVoucher")
     List<Voucher> listVoucher() {
-        return voucherRepo.findByStatus((byte) 1);
+        return voucherRepo.findAvailableVouchers(LocalDateTime.now());
     }
     @ModelAttribute("listCate")
     List<Category> listCategory() {
@@ -223,15 +224,20 @@ public class EmployeeStoreController {
         Product product = productDetail.getProduct();
         boolean isExistingProduct = false;
 
-        int unitPrice = getDiscountedPrice(productDetail, product);
+        int discount = getDiscountedPrice(productDetail, product);
 
         // Kiểm tra sản phẩm đã tồn tại trong hóa đơn chi tiết chưa
         for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
             if (invoiceDetail.getProductDetail().getId().equals(idProductDetail)) {
                 isExistingProduct = true;
-                invoiceDetail.setUnitPrice(unitPrice);
+                invoiceDetail.setUnitPrice(invoiceDetail.getProductDetail().getPrice());
+                invoiceDetail.setDiscountAmount(discount == productDetail.getPrice()? 0 : discount);
                 invoiceDetail.setQuantity(invoiceDetail.getQuantity() + 1);
-                invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+                if (discount == productDetail.getPrice()) {
+                    invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+                }else{
+                    invoiceDetail.setFinalPrice(discount * invoiceDetail.getQuantity());
+                }
                 invoiceDetailRepo.save(invoiceDetail);
 
                 // Giảm số lượng tồn kho của sản phẩm
@@ -247,8 +253,13 @@ public class EmployeeStoreController {
             invoiceDetail.setInvoice(invoice);
             invoiceDetail.setProductDetail(productDetail);
             invoiceDetail.setQuantity(1);
-            invoiceDetail.setUnitPrice(unitPrice);
-            invoiceDetail.setFinalPrice(unitPrice);
+            invoiceDetail.setUnitPrice(invoiceDetail.getProductDetail().getPrice());
+            invoiceDetail.setDiscountAmount(discount == productDetail.getPrice()? 0 : discount);
+            if (discount == productDetail.getPrice()) {
+                invoiceDetail.setFinalPrice(invoiceDetail.getUnitPrice() * invoiceDetail.getQuantity());
+            }else{
+                invoiceDetail.setFinalPrice(discount * invoiceDetail.getQuantity());
+            }
 
             invoiceDetailRepo.save(invoiceDetail);
 
@@ -293,7 +304,7 @@ public class EmployeeStoreController {
 
     @PostMapping("/add-new-customer")
     public String addCustomer(@ModelAttribute("kh") Customer customer,
-                              @RequestParam("invoiceId") int invoiceId) {
+                              @RequestParam(value = "invoiceId") int invoiceId) {
         customerRepo.save(customer);
         return "redirect:/employee/store/invoice-detail/" + invoiceId;
     }
@@ -334,14 +345,19 @@ public class EmployeeStoreController {
             }
             invoiceDetailRepo.deleteById(id);
             Invoice invoice = invoiceDetail.getInvoice();
+            // Cập nhật tổng tiền của hóa đơn
+            int totalPrice = invoice.getInvoiceDetails().stream()
+                    .mapToInt(detail -> detail.getProductDetail().getPrice() * detail.getQuantity())
+                    .sum();
             int totalInvoicePrice = invoice.getInvoiceDetails().stream().mapToInt(InvoiceDetail::getFinalPrice).sum();
-            invoice.setTotalPrice(totalInvoicePrice);
+            invoice.setPromotionDiscount(totalPrice - totalInvoicePrice);
+            invoice.setTotalPrice(totalPrice);
             invoice.setFinalPrice(totalInvoicePrice);
             invoiceRepo.save(invoice);
             return "redirect:/employee/store/invoice-detail/" + invoiceId;
         }
 
-        // Xử lý nếu không tìm thấy invoiceDetail
+// Xử lý nếu không tìm thấy invoiceDetail
         return "redirect:/employee/store/invoice-detail";  // Có thể thay đổi đường dẫn nếu cần
     }
 
@@ -371,12 +387,14 @@ public class EmployeeStoreController {
 
         // Cập nhật giá khuyến mãi nếu có
         int unitPrice = productDetail.getPrice();
+        invoiceDetail.setUnitPrice(unitPrice);
         if (product.getPromotion() != null) {
             unitPrice = product.getPromotion().getDiscountAmount() != null && product.getPromotion().getDiscountAmount() > 0
                     ? productDetail.getPrice() - product.getPromotion().getDiscountAmount()
                     : productDetail.getPrice() - (productDetail.getPrice() * product.getPromotion().getDiscountPercentage()) / 100;
+            invoiceDetail.setDiscountAmount(unitPrice);
         }
-        invoiceDetail.setUnitPrice(unitPrice);
+
         invoiceDetail.setFinalPrice(unitPrice * quantities);
 
         // Lưu cập nhật cho invoiceDetail và productDetail
@@ -413,20 +431,6 @@ public class EmployeeStoreController {
         return productDetail.getPrice();
     }
 
-
-    @PostMapping("/add-customer-to-invoice")
-    public String addCustomerToInvoice(@RequestParam("customerId") int customerId, @RequestParam("invoiceId") int invoiceId) {
-        Invoice invoice = invoiceRepo.findById(invoiceId).orElse(null);
-        Customer customer = customerRepo.findById(customerId).orElse(null);
-
-        if (invoice != null && customer != null) {
-            invoice.setCustomer(customer);
-            invoiceRepo.save(invoice);
-        }
-
-        return "redirect:/employee/store/invoice-detail/" + invoiceId;
-    }
-
     @PostMapping("/updateCustomer")
     public ResponseEntity<String> updateCustomer(
             @RequestParam("invoiceId") Integer invoiceId,
@@ -446,36 +450,118 @@ public class EmployeeStoreController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
         }
     }
-
+    private ResponseEntity<?> createErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", message);
+        return ResponseEntity.badRequest().body(response);
+    }
+    @Transactional
     @PostMapping("/pay")
-    public String pay(@RequestParam(name = "idPayment") int id,
-                      @RequestParam(name = "totalPayment") int totalPayment,
-                      @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
-                      @RequestParam(name = "methodPayment") int paymentMethod) {
-        System.out.println("Voucher ID received: " + voucherPayment);  // Log giá trị voucherPayment
-        String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+    @ResponseBody
+    public ResponseEntity<?> pay(@RequestParam(name = "idPayment") int id,
+                                 @RequestParam(name = "totalPayment") int totalPayment,
+                                 @RequestParam(name = "voucherPayment", defaultValue = "-1") int voucherPayment,
+                                 @RequestParam(name = "methodPayment") int paymentMethod) {
+
+        // Tìm hóa đơn theo id
         Invoice invoice = invoiceRepo.findById(id).orElse(null);
+        if (invoice == null) {
+            // Xử lý lỗi nếu hóa đơn không tồn tại
+            return createErrorResponse("Không tìm thấy hoá đơn");
+        }
+        String productError = checkProductAvailability(invoice.getInvoiceDetails());
+        if (productError != null) {
+            return createErrorResponse(productError);
+        }
+        // Tìm voucher nếu có
+        Voucher voucher = null;
+        int voucherDiscount = 0;
+        if (voucherPayment != -1) {
+            voucher = voucherRepo.findById(voucherPayment).orElse(null);
+            if (voucher == null) {
+                return createErrorResponse("Không tìm thấy voucher");
+            }
+
+            // Kiểm tra số lượng voucher còn đủ không
+            if (voucher.getQuantity() <= 0) {
+                return createErrorResponse("Mã giảm giá này đã hết !");
+            }
+
+            // Kiểm tra thời hạn sử dụng của voucher
+            if (voucher.getEndDate().isBefore(LocalDateTime.now())) {
+                return createErrorResponse("Mã giảm giá này đã hết hạn");
+            }
+            // Kiểm tra hạn mức tối thiểu của voucher
+            int totalPrice = invoice.getTotalPrice();
+            int promotionDiscount = invoice.getPromotionDiscount();
+            int subtotal = totalPrice - promotionDiscount; // Tổng tiền sau khi trừ giảm giá khuyến mãi
+            if (subtotal < voucher.getMinOrderValue()) {
+                return createErrorResponse("Hoá đơn không đạt giá trị tối thiểu để áp dụng mã giảm giá.");
+            }
+
+            // Tính toán giảm giá
+            int discountPercentage = voucher.getDiscountPercentage();
+            int maxDiscount = voucher.getDiscountMax();
+            voucherDiscount = Math.min(
+                    (invoice.getTotalPrice() - invoice.getPromotionDiscount()) * discountPercentage / 100,
+                    maxDiscount
+            );
+        }
+        // Tính toán finalPrice
+        int finalPrice = invoice.getTotalPrice() - invoice.getPromotionDiscount() - voucherDiscount;
+        if (finalPrice < 0) {
+            return createErrorResponse("Giảm giá vượt quá giá trị hoá đơn. Vui lòng kiểm tra lại.");
+        }
+
+        // Cập nhật thông tin hóa đơn
+        invoice.setVoucher(voucher);
+        invoice.setVoucherDiscount(voucherDiscount);
+        invoice.setFinalPrice(finalPrice);
+
+        // Tìm phương thức thanh toán
+        PaymentMethod paymentMethodEntity = paymentMethodRepo.findById(paymentMethod).orElse(null);
+        if (paymentMethodEntity == null) {
+            return createErrorResponse("Phương thức thanh toán này không hợp lệ");
+        }
+        invoice.setPaymentMethod(paymentMethodEntity);
+        // Cập nhật trạng thái hóa đơn
+        invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất
+        invoiceRepo.save(invoice);
+
+        if (voucher != null) {
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
+        }
+
+        // Tạo mã giao dịch
+        String transactionCode = UUID.randomUUID().toString().substring(0, 5).toUpperCase()
+                + "-" + invoice.getInvoiceTrackingNumber();
+
+        // Tạo bản ghi lịch sử thanh toán
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.setInvoice(invoice);
-        paymentHistory.setAmountPaid(totalPayment);
+        paymentHistory.setAmountPaid(finalPrice);
         paymentHistory.setPaymentDate(LocalDateTime.now());
-        paymentHistory.setTransactionCode(randomUUID+"-"+invoice.getInvoiceTrackingNumber());
-        Voucher voucher = voucherRepo.findById(voucherPayment).orElse(null);
-        if (voucher != null) {
-            invoice.setVoucher(voucher);
-        }
-
-        PaymentMethod paymentMethod1 = paymentMethodRepo.findById(paymentMethod).orElse(null);
-        if (paymentMethod1 != null) {
-            invoice.setPaymentMethod(paymentMethod1);
-            paymentHistory.setPaymentMethod(paymentMethod1);
-        }
-
-        invoice.setFinalPrice(totalPayment);
-        invoice.setStatus(Byte.valueOf("2"));
-        invoiceRepo.save(invoice);
+        paymentHistory.setTransactionCode(transactionCode);
+        paymentHistory.setPaymentMethod(paymentMethodEntity);
+        // Lưu lịch sử thanh toán
         paymentHistoryRepo.save(paymentHistory);
-        return "redirect:/employee/store/index";
+
+        // Trả về JSON bao gồm ID của hóa đơn
+        Map<String, Object> response = new HashMap<>();
+        response.put("invoiceId", invoice.getId());
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
+    }
+    private String checkProductAvailability(List<InvoiceDetail> invoiceDetails) {
+        for (InvoiceDetail invoiceDetail : invoiceDetails) {
+            ProductDetail productDetail = productDetailRepo.findById(invoiceDetail.getProductDetail().getId()).orElse(null);
+            if (productDetail == null || productDetail.getStatus() == (byte) 2) {
+                return "Sản phẩm " + (productDetail != null ? productDetail.getProduct().getName() : "không xác định") + " không còn khả dụng! Vui lòng xóa khỏi giỏ hàng.";
+            }
+        }
+        return null;
     }
 
 }
