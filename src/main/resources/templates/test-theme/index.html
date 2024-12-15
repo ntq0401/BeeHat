@@ -224,7 +224,7 @@
                                 </div>
                                 <!-- Trường hợp: Có thông tin sản phẩm nhưng không có khuyến mãi -->
                                 <div class="product__price"
-                                     th:if="${product.productDetail != null and !product.productDetail.isEmpty() and product.promotion == null}">
+                                     th:if="${product.productDetail != null and !product.productDetail.isEmpty() }">
                                     <!-- Hiển thị giá thấp nhất và cao nhất nếu có nhiều giá -->
                                     <div th:if="${product.lowestPrice != null and product.highestPrice != null and product.lowestPrice < product.highestPrice}">
                                     [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
@@ -303,7 +303,7 @@
                                 </div>
                                 <!-- Trường hợp: Có thông tin sản phẩm nhưng không có khuyến mãi -->
                                 <div class="product__price"
-                                     th:if="${product.productDetail != null and !product.productDetail.isEmpty() and product.promotion == null}">
+                                     th:if="${product.productDetail != null and !product.productDetail.isEmpty()}">
                                     <!-- Hiển thị giá thấp nhất và cao nhất nếu có nhiều giá -->
                                     <div th:if="${product.lowestPrice != null and product.highestPrice != null and product.lowestPrice < product.highestPrice}">
                                         [[${T(com.beehat.service.CurrencyUtil).formatCurrency(product.lowestPrice)}]] -
