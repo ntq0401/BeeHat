@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lí kích cỡ</title>
+</head>
+<body>
+<main class="content px-3 py-4" layout:fragment="main">
+    <h1>Quản lí kích cỡ</h1>
+    <form method="post" th:object="${s}">
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
+        <p>Id :
+            <input class="form-control" type="text" th:field="*{id}" disabled>
+        </p>
+        <p>Tên kích cỡ :
+            <input class="form-control" type="text" th:field="*{name}">
+            <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
+        </p>
+        <p>Trạng thái :
+            <input class="form-radio" value="1" type="radio" th:field="*{status}">Hoạt động
+            <input class="form-radio" value="0" type="radio" th:field="*{status}">Không hoạt động
+            <p class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+        </p>
+        <button class="btn btn-success" type="submit">Update</button>
+    </form>
+</main>
+</body>
+</html>
