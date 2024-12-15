@@ -21,4 +21,5 @@ public class ProductResponse {
     int lowestPrice;
     int highestPrice;
     List<ProductDetail> productDetail;
+    Byte status;
 }

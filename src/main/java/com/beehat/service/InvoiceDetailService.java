@@ -86,6 +86,7 @@ public class InvoiceDetailService {
                     .lowestPrice(calculateLowestPrice(entry.getKey().getProductDetail()))
                     .highestPrice(calculateHighestPrice(entry.getKey().getProductDetail()))
                     .productDetail(entry.getKey().getProductDetail())
+                    .status(entry.getKey().getStatus())
                     .build();
             productResponseList.add(productResponse);
         }

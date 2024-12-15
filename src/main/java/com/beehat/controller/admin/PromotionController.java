@@ -114,7 +114,7 @@ public class PromotionController {
                       @RequestParam(value = "categoryId",required = false) Integer categoryId){
         List<Category> listCategory = categoryRepo.findAll();
         Pageable pageable = PageRequest.of(page, 100); // 5 sản phẩm mỗi trang
-        Page<Product> productsPage = productRepo.findProducts(search,fromDate,toDate,categoryId,pageable);
+        Page<Product> productsPage = productRepo.findProducts(search,fromDate,toDate,categoryId,(byte) 1,pageable);
         if (productsPage.getTotalElements() == 0) {
             page = 0;
         }
@@ -253,7 +253,7 @@ public class PromotionController {
                          @RequestParam(value = "toDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime toDate,
                          @RequestParam(value = "categoryId",required = false) Integer categoryId) {
         Pageable pageable = PageRequest.of(page, 100);
-        Page<Product> productsPage = productRepo.findProductUpdate(id,search,fromDate,toDate,categoryId,pageable);
+        Page<Product> productsPage = productRepo.findProductUpdate(id,search,fromDate,toDate,categoryId,(byte) 1,pageable);
         if (productsPage.getTotalElements() == 0) {
             page = 0;
         }
