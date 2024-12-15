@@ -160,10 +160,19 @@ public class ProductController {
                     // Lưu file ảnh vào thư mục trên server
                     String fileName = file.getOriginalFilename();
                     try {
-                        // Định nghĩa đường dẫn lưu ảnh
-                        String filePath = "src/main/resources/static/product-img/" + fileName;
-                        Path path = Paths.get(filePath);
-                        Files.write(path, file.getBytes());
+                        // Đường dẫn thư mục bên ngoài để lưu ảnh
+                        String uploadDir = "D:/uploads/product-img/";
+                        Path uploadPath = Paths.get(uploadDir);
+
+                        // Tạo thư mục nếu chưa tồn tại
+                        if (!Files.exists(uploadPath)) {
+                            Files.createDirectories(uploadPath);
+                        }
+
+                        // Lưu file ảnh
+                        Path filePath = uploadPath.resolve(fileName);
+                        Files.write(filePath, file.getBytes());
+                        System.out.println("File saved at: " + filePath.toAbsolutePath());
 
                         // Tạo đối tượng ProductImage
                         ProductImage img = new ProductImage();
@@ -173,6 +182,7 @@ public class ProductController {
                     } catch (IOException e) {
                         e.printStackTrace();
                         // Xử lý lỗi khi lưu ảnh
+                        model.addAttribute("isAdd", true);
                         model.addAttribute("error", "Error uploading image: " + fileName);
                         return "admin/product/add-product";
                     }
