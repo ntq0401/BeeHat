@@ -2,6 +2,7 @@ package com.beehat.controller.employee;
 
 import com.beehat.entity.Employee;
 import com.beehat.repository.EmployeeRepo;
+import com.beehat.service.InvoiceDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/employee")
@@ -22,6 +24,8 @@ public class Econtroller {
     EmployeeRepo employeeRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    InvoiceDetailService invoiceDetailService;
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-house-simple fs-3";
@@ -31,7 +35,12 @@ public class Econtroller {
         return "Trang chủ";
     }
     @GetMapping("/dashboard")
-    public String getdashboard(){
+    public String getdashboard(Model model,Principal principal) {
+        Employee employee = employeeRepo.findByUsername(principal.getName());
+        Map<String, Integer> stats = invoiceDetailService.getOrderStats(employee.getId());
+
+        model.addAttribute("onlinePending", stats.get("onlinePending"));
+        model.addAttribute("inStorePaid", stats.get("inStorePaid"));
         return "/employee/dashboard";
     }
     @GetMapping("/profile")

@@ -6,6 +6,7 @@ import com.beehat.entity.InvoiceDetail;
 import com.beehat.entity.Product;
 import com.beehat.entity.ProductDetail;
 import com.beehat.repository.InvoiceDetailRepo;
+import com.beehat.repository.InvoiceRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,8 @@ import java.util.stream.Collectors;
 public class InvoiceDetailService {
     @Autowired
     InvoiceDetailRepo invoiceDetailRepo;
-
+    @Autowired
+    private InvoiceRepo invoiceRepo;
     public List<ProductResponse> countSL() {
         List<InvoiceDetail> invoiceDetailList = invoiceDetailRepo.findAll();
         Map<Product, Integer> quantityMap = new HashMap<>();
@@ -125,5 +127,16 @@ public class InvoiceDetailService {
                 .max()
                 .orElse(0);  // Default to 0 if no prices found
     }
+    public Map<String, Integer> getOrderStats(Integer employeeId) {
+        // Online orders
+        Integer onlinePending = invoiceRepo.countOnlineOrdersByStatus(); // Chờ xác nhận
+        // In-store orders
+        Integer inStorePaid = invoiceRepo.countInStorePaidOrders(employeeId);        // Đã thanh toán tại quầy
 
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("onlinePending", onlinePending);
+        stats.put("inStorePaid", inStorePaid);
+
+        return stats;
+    }
 }

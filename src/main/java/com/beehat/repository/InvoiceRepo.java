@@ -37,7 +37,24 @@ public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
                                  @Param("invoiceType") Byte invoiceType,
                                  @Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate, Pageable pageable);
-
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.status = :status AND i.invoiceStatus = :invoiceStatus")
     int countByStatusAndInvoiceStatus(byte status, byte invoiceStatus);
+    @Query("SELECT i FROM Invoice i " +
+            "LEFT JOIN i.customer c " +
+            "WHERE (:searchTerm IS NULL OR " +
+            "       LOWER(i.invoiceTrackingNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "       LOWER(i.phone) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "       LOWER(c.fullname) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
+            "AND (:invoiceType IS NULL OR i.invoiceStatus = :invoiceType) " +
+            "AND (:startDate IS NULL OR i.createdDate >= :startDate) " +
+            "AND (:endDate IS NULL OR i.createdDate <= :endDate)"+
+            "AND i.invoiceStatus=1")
+    Page<Invoice> searchInvoices1(@Param("searchTerm") String searchTerm,
+                                 @Param("invoiceType") Byte invoiceType,
+                                 @Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate, Pageable pageable);
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.invoiceStatus = 1 AND i.status = 3")
+    Integer countOnlineOrdersByStatus();
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.invoiceStatus = 0 AND i.status = 2 AND i.employee.id = :employeeId")
+    Integer countInStorePaidOrders(@Param("employeeId") Integer employeeId);
 }

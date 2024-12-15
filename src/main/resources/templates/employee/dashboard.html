@@ -1,55 +1,98 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/employee/template}" >
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/employee/template}">
 <head>
-  <meta charset="UTF-8">
-  <title>Trang chủ</title>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .card-header div {
+            text-align: center;
+        }
+        .card-header div i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .card-header div p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .card-header div span {
+            display: block;
+            font-size: 14px;
+            color: #fff;
+        }
+        .card-header div span i {
+            color: #28a745;
+        }
+        .chart-footer div {
+            text-align: center;
+        }
+        .chart-footer div p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .chart-footer div span {
+            display: block;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        .chart-footer div select,
+        .chart-footer div input {
+            padding: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .card-header, .chart-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .card-header div, .chart-footer div {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Orders Received</h6>
-            <h2 class="text-right"><i class="fa fa-cart-plus f-left"></i><span>486</span></h2>
-            <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
-          </div>
-        </div>
-      </div>
+    <div class="container-fluid">
+        <div class="card-body">
+            <div class="row text-center">
 
-      <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-green order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Orders Received</h6>
-            <h2 class="text-right"><i class="fa fa-rocket f-left"></i><span>486</span></h2>
-            <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
-          </div>
-        </div>
-      </div>
+                <div class="col-md-6 d-flex flex-column align-items-center border-end">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div class="d-flex flex-column align-items-start">
+                            <p style="color: #95999c; font-size: 14px;">ĐƠN HÀNG TẠI QUẦY ĐÃ THANH TOÁN</p>
+                            <span>[[${inStorePaid}]]</span>
+                        </div>
+                        <i class="fas fa-store fs-4"></i>
+                    </div>
+                </div>
 
-      <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-yellow order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Orders Received</h6>
-            <h2 class="text-right"><i class="fa fa-refresh f-left"></i><span>486</span></h2>
-            <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
-          </div>
+                <div class="col-md-6 d-flex flex-column align-items-center border-end">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div class="d-flex flex-column align-items-start">
+                            <p style="color: #95999c; font-size: 14px;">ĐƠN ONLINE CHỜ XÁC NHẬN</p>
+                            <span>[[${onlinePending}]]</span>
+                            <div class="d-flex" style="gap: 10px;">
+                                <a href="/employee/order/index">Xem chi tiết</a>
+                            </div>
+                        </div>
+                        <i class="fas fa-shopping-cart fs-4"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-pink order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Orders Received</h6>
-            <h2 class="text-right"><i class="fa fa-credit-card f-left"></i><span>486</span></h2>
-            <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </main>
 </body>
 </html>
