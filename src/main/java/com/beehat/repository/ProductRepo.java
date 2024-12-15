@@ -81,4 +81,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     );
     @Query("SELECT p FROM Product p WHERE p.category.id IN :categoryIds")
     List<Product> findByCategoryIds(@Param("categoryIds") List<Integer> categoryIds);
+
     }
+
+

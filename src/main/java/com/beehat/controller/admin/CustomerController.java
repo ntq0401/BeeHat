@@ -155,7 +155,6 @@ public class CustomerController {
     @PostMapping("/update")
     public String updateCustomer(@Valid @ModelAttribute Customer customer, BindingResult bindingResult) {
         Customer existingCustomer = customerRepo.findById(customer.getId()).orElse(null);
-        Customer customer1 = customer;
         if (existingCustomer != null) {
             // Kiểm tra số điện thoại đã tồn tại, nhưng bỏ qua nếu không thay đổi
             if (!existingCustomer.getPhone().equals(customer.getPhone()) && customerRepo.existsByPhone(customer.getPhone())) {
@@ -170,6 +169,9 @@ public class CustomerController {
         // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
             return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
+        }
+        if(customer.getPhoto().equals("")){
+            customer.setPhoto(customer.getPhoto());
         }
         customer.setCountry("Việt Nam");
         customer.setUpdatedDate(LocalDateTime.now());
