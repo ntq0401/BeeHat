@@ -31,8 +31,13 @@ public class CategoryController {
         return "Danh mục";
     }
     @ModelAttribute("listCategory")
-    List<Category> list() {
-        return categoryRepo.findAll();
+    List<Category> list(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return categoryRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return categoryRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")

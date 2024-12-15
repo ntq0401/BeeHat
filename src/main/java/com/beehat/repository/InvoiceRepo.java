@@ -38,4 +38,6 @@ public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
                                  @Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.status = :status AND i.invoiceStatus = :invoiceStatus")
+    int countByStatusAndInvoiceStatus(byte status, byte invoiceStatus);
 }

@@ -2,6 +2,7 @@ package com.beehat.controller.admin;
 
 import com.beehat.entity.Employee;
 import com.beehat.repository.EmployeeRepo;
+import com.beehat.repository.InvoiceRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class UsernameControllerAdvice {
     @Autowired
     EmployeeRepo employeeRepo;
-
+    @Autowired
+    InvoiceRepo invoiceRepo;
     @ModelAttribute("username")
     public String getUserName() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -46,4 +48,9 @@ public class UsernameControllerAdvice {
         }
         return "/account.png"; // Ảnh mặc định cho trường hợp không đăng nhập
     }
+    @ModelAttribute("invoiceProcessingCount")
+    public String addInvoiceProcessingToModel() {
+        return String.valueOf(invoiceRepo.countByStatusAndInvoiceStatus((byte) 3, (byte) 1));
+    }
+
 }

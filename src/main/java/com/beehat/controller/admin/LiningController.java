@@ -26,8 +26,13 @@ public class LiningController {
         return "Vải lót";
     }
     @ModelAttribute("listLining")
-    List<Lining> linings() {
-        return liningRepo.findAll();
+    List<Lining> linings(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return liningRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return liningRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")

@@ -123,6 +123,26 @@
 
     <div class="navbar-collapse collapse">
         <ul class="navbar-nav ms-auto">
+            <!-- Chuông thông báo -->
+            <li class="nav-item dropdown">
+                <a href="#" data-bs-toggle="dropdown" class="nav-link" style="margin-right: 10px">
+                    <div class="position-relative">
+                        <i class="ph ph-bell fs-3"></i> <!-- Biểu tượng chuông từ Phosphor Icons -->
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 0.75rem; padding: 0.2em 0.4em; transform: translate(-50%, -25%);"
+                              th:text="${invoiceProcessingCount}"
+                        >
+
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
+                    </div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end rounded">
+                    <a th:href="@{/admin/order/index}" class="dropdown-item">
+                       Có [[${invoiceProcessingCount}]] hóa đơn chưa xác nhận - Xem chi tiết
+                    </a>
+                </div>
+            </li>
             <li class="nav-item dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
                     <img th:src="${userImageURL}" class="avatar img-fluid" alt="">

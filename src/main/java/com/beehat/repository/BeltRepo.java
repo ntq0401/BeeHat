@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface BeltRepo extends JpaRepository<Belt, Integer> {
     List<Belt> findByStatus(Byte status);
+    // Theo quy ước đặt tên
+    List<Belt> findByNameContainingIgnoreCase(String name);
 }

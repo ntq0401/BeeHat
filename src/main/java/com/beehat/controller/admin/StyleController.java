@@ -26,8 +26,13 @@ public class StyleController {
     StyleRepo styleRepo;
 
     @ModelAttribute("listStyle")
-    List<Style> listStyle() {
-        return styleRepo.findAll();
+    List<Style> listStyle(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return styleRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return styleRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")

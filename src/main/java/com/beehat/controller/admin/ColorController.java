@@ -26,8 +26,13 @@ public class ColorController {
     }
 
     @ModelAttribute("listColor")
-    List<Color> listColor() {
-        return colorRepo.findAll();
+    List<Color> listColor(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return colorRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return colorRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")

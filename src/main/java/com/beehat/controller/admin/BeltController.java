@@ -26,8 +26,13 @@ public class BeltController {
         return "Đai mũ";
     }
     @ModelAttribute("listBelt")
-    List<Belt> list() {
-        return beltRepo.findAll();
+    List<Belt> list(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return beltRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return beltRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")

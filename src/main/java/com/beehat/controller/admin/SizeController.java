@@ -26,8 +26,13 @@ public class SizeController {
     }
 
     @ModelAttribute("listSize")
-    List<Size> listSize() {
-        return sizeRepo.findAll();
+    List<Size> listSize(@RequestParam(required = false) String name) {
+        if (name == null || name.isBlank()) {
+            // Nếu không có tham số tìm kiếm, trả về toàn bộ danh sách
+            return sizeRepo.findAll();
+        }
+        // Tìm kiếm theo tên
+        return sizeRepo.findByNameContainingIgnoreCase(name);
     }
 
     @GetMapping("/index")
