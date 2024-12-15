@@ -37,11 +37,11 @@ public class EmployeeOrderController {
         return invoiceRepo.findByInvoiceStatus((byte) 1,sort);
     }
     @ModelAttribute("listInvoiceProcessing")
-    List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 1);}
+    List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 0,(byte) 1);}
     @ModelAttribute("listInvoiceCanceled")
-    List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 1,(byte) 1);}
+    List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 1,(byte) 1);}
     @ModelAttribute("listInvoiceCompleted")
-    List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 2,(byte) 1);}
+    List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 2,(byte) 1);}
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-file-text fs-3";

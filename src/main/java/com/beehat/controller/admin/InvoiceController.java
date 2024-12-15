@@ -44,7 +44,7 @@ public class InvoiceController {
                               @RequestParam(required = false) LocalDateTime startDate,
                               @RequestParam(required = false) LocalDateTime endDate,
                               Model model) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdDate").descending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("updatedDate").descending());
         Page<Invoice> invoicePage = invoiceRepo.searchInvoices(searchTerm,invoiceType,startDate,endDate,pageable);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", invoicePage.getTotalPages());
@@ -52,23 +52,23 @@ public class InvoiceController {
         return invoicePage;
     }
     @ModelAttribute("listInvoiceProcessing")
-    List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 0,(byte) 0);}
+    List<Invoice> listInvoiceProcessing() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 0,(byte) 0);}
     @ModelAttribute("listInvoiceCanceled")
     List<Invoice> listInvoiceCanceled() {return invoiceRepo.findByStatus((byte) 1);}
     @ModelAttribute("listInvoiceCompleted")
-    List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 2,(byte) 0);}
+    List<Invoice> listInvoiceCompleted() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 2,(byte) 0);}
     @ModelAttribute("listInvoicePreConfirm")
-    List<Invoice> listInvoicePreConfirm() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 3,(byte) 1);}
+    List<Invoice> listInvoicePreConfirm() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 3,(byte) 1);}
     @ModelAttribute("listInvoiceConfirm")
-    List<Invoice> listInvoiceConfirm() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 4,(byte) 1);}
+    List<Invoice> listInvoiceConfirm() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 4,(byte) 1);}
     @ModelAttribute("listInvoicePickUp")
-    List<Invoice> listInvoicePickUp() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 5,(byte) 1);}
+    List<Invoice> listInvoicePickUp() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 5,(byte) 1);}
     @ModelAttribute("listInvoiceShipping")
-    List<Invoice> listInvoiceShipping() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 6,(byte) 1);}
+    List<Invoice> listInvoiceShipping() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 6,(byte) 1);}
     @ModelAttribute("listInvoiceDelivery")
-    List<Invoice> listInvoiceDelivery() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 7,(byte) 1);}
+    List<Invoice> listInvoiceDelivery() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 7,(byte) 1);}
     @ModelAttribute("listInvoiceOk")
-    List<Invoice> listInvoiceOk() {return invoiceRepo.findByStatusAndInvoiceStatus((byte) 8,(byte) 1);}
+    List<Invoice> listInvoiceOk() {return invoiceRepo.findByStatusAndInvoiceStatusOrderByUpdatedDateDesc((byte) 8,(byte) 1);}
     @ModelAttribute("iconTitle")
     String iconTitle() {
         return "ph ph-file-text fs-3";

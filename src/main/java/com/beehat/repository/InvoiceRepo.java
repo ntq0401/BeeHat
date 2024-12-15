@@ -15,6 +15,7 @@ import java.util.List;
 
 @Repository
 public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
+    List<Invoice> findByStatusAndInvoiceStatusOrderByUpdatedDateDesc(Byte status, Byte invoiceStatus);
     List<Invoice> findByStatusAndInvoiceStatus(Byte status, Byte invoiceStatus);
     List<Invoice> findByCustomerId(Integer id);
     List<Invoice> findByStatusAndInvoiceStatusAndEmployee(Byte status, Byte invoiceStatus, Employee e);
