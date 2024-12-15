@@ -51,4 +51,8 @@ public interface InvoiceRepo extends JpaRepository<Invoice, Integer> {
                                  @Param("invoiceType") Byte invoiceType,
                                  @Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate, Pageable pageable);
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.invoiceStatus = 1 AND i.status = 3")
+    Integer countOnlineOrdersByStatus();
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.invoiceStatus = 0 AND i.status = 2 AND i.employee.id = :employeeId")
+    Integer countInStorePaidOrders(@Param("employeeId") Integer employeeId);
 }
