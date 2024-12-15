@@ -32,6 +32,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
         AND (:fromDate IS NULL OR p.createdDate >= :fromDate) 
         AND (:toDate IS NULL OR p.createdDate <= :toDate) 
         AND (:categoryId IS NULL OR p.category.id = :categoryId)
+        AND (p.status=:status)
 """)
     Page<Product> findProductUpdate(
             @Param("promotionId") Integer promotionId,
@@ -39,6 +40,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             @Param("fromDate") LocalDateTime fromDate,
             @Param("toDate") LocalDateTime toDate,
             @Param("categoryId") Integer categoryId,
+            Byte status,
             Pageable pageable
     );
     List<Product> findByPromotionId(@Param("promotionId") Integer promotionId);
@@ -71,12 +73,14 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "AND (:fromDate IS NULL OR p.createdDate >= :fromDate) " +
             "AND (:toDate IS NULL OR p.createdDate <= :toDate) " +
             "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
-            "AND p.promotion IS NULL")
+            "AND (p.status=:status)"+
+            "AND p.promotion IS NULL" )
     Page<Product> findProducts(
             @Param("name") String name,
             @Param("fromDate") LocalDateTime fromDate,
             @Param("toDate") LocalDateTime toDate,
             @Param("categoryId") Integer categoryId,
+            Byte status,
             Pageable pageable
     );
     @Query("SELECT p FROM Product p WHERE p.category.id IN :categoryIds")

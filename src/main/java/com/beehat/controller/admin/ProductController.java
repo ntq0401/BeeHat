@@ -308,6 +308,12 @@ public class ProductController {
                         // Định nghĩa đường dẫn lưu ảnh
                         String filePath = "src/main/resources/static/product-img/" + fileName;
                         Path path = Paths.get(filePath);
+
+                        String p1 = Paths.get("src/main/resources/static/product-img/").toAbsolutePath()+"";
+                        System.out.println(p1);
+                        if (Files.exists(path)) {
+                            Files.createDirectories(path);
+                        }
                         Files.write(path, file.getBytes());
 
                         // Tạo đối tượng ProductImage
@@ -317,6 +323,7 @@ public class ProductController {
                         productImages.add(img);
                     } catch (IOException e) {
                         e.printStackTrace();
+                        model.addAttribute("isAdd", true);
                         // Xử lý lỗi khi lưu ảnh
                         model.addAttribute("error", "Error uploading image: " + fileName);
                         return "admin/product/add-product";

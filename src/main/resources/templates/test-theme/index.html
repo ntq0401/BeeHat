@@ -244,7 +244,7 @@
                         <div class="section-title">
                             <h4>Best seller</h4>
                         </div>
-                        <div class="trend__item" th:each="product: ${top3bestsell}">
+                        <div class="trend__item" th:each="product: ${top3bestsell}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
                                 <img th:src="${product.image}" alt="" style="width: 90px;height: 90px;">
                             </div>

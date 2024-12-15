@@ -24,37 +24,49 @@ public class InvoiceDetailService {
 
     public List<ProductResponse> countSL() {
         List<InvoiceDetail> invoiceDetailList = invoiceDetailRepo.findAll();
-        Map<Product, Integer> result = new HashMap<>();
+        Map<Product, Integer> quantityMap = new HashMap<>();
+        Map<Product, Integer> totalPriceMap = new HashMap<>();
 
         for (InvoiceDetail invoiceDetail : invoiceDetailList) {
             ProductDetail productDetail = invoiceDetail.getProductDetail();
             int quantity = invoiceDetail.getQuantity();
 
-            if(invoiceDetail.getInvoice().getStatus() == 8 || invoiceDetail.getInvoice().getInvoiceStatus() == 0){
-                if (productDetail != null && result.containsKey(productDetail.getProduct())) {
-                    result.put(productDetail.getProduct(), result.get(productDetail.getProduct()) + quantity);
-                } else {
-                    result.put(productDetail.getProduct(), quantity);
-                }
+            // Điều kiện lọc Invoice dựa trên trạng thái
+            if (invoiceDetail.getInvoice().getStatus() == 8 || invoiceDetail.getInvoice().getInvoiceStatus() == 0) {
+                Product product = productDetail.getProduct();
+
+                // Cộng dồn số lượng sản phẩm
+                quantityMap.put(product, quantityMap.getOrDefault(product, 0) + quantity);
+
+                // Cộng dồn giá trị (số lượng * giá của ProductDetail)
+                int productPrice = productDetail.getPrice() * quantity;
+                totalPriceMap.put(product, totalPriceMap.getOrDefault(product, 0) + productPrice);
             }
         }
 
         List<ProductResponse> productResponseList = new ArrayList<>();
 
-        for (Map.Entry<Product, Integer> entry : result.entrySet()) {
+        for (Map.Entry<Product, Integer> entry : quantityMap.entrySet()) {
+            Product product = entry.getKey();
+            int totalQuantity = entry.getValue();
+            int totalPrice = totalPriceMap.getOrDefault(product, 0);
+
             ProductResponse productResponse = ProductResponse.builder()
-                    .image(entry.getKey().getImages().get(0).getImageUrl())
-                    .sl(entry.getValue())
-                    .price(entry.getValue() * entry.getKey().getProductDetail().get(0).getPrice())
-                    .name(entry.getKey().getName())
+                    .image(product.getImages().get(0).getImageUrl()) // Lấy ảnh đầu tiên
+                    .sl(totalQuantity) // Tổng số lượng sản phẩm
+                    .price(totalPrice) // Tổng giá trị tính từ từng ProductDetail
+                    .name(product.getName()) // Tên sản phẩm
                     .build();
+
             productResponseList.add(productResponse);
         }
 
+        // Sắp xếp danh sách theo số lượng giảm dần
         productResponseList.sort((p1, p2) -> Integer.compare(p2.getSl(), p1.getSl()));
 
         return productResponseList;
     }
+
     public List<ProductResponse> getTop3BestSell() {
         List<InvoiceDetail> invoiceDetails = invoiceDetailRepo.findAll();
         Map<Product, Integer> result = new HashMap<>();
@@ -81,11 +93,11 @@ public class InvoiceDetailService {
             ProductResponse productResponse = ProductResponse.builder()
                     .image(entry.getKey().getImages().get(0).getImageUrl()) // Hình ảnh đầu tiên
                     .sl(entry.getValue()) // Tổng số lượng bán ra
-                    .price(entry.getKey().getProductDetail().get(0).getPrice()) // Tổng giá trị
                     .name(entry.getKey().getName()) // Tên sản phẩm
                     .lowestPrice(calculateLowestPrice(entry.getKey().getProductDetail()))
                     .highestPrice(calculateHighestPrice(entry.getKey().getProductDetail()))
                     .productDetail(entry.getKey().getProductDetail())
+                    .status(entry.getKey().getStatus())
                     .build();
             productResponseList.add(productResponse);
         }
