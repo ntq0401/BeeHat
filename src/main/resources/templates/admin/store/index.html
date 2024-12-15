@@ -1223,7 +1223,7 @@
             document.getElementById("previewQuantity").innerText = `Số lượng: ${optionData.quantity || "0"}`;
             document.getElementById("previewDescription").innerText =
                 `Đơn tối thiểu: ${optionData.min ? optionData.min.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Mô tả"},
-     Đơn tối đa: ${optionData.max ? optionData.max.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Không xác định"}`;
+     Giảm tối đa: ${optionData.max ? optionData.max.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : "Không xác định"}`;
 
             document.getElementById("previewValidity").innerText = `Thời gian: ${
                 optionData.startdate ? new Date(optionData.startdate).toLocaleDateString() : "--"

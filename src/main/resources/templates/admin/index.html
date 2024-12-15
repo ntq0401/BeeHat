@@ -146,7 +146,7 @@
                         <div class="d-flex justify-content-between align-items-center w-100">
                             <div class="d-flex flex-column align-items-start">
                                 <p style="color: #95999c; font-size: 14px;">TẠI QUẦY</p>
-                                <span th:text="${offline[1]} + 'đ'" ></span>
+                                <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(offline[1])}" ></span>
                                 <div class="d-flex" style="gap: 10px;">
                                     <small th:text="${offline[0]}"></small>
                                     <small style="color: #7ACCBC;" th:text="${tile[1]} + '%'"></small>
@@ -160,7 +160,7 @@
                         <div class="d-flex justify-content-between align-items-center w-100">
                             <div class="d-flex flex-column align-items-start">
                                 <p style="color: #95999c; font-size: 14px;">BÁN ONLINE</p>
-                                <span th:text="${online[1]} +'đ'"></span>
+                                <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(online[1])}"></span>
                                 <div class="d-flex" style="gap: 10px;">
                                     <small th:text="${online[0]}"></small>
                                     <small style="color: #7ACCBC;" th:text="${tile[0]} +'%'">0%</small>
@@ -184,7 +184,7 @@
                         <div class="d-flex justify-content-between align-items-center w-100">
                             <div class="d-flex flex-column align-items-start">
                                 <p style="color: #95999c; font-size: 14px;">DOANH THU TỔNG</p>
-                                <span th:text="${total[1]}+'đ'">đ</span>
+                                <span th:text="${T(com.beehat.service.CurrencyUtil).formatCurrency(total[1])}">đ</span>
                                 <div class="d-flex" style="gap: 10px;">
                                     <small th:text="${total[0]}">0 đơn</small>
                                     <small style="color: #7ACCBC;" th:text="${tile[2]} + '%'"></small>
@@ -246,7 +246,7 @@
                             <td>[[${customer.nameCustomer}]]</td>
                             <td>[[${customer.phoneNumber}]]</td>
                             <td>[[${customer.totalOrders}]]</td>
-                            <td>[[${customer.totalPayments}]] đ</td>
+                            <td>[[${T(com.beehat.service.CurrencyUtil).formatCurrency(customer.totalPayments)}]]</td>
                         </tr>
                         </tbody>
                     </table>
@@ -304,7 +304,10 @@
                         quantityCell.textContent = product.sl;
 
                         const priceCell = document.createElement("td");
-                        priceCell.textContent = product.price + " đ";
+                        priceCell.textContent = product.price.toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND"
+                        });
 
                         row.appendChild(imageCell);
                         row.appendChild(nameCell);
