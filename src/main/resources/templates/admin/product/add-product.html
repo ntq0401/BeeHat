@@ -199,6 +199,86 @@
             </div>
         </div>
     </div>
+    <!-- Modal Thêm Danh Mục -->
+    <div class="modal fade" id="addMaterialModal" tabindex="-1" aria-labelledby="addMaterialModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMaterialModalLabel">Thêm Chất liệu Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMaterialForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Tên Chất liệu</label>
+                            <input type="text" class="form-control" id="materialName" name="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Thêm Danh Mục -->
+    <div class="modal fade" id="addStyleModal" tabindex="-1" aria-labelledby="addStyleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStyleModalLabel">Thêm Kiểu Dáng Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStyleForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Tên kiểu dáng</label>
+                            <input type="text" class="form-control" id="styleName" name="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Thêm Danh Mục -->
+    <div class="modal fade" id="addBeltModal" tabindex="-1" aria-labelledby="addBeltModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBeltModalLabel">Thêm Đai mũ Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBeltForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Tên đai mũ</label>
+                            <input type="text" class="form-control" id="beltName" name="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Thêm Danh Mục -->
+    <div class="modal fade" id="addLiningModal" tabindex="-1" aria-labelledby="addLiningModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addLiningModalLabel">Thêm Vải lót Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addLiningForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Tên vải lót</label>
+                            <input type="text" class="form-control" id="liningName" name="name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         $(document).ready(function() {
             $('#addCategoryForm').on('submit', function(event) {

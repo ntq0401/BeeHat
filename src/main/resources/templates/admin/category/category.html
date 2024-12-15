@@ -2,7 +2,7 @@
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/admin/template}">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lí kích cỡ</title>
+    <title>Quản lí danh mục</title>
     <style>
         th, td {
             text-align: center; /* Căn giữa theo chiều ngang */
@@ -15,7 +15,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Kích cỡ</li>
+            <li class="breadcrumb-item active" aria-current="page">Danh mục</li>
         </ol>
     </nav>
 
@@ -25,22 +25,22 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addSizeModalLabel">Thêm mới kích cỡ</h5>
+                    <h5 class="modal-title" id="addSizeModalLabel">Thêm mới danh mục</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Form thêm mới kích cỡ -->
-                    <form th:object="${s}" method="post">
+                    <form th:object="${c}" method="post">
                         <input type="hidden"
                                th:name="${_csrf.parameterName}"
                                th:value="${_csrf.token}"/>
                         <div class="mb-3">
-                            <label class="form-label">Tên kích cỡ</label>
-                            <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên kích cỡ">
+                            <label class="form-label">Tên danh mục</label>
+                            <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên danh mục">
                             <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success" formaction="/admin/size/index">Tạo mới
+                            <button type="submit" class="btn btn-success" formaction="/admin/category/index">Tạo mới
                             </button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         </div>
@@ -52,14 +52,14 @@
     <!-- Card tìm kiếm hóa đơn -->
     <div class="card mb-4">
         <div class="card-header">
-            Tìm kiếm kích cỡ
+            Tìm kiếm danh mục
         </div>
         <div class="card-body">
             <form method="get">
                 <div class="mb-3">
-                    <label for="invoiceCode" class="form-label fw-bold">Tên kích cỡ</label>
+                    <label for="invoiceCode" class="form-label fw-bold">Tên danh mục</label>
                     <div class="input-group">
-                        <input type="text" name="name" th:value="${param.name}" class="form-control" id="invoiceCode" placeholder="Nhập tên sản phẩm">
+                        <input type="text" name="name" th:value="${param.name}" class="form-control" id="invoiceCode" placeholder="Nhập tên danh mục">
                         <button type="submit" class="btn btn-success">
                             <i class="ph-magnifying-glass"></i> Tìm kiếm
                         </button>
@@ -72,7 +72,7 @@
         <div class="card-body">
             <!-- Tiêu đề với nút chỉnh sửa bên phải -->
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><strong>Danh sách kiểu dáng</strong></h5>
+                <h5 class="card-title mb-0"><strong>Danh sách danh mục</strong></h5>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSizeModal">
                     Thêm mới
                 </button>
@@ -81,26 +81,26 @@
         <tr>
             <th>STT</th>
             <th>ID</th>
-            <th>Tên kích cỡ</th>
+            <th>Tên danh mục</th>
             <th>Trạng thái</th>
             <th>Ngày tạo</th>
             <th>Hành động</th>
         </tr>
-        <tr th:each="size,stt : ${listSize}">
+        <tr th:each="c,stt : ${listCategory}">
             <td>[[${stt.index + 1}]]</td>
-            <td>[[${size.id}]]</td>
-            <td>[[${size.name}]]</td>
-            <td>[[${size.status} == 1 ? 'Hoạt động':'Không hoạt động']]</td>
-            <td>[[${size.createdDate.toString().substring(0,10)}]]</td>
+            <td>[[${c.id}]]</td>
+            <td>[[${c.name}]]</td>
+            <td>[[${c.status} == 1 ? 'Hoạt động':'Không hoạt động']]</td>
+            <td>[[${c.createdDate.toString().substring(0,10)}]]</td>
             <td colspan="2">
-                <a th:href="@{/admin/size/update/{id}(id=${size.id})}">
+                <a th:href="@{/admin/category/update/{id}(id=${c.id})}">
                     <button class="btn btn-warning"><i class="ph ph-pencil"></i></button>
                 </a>
-                <a th:if="${size.status == 1}" th:href="@{/admin/size/delete/{id}(id=${size.id})}"
+                <a th:if="${c.status == 1}" th:href="@{/admin/category/delete/{id}(id=${c.id})}"
                    onclick="return confirm('Bạn có chắc là muốn tắt hoạt động ?')">
                     <button class="btn btn-danger"><i class="ph ph-power"></i></button>
                 </a>
-                <a th:if="${size.status == 0}" th:href="@{/admin/size/on/{id}(id=${size.id})}"
+                <a th:if="${c.status == 0}" th:href="@{/admin/category/on/{id}(id=${c.id})}"
                    onclick="return confirm('Bạn có chắc là muốn bật hoạt động ?')">
                     <button class="btn btn-success"><i class="ph ph-power"></i></button>
                 </a>

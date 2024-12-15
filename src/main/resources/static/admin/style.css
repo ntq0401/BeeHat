@@ -148,7 +148,7 @@ a.sidebar-link:hover {
 
 #sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
     display: block;
-    max-height: 20rem;
+    max-height: 25rem;
     width: 100%;
     opacity: 1;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
