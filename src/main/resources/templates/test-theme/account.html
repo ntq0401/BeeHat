@@ -139,18 +139,15 @@
 <body>
 <main layout:fragment="main">
     <div class="container mt-5">
-        <form th:action="@{/account/update}" th:object="${customer}" method="post">
+        <form th:action="@{/account/update}" th:object="${customer}" method="post" >
             <div class="row">
                 <div class="col-md-3">
                     <div class="sidebar">
                         <div class="text-center mb-4">
                             <div class="form-group mb-4" style="display: flex; justify-content: center;">
                                 <img  id="customerPhoto" th:src="@{'/images/employees/' + ${customer.photo}}" alt="Customer Photo" width="100" height="100" class="img-thumbnail rounded-circle" style="cursor: pointer;" onclick="document.getElementById('photoInput').click();"/>
-                                <input type="file" maxlength="500" id="photoInput" name="photo" accept="image/*" style="display: none;" onchange="updatePhotoPreview(this);"/> <!-- Sửa tham số -->
+                                <input type="file" id="photoInput" name="photo" accept="image/*" style="display: none;" onchange="updatePhotoPreview(this);"/> <!-- Sửa tham số -->
                             </div>
-<!--                            <img th:src="@{'/images/employees/' + ${customer.photo}}" class="rounded-circle"-->
-<!--                                 height="100"-->
-<!--                                 width="100"/>-->
                             <h6 class="mt-2" th:text="${customer.username}+ ' #'+${customer.id}"></h6>
                         </div>
                         <a href="/account">

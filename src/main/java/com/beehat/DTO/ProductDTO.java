@@ -53,7 +53,27 @@ public class ProductDTO {
         this.status = product.getStatus();
         this.createdDate=product.getCreatedDate();
     }
-
+    public ProductDTO(Product product,int totalStock) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.sku = product.getSku();
+        this.description = product.getDescription();
+        this.images = product.getImages();
+        this.belt = product.getBelt();
+        this.lining = product.getLining();
+        this.material = product.getMaterial();
+        this.style = product.getStyle();
+        this.category = product.getCategory();
+        this.productDetail = product.getProductDetail();
+        this.lowestPrice = calculateLowestPrice(product.getProductDetail());
+        this.highestPrice = calculateHighestPrice(product.getProductDetail());
+        this.totalStock = totalStock;
+        this.colors = getColors(product.getProductDetail());
+        this.sizes = getSizes(product.getProductDetail());
+        this.promotion = product.getPromotion();
+        this.status = product.getStatus();
+        this.createdDate=product.getCreatedDate();
+    }
     // Method to calculate lowest price
     private int calculateLowestPrice(List<ProductDetail> productDetails) {
         return productDetails.stream()

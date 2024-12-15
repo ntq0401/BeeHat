@@ -1,6 +1,7 @@
 package com.beehat.controller.test;
 
 import com.beehat.DTO.ProductDTO;
+import com.beehat.DTO.ProductResponse;
 import com.beehat.entity.*;
 import com.beehat.repository.*;
 import com.beehat.service.*;
@@ -83,6 +84,8 @@ public class ThemeTestController {
     private JavaMailSender mailSender;
     @Autowired
     private VNPayService vnPayService;
+    @Autowired
+    private InvoiceDetailService invoiceDetailService;
     @ModelAttribute("cartSum")
     public long getSum(Principal principal) {
         if (principal == null) {
@@ -111,7 +114,29 @@ public class ThemeTestController {
     List<Category> listCategory() {
         return categoryRepo.findByStatus(Byte.valueOf("1"));
     }
-
+    @ModelAttribute("top3hottrend")
+    List<ProductDTO> top3hottrend(Pageable pageable) {
+        List<Product> list1 = productRepo.findAll();
+        List<ProductDTO> dtoList = list1.stream()
+                .map(product -> new ProductDTO(product, product.getTotalStock())) // Giả sử ProductDTO có một constructor nhận totalStock
+                .sorted((dto1, dto2) -> Integer.compare(dto2.getTotalStock(), dto1.getTotalStock())) // Sắp xếp theo stock giảm dần
+                .limit(3) // Chỉ lấy top 3 sản phẩm
+                .collect(Collectors.toList());
+        return dtoList;
+    }
+    @ModelAttribute("top3feature")
+    List<ProductDTO> top3feature(Pageable pageable) {
+        List<Product> list1 = productRepo.findAll();
+        List<ProductDTO> dtoList = list1.stream()
+                .map(ProductDTO::new) // Giả sử ProductDTO có một constructor nhận totalStock
+                .limit(3) // Chỉ lấy top 3 sản phẩm
+                .collect(Collectors.toList());
+        return dtoList;
+    }
+    @ModelAttribute("top3bestsell")
+    List<ProductResponse> top3bestsell(){
+        return invoiceDetailService.getTop3BestSell();
+    }
     @ModelAttribute("listProductShop")
     public Page<ProductDTO> products(
             @RequestParam(defaultValue = "0") int page,
@@ -775,7 +800,10 @@ public class ThemeTestController {
 
         // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
-            return "admin/customer/customerDetail"; // Trả về trang cập nhật nếu có lỗi
+            return "test-theme/account"; // Trả về trang cập nhật nếu có lỗi
+        }
+        if(customer.getPhoto().equals("")){
+            customer.setPhoto(existingCustomer.getPhoto());
         }
         // Sao chép các trường không có trong form\
         customer.setCountry("Việt Nam");

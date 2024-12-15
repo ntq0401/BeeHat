@@ -1,8 +1,11 @@
 package com.beehat.DTO;
 
 
+import com.beehat.entity.ProductDetail;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Builder
 @Data
@@ -15,5 +18,7 @@ public class ProductResponse {
     int sl;
     String image;
     int price;
-
+    int lowestPrice;
+    int highestPrice;
+    List<ProductDetail> productDetail;
 }
