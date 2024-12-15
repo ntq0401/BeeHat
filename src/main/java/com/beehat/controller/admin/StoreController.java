@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.OutputStream;
 import java.security.Principal;
@@ -213,14 +214,21 @@ public class StoreController {
 
     @PostMapping("/add-product-detail-to-invoice")
     public String addInvoice(@RequestParam("invoiceId") Integer idInvoice,
-                             @RequestParam("productDetailId") int idProductDetail) {
+                             @RequestParam("productDetailId") int idProductDetail,RedirectAttributes redirectAttributes) {
 
         ProductDetail productDetail = productDetailRepo.findById(idProductDetail).orElse(null);
         Invoice invoice = invoiceRepo.findById(idInvoice).orElse(null);
         if (productDetail == null || invoice == null) {
             return "redirect:/admin/store/invoice-detail/" + idInvoice;
         }
-
+        if (productDetail.getStatus() == (byte) 2) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm "+productDetail.getProduct().getName()+" đã ngừng hoạt động.");
+            return "redirect:/admin/store/invoice-detail/" + idInvoice;
+        }
+        if (productDetail.getStock() <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm này đã hết hàng trong kho.");
+            return "redirect:/admin/store/invoice-detail/" + idInvoice;
+        }
         List<InvoiceDetail> listInvoiceDetail = invoiceDetailRepo.findByInvoiceId(idInvoice);
         Product product = productDetail.getProduct();
         boolean isExistingProduct = false;
@@ -363,7 +371,7 @@ public class StoreController {
     }
 
     @PostMapping("/update-quantity")
-    public String updateQuantity(@RequestParam("ids") int ids, @RequestParam("quantities") int quantities) {
+    public String updateQuantity(@RequestParam("ids") int ids, @RequestParam("quantities") int quantities, RedirectAttributes redirectAttributes) {
 
         InvoiceDetail invoiceDetail = invoiceDetailRepo.findById(ids).orElse(null);
         if (invoiceDetail == null) {
@@ -372,7 +380,10 @@ public class StoreController {
         }
         ProductDetail productDetail = invoiceDetail.getProductDetail();
         Product product = productDetail.getProduct();
-
+        if (productDetail.getStatus() == (byte) 2) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm "+productDetail.getProduct().getName()+" đã ngừng hoạt động.");
+            return "redirect:/admin/store/invoice-detail/" + invoiceDetail.getInvoice().getId();
+        }
         // Trường hợp giảm số lượng
         if (invoiceDetail.getQuantity() > quantities) {
             int sl = invoiceDetail.getQuantity() - quantities;
@@ -382,6 +393,10 @@ public class StoreController {
         // Trường hợp tăng số lượng
         else if (invoiceDetail.getQuantity() < quantities) {
             int sl = quantities - invoiceDetail.getQuantity();
+            if (productDetail.getStock() < sl) {
+                redirectAttributes.addFlashAttribute("error", "Sản phẩm trong kho không đủ.");
+                return "redirect:/admin/store/invoice-detail/" + invoiceDetail.getInvoice().getId();
+            }
             invoiceDetail.setQuantity(quantities);
             productDetail.setStock(productDetail.getStock() - sl);
         }
@@ -512,7 +527,7 @@ public class StoreController {
         // Tính toán finalPrice
         int finalPrice = invoice.getTotalPrice() - invoice.getPromotionDiscount() - voucherDiscount;
         if (finalPrice < 0) {
-            return createErrorResponse("Giảm giá vượt quá giá trị hoá đơn. Vui lòng kiểm tra lại.");
+            return createErrorResponse("Giá không thể âm. Vui lòng kiểm tra lại.");
         }
 
         // Cập nhật thông tin hóa đơn

@@ -66,6 +66,7 @@
         </ol>
     </nav>
     <div class="container-fluid">
+        <div th:if="${error}" class="alert alert-danger" style="margin-top: 15px" th:text="${error}"></div>
         <div class="row">
             <!-- Nội dung trang chính ở bên trái (nếu có) -->
             <div class="col-md-9">
