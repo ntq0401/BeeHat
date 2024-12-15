@@ -162,7 +162,9 @@ public class EmployeeController {
                 bindingResult.rejectValue("role", "error.employee", "Không thể cập nhật vai trò Admin");
             }
         }
-
+        if(employee.getPhoto().equals("")){
+            employee.setPhoto(existingEmployee.getPhoto());
+        }
         // Kiểm tra có lỗi không
         if (bindingResult.hasErrors()) {
             return "admin/employee/employee_detail"; // Trả về trang cập nhật nếu có lỗi
