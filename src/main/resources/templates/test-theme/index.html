@@ -14,9 +14,9 @@
                     <div class="categories__item categories__large__item set-bg"
                          data-setbg="img/categories/category-1.jpg">
                         <div class="categories__text">
-                            <h1>Hat's fashion</h1>
+                            <h1>BeeHat</h1>
                             <p>Khẳng định phong cách, đội chất riêng – cùng bạn vươn tới sự tự tin!</p>
-                            <a href="#">Shop now</a>
+                            <a href="#">Mua hàng ngay</a>
                         </div>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ vành</h4>
                                     <p style="color: #ffb59f">38 items</p>
-                                    <a href="#" class="text-danger">Shop now</a>
+                                    <a href="#" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -36,7 +36,7 @@
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ kết</h4>
                                     <p style="color: #ffb59f">23 items</p>
-                                    <a href="#" class="text-danger">Shop now</a>
+                                    <a href="#" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +45,7 @@
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ bucket</h4>
                                     <p style="color: #ffb59f">19 items</p>
-                                    <a href="#" class="text-danger">Shop now</a>
+                                    <a href="#" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ snapback</h4>
                                     <p style="color: #ffb59f">27 items</p>
-                                    <a href="#" class="text-danger">Shop now</a>
+                                    <a href="#" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col-lg-4 col-md-4">
                     <div class="section-title">
-                        <h4>New product</h4>
+                        <h4>Sản phẩm mới</h4>
                     </div>
                 </div>
                 <div class="col-lg-8 col-md-8">
@@ -83,7 +83,7 @@
             </div>
             <div class="row property__gallery">
                 <!-- Lặp qua danh sách sản phẩm -->
-                <div th:each="product : ${productList}" class="col-lg-3 col-md-4 col-sm-6 mix"
+                <div th:each="product : ${productList}" th:if="${product.status == 1}" class="col-lg-3 col-md-4 col-sm-6 mix"
                      th:classappend="${product.promotion != null ? ' promotion' : ''}">
                     <div class="product__item">
                         <div class="product__item__pic set-bg" th:data-setbg="${product.images[0].imageUrl}">
@@ -169,23 +169,23 @@
                     <div class="banner__slider owl-carousel">
                         <div class="banner__item">
                             <div class="banner__text">
-                                <span>The Chloe Collection</span>
-                                <h1>The Project Jacket</h1>
-                                <a href="#">Shop now</a>
+                                <span>Bộ sưu tập mũ thời trang mới</span>
+                                <h1>Brim hat</h1>
+                                <a href="#">Mua hàng ngay</a>
                             </div>
                         </div>
                         <div class="banner__item">
                             <div class="banner__text">
-                                <span>The Chloe Collection</span>
-                                <h1>The Project Jacket</h1>
-                                <a href="#">Shop now</a>
+                                <span>Bộ sưu tập mũ thời trang mới</span>
+                                <h1>Bucket</h1>
+                                <a href="#">Mua hàng ngay</a>
                             </div>
                         </div>
                         <div class="banner__item">
                             <div class="banner__text">
-                                <span>The Chloe Collection</span>
-                                <h1>The Project Jacket</h1>
-                                <a href="#">Shop now</a>
+                                <span>Bộ sưu tập mũ thời trang mới</span>
+                                <h1>Knitted hat</h1>
+                                <a href="#">Mua hàng ngay</a>
                             </div>
                         </div>
                     </div>
@@ -204,7 +204,7 @@
                         <div class="section-title">
                             <h4>Hot Trend</h4>
                         </div>
-                        <div class="trend__item" th:each="product:${top3hottrend}">
+                        <div class="trend__item" th:each="product:${top3hottrend}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
                                 <img th:src="${product.images[0].imageUrl}" alt="" style="width: 90px;height: 90px;">
                             </div>
@@ -283,7 +283,7 @@
                         <div class="section-title">
                             <h4>Feature</h4>
                         </div>
-                        <div class="trend__item" th:each="product:${top3feature}">
+                        <div class="trend__item" th:each="product:${top3feature}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
                                 <img th:src="${product.images[0].imageUrl}" alt="" style="width: 90px;height: 90px;">
                             </div>
