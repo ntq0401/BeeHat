@@ -138,8 +138,26 @@ public class ProductController {
             return "admin/product/add-product";
         }
         // Kiểm tra nếu không có ảnh được tải lên
-        if (files == null || files.length == 0 || files[0].getOriginalFilename().isEmpty() || files[0].getOriginalFilename().equals("")) {
+        if (files == null || files.length == 0 || (files.length == 1 && files[0] != null && files[0].getOriginalFilename().isEmpty())) {
             model.addAttribute("errorMessage", "Phải tải lên ít nhất một ảnh!");
+            model.addAttribute("isAdd", true);
+            return "admin/product/add-product";
+        }
+        int maxFileCount = 5;
+        if (files.length > maxFileCount) {
+            model.addAttribute("errorMessage", "Bạn chỉ được tải lên tối đa " + maxFileCount + " ảnh!");
+            model.addAttribute("isAdd", true);
+            return "admin/product/add-product";
+        }
+        long maxTotalSize = 10 * 1024 * 1024; // 10MB
+        long totalSize = 0;
+
+        for (MultipartFile file : files) {
+            totalSize += file.getSize();
+        }
+
+        if (totalSize > maxTotalSize) {
+            model.addAttribute("errorMessage", "Tổng dung lượng ảnh không được vượt quá " + (maxTotalSize / (1024 * 1024)) + " MB!");
             model.addAttribute("isAdd", true);
             return "admin/product/add-product";
         }
@@ -150,8 +168,6 @@ public class ProductController {
             return "admin/product/add-product";
         }
 
-        String debug = files[0].getOriginalFilename();
-        System.out.println(debug);
         // Kiểm tra nếu có file ảnh
         if (files != null && files.length > 0) {
             List<ProductImage> productImages = new ArrayList<>();
@@ -305,25 +321,42 @@ public class ProductController {
                     // Lưu file ảnh vào thư mục trên server
                     String fileName = file.getOriginalFilename();
                     try {
-                        // Định nghĩa đường dẫn lưu ảnh
-                        String filePath = "src/main/resources/static/product-img/" + fileName;
-                        Path path = Paths.get(filePath);
+                        // Đường dẫn thư mục bên ngoài để lưu ảnh
+                        String uploadDir = "D:/uploads/product-img/";
+                        Path uploadPath = Paths.get(uploadDir);
 
-                        String p1 = Paths.get("src/main/resources/static/product-img/").toAbsolutePath()+"";
-                        System.out.println(p1);
-                        if (Files.exists(path)) {
-                            Files.createDirectories(path);
+                        // Tạo thư mục nếu chưa tồn tại
+                        if (!Files.exists(uploadPath)) {
+                            Files.createDirectories(uploadPath);
                         }
-                        Files.write(path, file.getBytes());
+
+                        // Lưu file ảnh
+                        Path filePath = uploadPath.resolve(fileName);
+                        Files.write(filePath, file.getBytes());
+                        System.out.println("File saved at: " + filePath.toAbsolutePath());
 
                         // Tạo đối tượng ProductImage
                         ProductImage img = new ProductImage();
                         img.setImageUrl("/product-img/" + fileName);  // Đường dẫn truy cập ảnh
                         img.setProduct(p);  // Liên kết ảnh với sản phẩm
                         productImages.add(img);
+                        // Định nghĩa đường dẫn lưu ảnh
+//                        String filePath = "src/main/resources/static/product-img/" + fileName;
+//                        Path path = Paths.get(filePath);
+
+//                        if (Files.exists(path)) {
+//                            Files.createDirectories(path);
+//                        }
+//                        Files.write(path, file.getBytes());
+
+                        // Tạo đối tượng ProductImage
+//                        ProductImage img = new ProductImage();
+//                        img.setImageUrl("/product-img/" + fileName);  // Đường dẫn truy cập ảnh
+//                        img.setProduct(p);  // Liên kết ảnh với sản phẩm
+//                        productImages.add(img);
                     } catch (IOException e) {
                         e.printStackTrace();
-                        model.addAttribute("isAdd", true);
+                        model.addAttribute("isAdd", false);
                         // Xử lý lỗi khi lưu ảnh
                         model.addAttribute("error", "Error uploading image: " + fileName);
                         return "admin/product/add-product";
@@ -347,22 +380,45 @@ public class ProductController {
         model.addAttribute("listProductDetails", productDetailRepo.findByProductId(id));
         return "admin/product/view-product-detail";
     }
-    @GetMapping("/detail-product/search")
-    public String detailProductSearch(@RequestParam (required = false) int color,
-                                      @RequestParam (required = false) int size,
-                                      @RequestParam (defaultValue = "0", required = false) int minPrice,
-                                      @RequestParam (defaultValue = "0", required = false) int maxPrice, Model model) {
-        List<ProductDetail> productDetails = productDetailRepo.findByColorSizeAndPrice(color, size, minPrice, maxPrice);
-        model.addAttribute("product", productRepo.findById(productDetails.getFirst().getProduct().getId()).orElse(null));
-        model.addAttribute("listProductDetails",productDetails);
-        return "admin/product/view-product-detail";
-    }
-
     @PostMapping("/add-category")
-    @ResponseBody
-    public ResponseEntity<Category> addCategory(@RequestBody Category categorydto) {
-        Category category = categoryRepo.save(categorydto); // Lưu danh mục mới
-        return ResponseEntity.ok(category); // Trả về đối tượng danh mục vừa thêm
+    public String addCategory(@RequestParam String categoryName, Model model) {
+        Category c = new Category(); // Lưu danh mục mới
+        c.setName(categoryName);
+        categoryRepo.save(c);
+        model.addAttribute("isAdd", true);
+        return "redirect:/admin/product/add-product"; // Trả về đối tượng danh mục vừa thêm
+    }
+    @PostMapping("/add-material")
+    public String addMaterial(@RequestParam String materialName, Model model) {
+        Material m = new Material(); // Lưu danh mục mới
+        m.setName(materialName);
+        materialRepo.save(m);
+        model.addAttribute("isAdd", true);
+        return "redirect:/admin/product/add-product"; // Trả về đối tượng danh mục vừa thêm
+    }
+    @PostMapping("/add-belt")
+    public String addBelt(@RequestParam String beltName, Model model) {
+        Belt b = new Belt(); // Lưu danh mục mới
+        b.setName(beltName);
+        beltRepo.save(b);
+        model.addAttribute("isAdd", true);
+        return "redirect:/admin/product/add-product"; // Trả về đối tượng danh mục vừa thêm
+    }
+    @PostMapping("/add-lining")
+    public String addLining(@RequestParam String liningName, Model model) {
+        Lining l = new Lining(); // Lưu danh mục mới
+        l.setName(liningName);
+        liningRepo.save(l);
+        model.addAttribute("isAdd", true);
+        return "redirect:/admin/product/add-product"; // Trả về đối tượng danh mục vừa thêm
+    }
+    @PostMapping("/add-style")
+    public String addStyle(@RequestParam String styleName, Model model) {
+        Style s = new Style(); // Lưu danh mục mới
+        s.setName(styleName);
+        styleRepo.save(s);
+        model.addAttribute("isAdd", true);
+        return "redirect:/admin/product/add-product"; // Trả về đối tượng danh mục vừa thêm
     }
     @PostMapping("/change-product-detail")
     public String changeProductDetail(@RequestParam("id") int id,

@@ -6,70 +6,104 @@
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/index}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/admin/product/index}">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thêm mới chi tiết sản phẩm</li>
+        </ol>
+    </nav>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title py-2">Thêm mới sản phẩm chi tiết</h4>
     <form method="post" th:object="${pd}">
         <input type="hidden"
                th:name="${_csrf.parameterName}"
                th:value="${_csrf.token}"/>
-        <p>ID sản phẩm :
-            <input class="form-control" th:field="*{product}" th:value="*{product.id}" readonly>
-        </p>
-        <p th:if="${#fields.hasErrors('product')}" class="text-danger" th:errors="*{product}"></p>
         <div class="row mb-3">
-            <label class="form-label">Màu sắc:</label>
-            <div class="col-md-12 d-flex flex-wrap">
-                <div class="form-check me-3 mb-2" th:each="color : ${listColor}">
-                    <input class="form-check-input" type="checkbox"
-                           th:id="'color-' + ${color.id}"
-                           th:value="${color.id}"
-                           th:name="colors"
-                           th:checked="${selectedColors != null and selectedColors.contains(color.id)}" />
-                    <label class="form-check-label" th:for="'color-' + ${color.id}">[[${color.name}]]</label>
-                </div>
+            <div class="col-md-6">
+                <label for="productId" class="form-label">ID sản phẩm:</label>
+                <input id="productId" class="form-control" th:field="*{product}" th:value="*{product.id}" readonly />
+                <div th:if="${#fields.hasErrors('product')}" class="text-danger" th:errors="*{product}"></div>
             </div>
-            <div th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></div>
+            <div class="col-md-6">
+                <label for="sku" class="form-label">Mã sản phẩm:</label>
+                <input id="sku" class="form-control" th:value="*{product.sku}" readonly />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Màu sắc:</label>
+                <div class="d-flex flex-wrap">
+                    <div class="form-check me-3 mb-2" th:each="color : ${listColor}">
+                        <input class="form-check-input" type="checkbox"
+                               th:id="'color-' + ${color.id}"
+                               th:value="${color.id}"
+                               th:name="colors"
+                               th:checked="${selectedColors != null and selectedColors.contains(color.id)}" />
+                        <label class="form-check-label" th:for="'color-' + ${color.id}">[[${color.name}]]</label>
+                    </div>
+                </div>
+                <div th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Kích cỡ:</label>
+                <div class="d-flex flex-wrap">
+                    <div class="form-check me-3 mb-2" th:each="size : ${listSize}">
+                        <input class="form-check-input" type="checkbox"
+                               th:id="'size-' + ${size.id}"
+                               th:value="${size.id}"
+                               th:name="sizes"
+                               th:checked="${selectedSizes != null and selectedSizes.contains(size.id)}" />
+                        <label class="form-check-label" th:for="'size-' + ${size.id}">[[${size.name}]]</label>
+                    </div>
+                </div>
+                <div th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></div>
+            </div>
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">Kích cỡ:</label>
-            <div class="col-md-12 d-flex flex-wrap">
-                <div class="form-check me-3 mb-2" th:each="size : ${listSize}">
-                    <input class="form-check-input" type="checkbox"
-                           th:id="'size-' + ${size.id}"
-                           th:value="${size.id}"
-                           th:name="sizes"
-                           th:checked="${selectedSizes != null and selectedSizes.contains(size.id)}" />
-                    <label class="form-check-label" th:for="'size-' + ${size.id}">[[${size.name}]]</label>
-                </div>
+            <div class="col-md-6">
+                <label for="price" class="form-label">Giá:</label>
+                <input id="price" class="form-control" type="number" min="0" max="1000000000" th:field="*{price}" />
+                <div th:if="${#fields.hasErrors('price')}" class="text-danger" th:errors="*{price}"></div>
             </div>
-            <div th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></div>
+            <div class="col-md-6">
+                <label for="stock" class="form-label">Số lượng:</label>
+                <input id="stock" class="form-control" type="number" min="0" max="1000000000" th:field="*{stock}" />
+                <div th:if="${#fields.hasErrors('stock')}" class="text-danger" th:errors="*{stock}"></div>
+            </div>
         </div>
-        <p th:if="${#fields.hasErrors('size')}" class="text-danger" th:errors="*{size}"></p>
+        <div class="row mb-3">
+            <label class="form-label">Trạng thái:</label>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input id="status-active" class="form-check-input" type="radio" th:field="*{status}" value="1" />
+                    <label class="form-check-label" for="status-active">Hoạt động</label>
+                </div>
+                <div class="form-check">
+                    <input id="status-inactive" class="form-check-input" type="radio" th:field="*{status}" value="0" />
+                    <label class="form-check-label" for="status-inactive">Không hoạt động</label>
+                </div>
+                <div th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></div>
+            </div>
+        </div>
 
-        <p>Giá:
-            <input class="form-control" type="number" min="0" max="1000000000" th:field="*{price}" />
-        </p>
-        <p th:if="${#fields.hasErrors('price')}" class="text-danger" th:errors="*{price}"></p>
-
-        <p>Số lượng:
-            <input class="form-control" type="number" min="0" max="1000000000" th:field="*{stock}" />
-        </p>
-        <p th:if="${#fields.hasErrors('stock')}" class="text-danger" th:errors="*{stock}"></p>
-
-        <p>Trạng thái:
-            <input type="radio" class="form-radio" th:field="*{status}" value="1" /> Hoạt động
-            <input type="radio" class="form-radio" th:field="*{status}" value="0" /> Không hoạt động
-        </p>
-        <p th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></p>
-
-        <button type="submit" class="btn btn-success">Create</button>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button onclick="return confirm('Bạn có chắc muốn tạo mới sản phẩm chi tiết ?')" type="submit" class="btn btn-success">Tạo mới</button>
+            </div>
+        </div>
     </form>
+        </div>
+    </div>
 
     <div th:each="entry : ${groupedByColor}" class="mt-4">
         <h3>Danh sách chi tiết sản phẩm màu: [[${entry.key.name}]]</h3>
         <table class="table table-bordered table-hover mt-3">
             <thead>
             <tr>
-                <th>ID sản phẩm</th>
+                <th>Mã sản phẩm chi tiết</th>
                 <th>Tên sản phẩm</th>
                 <th>Màu sắc</th>
                 <th>Kích cỡ</th>
@@ -80,7 +114,7 @@
             </thead>
             <tbody>
             <tr th:each="productDetail : ${entry.value}">
-                <td>[[${productDetail.product.id}]]</td>
+                <td>[[${productDetail.product.sku}]]-[[${productDetail.id}]]</td>
                 <td>[[${productDetail.product.name}]]</td>
                 <td>[[${productDetail.color.name}]]</td>
                 <td>[[${productDetail.size.name}]]</td>

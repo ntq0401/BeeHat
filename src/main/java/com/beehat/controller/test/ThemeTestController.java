@@ -218,6 +218,9 @@ public class ThemeTestController {
         Product product = productRepo.findBySku(sku);
         ProductDTO productDTO = new ProductDTO(product);
         model.addAttribute("product", productDTO);
+        Pageable pageable = PageRequest.of(0, 4);
+        List<Product> productList = productRepo.findTop4(pageable);
+        model.addAttribute("productList",productList);
         return "test-theme/product-details";
     }
 

@@ -219,7 +219,7 @@ public class PromotionController {
                 productPromotionRepo.save(promotionProduct); // Lưu vào bảng mối quan hệ
             }
         }
-//        promotionService.updatePromotionStatus();
+        promotionService.updatePromotionStatus();
         return "redirect:/admin/promotion"; // Chuyển hướng về trang danh sách sản phẩm
     }
     @GetMapping("/detail/{id}")
@@ -241,6 +241,7 @@ public class PromotionController {
             promotion.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         }
         promotionRepo.save(promotion);
+        promotionService.updatePromotionStatus();
         return "redirect:/admin/promotion";
     }
     @GetMapping("/update")
@@ -413,7 +414,7 @@ public class PromotionController {
                 }
             }
         }
-
+        promotionService.updatePromotionStatus();
         return "redirect:/admin/promotion"; // Chuyển hướng về trang danh sách khuyến mãi
     }
 }

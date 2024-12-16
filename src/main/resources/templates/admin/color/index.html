@@ -8,6 +8,27 @@
             text-align: center; /* Căn giữa theo chiều ngang */
             vertical-align: middle; /* Căn dọc giữa */
         }
+        /* Tùy chỉnh để làm đẹp input màu */
+        input[type="color"] {
+            border: none;
+            padding: 0;
+            width: 100px;
+            height: 35px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: transparent;
+            box-shadow: 0 0 0 2px #ccc;
+        }
+
+        input[type="color"]:focus {
+            box-shadow: 0 0 0 3px #66afe9;
+            outline: none;
+        }
+
+        .input-group input[type="text"] {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -36,7 +57,7 @@
                             <p th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Mã màu</label>
+                            <label class="form-label">Mã màu</label><br>
                             <input type="color" class="form-control-color" th:field="*{code}" placeholder="Nhập mã màu">
                             <p th:if="${#fields.hasErrors('code')}" class="text-danger" th:errors="*{code}"></p>
                         </div>
