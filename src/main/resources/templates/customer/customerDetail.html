@@ -119,12 +119,12 @@
              th:data-ward="${customer.ward}">
         </div>
         <div class="form-group">
-            <label>Username</label>
+            <label>Tài khoản</label>
             <input type="text" maxlength="100" name="username" th:value="${customer.username}" class="form-control" required readonly/>
         </div>
 
         <div class="form-group">
-            <label>Fullname</label>
+            <label>Họ tên</label>
             <input type="text" maxlength="100" name="fullname" th:value="${customer.fullname}" class="form-control" required/>
         </div>
 
@@ -136,14 +136,14 @@
         <div class="row">
             <!-- Dropdown chọn tỉnh/thành phố -->
             <div class="form-group col-md-4">
-                <label>City</label>
+                <label>Tỉnh/Thành phố</label>
                 <select id="city" name="city" class="form-control" required>
                     <option value="">Chọn tỉnh/thành phố</option>
                 </select>
             </div>
             <!-- Dropdown chọn quận/huyện -->
             <div class="form-group col-md-4">
-                <label>District</label>
+                <label>Quận/Huyện</label>
                 <select id="district" name="district" class="form-control"  required>
                     <option value="">Chọn quận/huyên</option>
                 </select>
@@ -151,29 +151,29 @@
 
             <!-- Dropdown chọn phường/xã -->
             <div class="form-group col-md-4">
-                <label>Ward</label>
+                <label>Xã/Phường</label>
                 <select id="ward" name="ward" class="form-control"  required>
                     <option value="">Chọn phường/xã</option>
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label>Address</label>
+            <label>Địa chỉ</label>
             <input type="text" maxlength="255" name="address" th:value="${customer.address}" class="form-control" required/>
         </div>
         <div class="form-group">
-            <label>Phone</label>
+            <label>Số điện thoại</label>
             <input type="text"  name="phone" th:value="${customer.phone}" class="form-control" maxlength="10" pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0" required/>
             <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label>Status</label><br>
-            <input type="radio" name="status" value="1" th:checked="${customer.status == 1}"> Active
-            <input type="radio" name="status" value="0" th:checked="${customer.status == 0}"> Inactive
+            <label>Trạng thái</label><br>
+            <input type="radio" name="status" value="1" th:checked="${customer.status == 1}"> Hoạt động
+            <input type="radio" name="status" value="0" th:checked="${customer.status == 0}"> Ngừng hoạt động
         </div>
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-outline-primary me-2">Update</button>
-            <a th:href="@{/admin/customer}" class="btn btn-outline-primary">Cancel</a>
+            <button type="submit" class="btn btn-outline-primary me-2">Cập nhật</button>
+            <a th:href="@{/admin/customer}" class="btn btn-outline-primary">Quay lại</a>
         </div>
     </form>
 
