@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Quản lí mã giảm giá</title>
+  <style>
+    th, td {
+      text-align: center; /* Căn giữa theo chiều ngang */
+      vertical-align: middle; /* Căn dọc giữa */
+    }
+  </style>
 </head>
 <body>
 <main class="content px-3 py-4" layout:fragment="main">
@@ -95,6 +101,9 @@
             </a>
             <a th:href="@{/admin/voucher/update-voucher/{id}(id=${voucher.id})}">
               <button class="btn btn-warning"><i class="ph ph-pencil-simple"></i></button>
+            </a>
+            <a th:if="${voucher.startDate.isBefore(#temporals.createNow()) && voucher.endDate.isAfter(#temporals.createNow())}" th:href="@{/admin/voucher/stop/{id}(id=${voucher.id})}">
+              <button class="btn btn-danger"><i class="ph ph-power"></i></button>
             </a>
           </td>
         </tr>

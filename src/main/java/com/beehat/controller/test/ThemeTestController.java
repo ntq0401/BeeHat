@@ -162,32 +162,32 @@ public class ThemeTestController {
 
     @ModelAttribute("listBelt")
     List<Belt> listBelt() {
-        return beltRepo.findByStatus(Byte.valueOf("1"));
+        return beltRepo.findAll();
     }
 
     @ModelAttribute("listLining")
     List<Lining> listLining() {
-        return liningRepo.findByStatus(Byte.valueOf("1"));
+        return liningRepo.findAll();
     }
 
     @ModelAttribute("listStyle")
     List<Style> listStyle() {
-        return styleRepo.findByStatus(Byte.valueOf("1"));
+        return styleRepo.findAll();
     }
 
     @ModelAttribute("listMater")
     List<Material> listMaterial() {
-        return materialRepo.findByStatus(Byte.valueOf("1"));
+        return materialRepo.findAll();
     }
 
     @ModelAttribute("listColor")
     List<Color> listColor() {
-        return colorRepo.findByStatus(Byte.valueOf("1"));
+        return colorRepo.findAll();
     }
 
     @ModelAttribute("listSize")
     List<Size> listSize() {
-        return sizeRepo.findByStatus(Byte.valueOf("1"));
+        return sizeRepo.findAll();
     }
     @ModelAttribute("slmuvanh")
     Integer countmuvanh(){
@@ -551,7 +551,7 @@ public class ThemeTestController {
         }
 
         session.setAttribute("emailInv", emailInv);
-        if(paymentMethod.getId()==1){
+        if(paymentMethod.getId()==3){
             Invoice savedInvoice = saveInvoice(temporaryInvoice, cartDetails,null);
             // Cập nhật trạng thái giỏ hàng
             if (temporaryInvoice.getCustomer() != null) {

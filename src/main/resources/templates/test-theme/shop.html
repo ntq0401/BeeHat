@@ -43,9 +43,9 @@
                                             <div class="card-body">
                                                 <div class="sidebar__sizes">
                                                     <div class="size__list">
-                                                        <label th:each="cate : ${listCate}" th:for="${cate.name}">
+                                                        <label th:each="cate : ${listCate}">
                                                             [[${cate.name}]]
-                                                            <input type="radio" name="categoryId" th:id="${cate.name}" th:data-id="${cate.id}" th:value="${cate.id}"
+                                                            <input type="radio" name="categoryId" th:data-id="${cate.id}" th:value="${cate.id}"
                                                                    th:checked="${param.categoryId != null and param.categoryId.toString() == cate.id.toString()}">
                                                             <span class="checkmark"></span>
                                                         </label>
@@ -64,9 +64,9 @@
                                                 <div class="sidebar__sizes">
                                                     <div class="size__list">
                                                         <ul>
-                                                            <label th:each="mater : ${listMater}" th:for="${mater.name}">
+                                                            <label th:each="mater : ${listMater}">
                                                                 [[${mater.name}]]
-                                                                <input type="radio" name="materialId" th:id="${mater.name}" th:data-id="${mater.id}" th:value="${mater.id}"
+                                                                <input type="radio" name="materialId" th:data-id="${mater.id}" th:value="${mater.id}"
                                                                        th:checked="${param.materialId != null and param.materialId.toString() == mater.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
@@ -85,9 +85,9 @@
                                                 <div class="sidebar__sizes">
                                                     <div class="size__list">
                                                         <ul>
-                                                            <label th:each="style : ${listStyle}" th:for="${style.name}">
+                                                            <label th:each="style : ${listStyle}" >
                                                                 [[${style.name}]]
-                                                                <input type="radio" name="styleId" th:id="${style.name}" th:data-id="${style.id}" th:value="${style.id}"
+                                                                <input type="radio" name="styleId"  th:data-id="${style.id}" th:value="${style.id}"
                                                                        th:checked="${param.styleId != null and param.styleId.toString() == style.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
@@ -106,9 +106,9 @@
                                                 <div class="sidebar__sizes">
                                                     <div class="size__list">
                                                         <ul>
-                                                            <label th:each="belt : ${listBelt}" th:for="${belt.name}">
+                                                            <label th:each="belt : ${listBelt}" >
                                                                 [[${belt.name}]]
-                                                                <input type="radio" name="beltId" th:id="${belt.name}" th:data-id="${belt.id}" th:value="${belt.id}"
+                                                                <input type="radio" name="beltId"  th:data-id="${belt.id}" th:value="${belt.id}"
                                                                        th:checked="${param.beltId != null and param.beltId.toString() == belt.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
@@ -127,9 +127,9 @@
                                                 <div class="sidebar__sizes">
                                                     <div class="size__list">
                                                         <ul>
-                                                            <label th:each="lining : ${listLining}" th:for="${lining.name}">
+                                                            <label th:each="lining : ${listLining}" >
                                                                 [[${lining.name}]]
-                                                                <input type="radio" name="liningId" th:id="${lining.name}" th:data-id="${lining.id}" th:value="${lining.id}"
+                                                                <input type="radio" name="liningId"  th:data-id="${lining.id}" th:value="${lining.id}"
                                                                        th:checked="${param.liningId != null and param.liningId.toString() == lining.id.toString()}">
                                                                 <span class="checkmark"></span>
                                                             </label>
@@ -142,29 +142,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="sidebar__sizes">
-                            <div class="section-title">
-                                <h4>Sắp xếp theo</h4>
-                            </div>
-                            <div class="size__list color__list">
-                                <label for="filter">
-                                    Tăng dần
-                                    <input id="filter" type="radio" name="filter">
-                                    <span class="checkmark"></span>
-                                </label>
-                                <label for="filter1">
-                                    Giảm dần
-                                    <input id="filter1" type="radio" name="filter">
-                                    <span class="checkmark"></span>
-                                </label>
-                                <label for="filter2">
-                                    Bán chạy nhất
-                                    <input id="filter2" type="radio" name="filter">
-                                    <span class="checkmark"></span>
-                                </label>
 
-                            </div>
-                        </div>
                         <div class="sidebar__sizes">
                             <div class="section-title">
                                 <h4>Kích cỡ</h4>
@@ -172,7 +150,7 @@
                             <div class="size__list">
                                 <label th:each="size : ${listSize}" th:for="${size.name}">
                                     [[${size.name}]]
-                                    <input type="checkbox" name="sizeId" th:id="${size.name}" th:data-id="${size.id}" th:value="${size.id}"
+                                    <input type="checkbox" name="sizes" th:id="${size.name}" th:data-id="${size.id}" th:value="${size.id}"
                                            th:checked="${param.sizeId != null and param.sizeId.toString() == size.id.toString()}">
                                     <span class="checkmark"></span>
                                 </label>
@@ -186,8 +164,9 @@
                             <div class="size__list color__list">
                                 <label th:each="color : ${listColor}" th:for="${color.name}">
                                     [[${color.name}]]
-                                    <input type="checkbox" name="colorId" th:id="${color.name}" th:data-id="${color.id}" th:value="${color.id}"
+                                    <input type="checkbox" name="colors" th:id="${color.name}" th:data-id="${color.id}" th:value="${color.id}"
                                            th:checked="${param.colorId != null and param.colorId.toString() == color.id.toString()}">
+
                                     <span class="checkmark"></span>
                                 </label>
 

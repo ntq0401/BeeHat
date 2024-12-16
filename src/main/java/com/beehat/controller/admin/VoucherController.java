@@ -1,6 +1,7 @@
 package com.beehat.controller.admin;
 
 import com.beehat.entity.Invoice;
+import com.beehat.entity.Promotion;
 import com.beehat.entity.Voucher;
 import com.beehat.repository.InvoiceRepo;
 import com.beehat.repository.VoucherRepo;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Controller
@@ -102,5 +104,18 @@ public class VoucherController {
         model.addAttribute("voucher", voucher);
         model.addAttribute("invoice", invoice);
         return "admin/voucher/voucher-detail";
+    }
+    @GetMapping("/stop/{id}")
+    public String stop(@PathVariable Integer id){
+        Voucher voucher = voucherRepo.findById(id).orElse(null);
+        if(voucher.getStatus()==0){
+            voucher.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+            voucher.setStartDate(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+        }
+        else{
+            voucher.setEndDate(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+        }
+        voucherRepo.save(voucher);
+        return "redirect:/admin/voucher/index";
     }
 }

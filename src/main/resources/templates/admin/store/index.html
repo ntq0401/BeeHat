@@ -675,9 +675,8 @@
                             <div class="d-flex align-items-center">
                                 <select class="form-control flex-grow-1" id="paymentMethod" onchange="changePaymentMethod()" name="methodPayment">
                                     <option value="" hidden="hidden">Chọn phương thức thanh toán</option>
-                                    <option th:each="payment : ${listPayment}"
-                                            th:text="${payment.name}"
-                                            th:value="${payment.id}"></option>
+                                    <option value="1">Tiền mặt</option>
+                                    <option value="2">Chuyển khoản</option>
                                 </select>
                             </div>
 
