@@ -540,6 +540,9 @@ public class StoreController {
         if (paymentMethodEntity == null) {
             return createErrorResponse("Phương thức thanh toán này không hợp lệ");
         }
+        if (paymentMethodEntity.getId() == 2 && finalPrice > 300_000_000) {
+            return createErrorResponse("Phương thức thanh toán này chỉ hỗ trợ giá trị dưới 300 triệu.");
+        }
         invoice.setPaymentMethod(paymentMethodEntity);
         // Cập nhật trạng thái hóa đơn
         invoice.setStatus((byte) 2); // Status "2" có thể là thanh toán hoàn tất

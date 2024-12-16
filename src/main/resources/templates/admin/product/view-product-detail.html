@@ -246,15 +246,15 @@
             </td>
             <td>
                 <button th:formaction="@{/admin/product/change-product-detail}" onclick="return confirm('Bạn có chắc chắn muốn cập nhật sản phẩm này?')" type="submit" class="btn btn-info"><i class="ph ph-pencil"></i></button>
-                <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 1}" type="submit" class="btn btn-danger"><i class="ph ph-power"></i></button>
-                <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 2}" type="submit" class="btn btn-success"><i class="ph ph-power"></i></button>
+                <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 1}" onclick="return confirm('Bạn có chắc chắn muốn tắt hoạt động của sản phẩm này?')" type="submit" class="btn btn-danger"><i class="ph ph-power"></i></button>
+                <button th:formaction="@{/admin/product/change-status-product-detail}" th:if="${variant.status == 2}" onclick="return confirm('Bạn có chắc chắn muốn bật hoạt động của sản phẩm này?')" type="submit" class="btn btn-success"><i class="ph ph-power"></i></button>
             </td>
             </form>
         </tr>
         </tbody>
     </table>
-            <a th:href="@{/admin/product/turn-on-all/{id}(id=${product.id})}"><button class="btn btn-success">Bật hoạt động tất cả</button></a>
-            <a th:href="@{/admin/product/turn-off-all/{id}(id=${product.id})}"><button class="btn btn-danger">Dừng hoạt động tất cả</button></a>
+            <a th:href="@{/admin/product/turn-on-all/{id}(id=${product.id})}" onclick="return confirm('Bạn có chắc chắn muốn bật hoạt động của sản phẩm này?')"><button class="btn btn-success">Bật hoạt động tất cả</button></a>
+            <a th:href="@{/admin/product/turn-off-all/{id}(id=${product.id})}" onclick="return confirm('Bạn có chắc chắn muốn tắt hoạt động của sản phẩm này?')"><button class="btn btn-danger">Dừng hoạt động tất cả</button></a>
         </div>
     </div>
 </main>

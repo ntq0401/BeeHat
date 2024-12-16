@@ -179,10 +179,10 @@
                 </div>
                     <center>
                         <button type="reset" class="btn btn-secondary">Reset</button>
-                        <button th:if="${isAdd}" th:formaction="@{/admin/product/add-product}" type="submit"
+                        <button th:if="${isAdd}" onclick="return confirm('Bạn có chắc chắn muốn thêm ?')" th:formaction="@{/admin/product/add-product}" type="submit"
                                 class="btn btn-success">Create
                         </button>
-                        <button th:if="${!isAdd}" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}"
+                        <button th:if="${!isAdd}" onclick="return confirm('Bạn có chắc chắn muốn thêm ?')" th:formaction="@{/admin/product/update-product/{id}(id=${p.id})}"
                                 type="submit" class="btn btn-success">Update
                         </button>
                     </center>

@@ -164,14 +164,14 @@
                     <div class="form-group" id="discountPercentageInput" style="display: none;">
                         <label class="form-label" for="percentage">Nhập phần trăm giảm:</label>
                         <input type="number" id="percentage" name="percentage" class="form-control" placeholder="% giảm"
-                               min="1" max="70">
+                               min="1" max="70" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190">
                     </div>
 
                     <!-- Ô nhập giá trị -->
                     <div class="form-group" id="discountValueInput" style="display: none;">
                         <label class="form-label" for="value">Nhập giá trị giảm:</label>
                         <input type="number" id="value" name="value" class="form-control" placeholder="Giá trị giảm" min="1" max="1000000000"
-                        >
+                               onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190">
                     </div>
 
                     <!-- Ngày bắt đầu -->

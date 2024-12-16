@@ -2,6 +2,7 @@ package com.beehat.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,12 +23,14 @@ public class Product {
     private Integer id;
 
     @NotBlank(message = "Tên sản phẩm không được bỏ trống!")
+    @Size(max = 100, message = "Tên không được dài quá 100 ký tự")
     private String name;
 
     @Column(name = "sku", unique = true)
     private String sku;
 
     @NotBlank(message = "Không được bỏ trống mô tả !")
+    @Size(max = 255, message = "Mô tả không được dài quá 255 ký tự")
     private String description;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -86,16 +89,13 @@ public class Product {
     // Phương thức sinh SKU
     private String generateSKU() {
         // Sử dụng 3 ký tự đầu tiên của tên sản phẩm (đã bỏ khoảng trắng)
-        String productCode = UUID.randomUUID().toString().substring(0, 3).toUpperCase();
-
-        // Thời gian hiện tại dưới dạng yyyyMMddHHmmss
-        String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+        String productCode = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
 
         // Sinh chuỗi ngẫu nhiên 5 ký tự
         String randomUUID = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
 
         // Tạo SKU bằng cách kết hợp productCode, timeStamp, và randomUUID
-        return productCode + "-" + timeStamp + "-" + randomUUID;
+        return productCode + "-"  + randomUUID;
     }
 
     public int getTotalStock() {

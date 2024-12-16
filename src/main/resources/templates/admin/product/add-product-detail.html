@@ -65,12 +65,14 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="price" class="form-label">Giá:</label>
-                <input id="price" class="form-control" type="number" min="0" max="1000000000" th:field="*{price}" />
+                <input id="price" class="form-control" type="number" min="0" max="100000000" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190"
+                       oninput="this.value = this.value.replace(/\D|^0|\./g, '')" th:field="*{price}" />
                 <div th:if="${#fields.hasErrors('price')}" class="text-danger" th:errors="*{price}"></div>
             </div>
             <div class="col-md-6">
                 <label for="stock" class="form-label">Số lượng:</label>
-                <input id="stock" class="form-control" type="number" min="0" max="1000000000" th:field="*{stock}" />
+                <input id="stock" class="form-control" type="number" min="0" max="1000000000" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 190"
+                       oninput="this.value = this.value.replace(/\D|^0|\./g, '')" th:field="*{stock}" />
                 <div th:if="${#fields.hasErrors('stock')}" class="text-danger" th:errors="*{stock}"></div>
             </div>
         </div>

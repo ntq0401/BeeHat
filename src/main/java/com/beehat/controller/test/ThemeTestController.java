@@ -466,9 +466,9 @@ public class ThemeTestController {
             }
         } else {
             cartService.add(id,quantity);
-            return "redirect:/shop";
+            return "redirect:/shop-cart";
         }
-        return "redirect:/shop";
+        return "redirect:/shop-cart";
     }
     // Hàm tính giá sau khi giảm
     int getDiscountedPrice(ProductDetail productDetail, Product product) {
