@@ -42,7 +42,7 @@ public class PasswordController {
         verificationCode = generateVerificationCode();
         sendEmail(email, "Password Reset Verification Code", "Your verification code is: " + verificationCode);
 
-        model.addAttribute("message", "Verification code sent to your email.");
+        model.addAttribute("message", "Mã xác minh đã được gửi tới email của bạn.");
         model.addAttribute("email", email);
         return "/admin/verify-code";  // Chuyển hướng đến trang nhập mã xác thực
     }
@@ -55,7 +55,7 @@ public class PasswordController {
             return "/admin/reset-password";  // Nếu mã đúng, chuyển đến trang đặt lại mật khẩu
         } else {
             model.addAttribute("email", email);
-            model.addAttribute("error", "Invalid verification code.");
+            model.addAttribute("error", "Mã xác nhận không chính xác.");
             return "/admin/verify-code";  // Nếu mã sai, giữ nguyên trang mã xác nhận với thông báo lỗi
         }
     }
@@ -80,7 +80,7 @@ public class PasswordController {
             return "redirect:/admin/login";
         }
         else {
-            model.addAttribute("error", "User not found.");
+            model.addAttribute("error", "Không tìm thấy thông tin.");
             return "/admin/reset-password";
         }
     }

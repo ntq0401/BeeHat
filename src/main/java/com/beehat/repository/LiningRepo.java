@@ -11,5 +11,4 @@ import java.util.List;
 public interface LiningRepo extends JpaRepository<Lining, Integer> {
     List<Lining> findByStatus(Byte status);
     List<Lining> findByNameContainingIgnoreCase(String name);
-
 }

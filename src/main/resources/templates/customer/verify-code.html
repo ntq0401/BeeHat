@@ -101,21 +101,21 @@
       <img th:src="@{/online_store/imgkh/Beehat.png}" alt="Logo"
            style="width: 70px; height: auto; display: block; margin: 0 auto; vertical-align: middle;">
     </a>
-    <h2 class="text-center">WELCOME BACK</h2>
-    <p class="text-center" style="color: #4d5154">Please enter the verification code sent to your email address. After successfully entering the code, you can reset a new password for your account.</p>
+    <h2 class="text-center">CHÀO MỪNG TRỞ LẠI</h2>
+    <p class="text-center" style="color: #4d5154">Vui lòng nhập mã xác minh được gửi đến địa chỉ email của bạn. Sau khi nhập mã thành công, bạn có thể đặt lại mật khẩu mới cho tài khoản của mình.</p>
     <form class="text-left clearfix" method="post" th:action="@{/customer/verify-code}">
       <input type="hidden" name="email" th:value="${email}">
       <div class="form-group">
         <input type="number" class="form-control" id="code" name="code"
-               placeholder="Your verification code" required>
+               placeholder="Mã xác minh của bạn" required>
         <p th:if="${error}" th:text="${error}" class="error"></p>
       </div>
       <div>
-        <button type="submit" class="btn">SUBMIT </button>
+        <button type="submit" class="btn">GỬI</button>
       </div>
     </form>
     <p class="mt-20">
-      <a href="/customer/login" style="color: #1a1e21">Back to log in</a>
+      <a href="/customer/login" style="color: #1a1e21">Quay lại trang đăng nhập</a>
     </p>
   </div>
 </div>

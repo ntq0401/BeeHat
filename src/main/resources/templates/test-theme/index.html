@@ -16,7 +16,7 @@
                         <div class="categories__text">
                             <h1>BeeHat</h1>
                             <p>Khẳng định phong cách, đội chất riêng – cùng bạn vươn tới sự tự tin!</p>
-                            <a href="#">Mua hàng ngay</a>
+                            <a href="/shop">Mua hàng ngay</a>
                         </div>
                     </div>
                 </div>
@@ -26,8 +26,8 @@
                             <div class="categories__item set-bg" data-setbg="../img/categories/category-2.png">
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ vành</h4>
-                                    <p style="color: #ffb59f">38 items</p>
-                                    <a href="#" class="text-white">Mua hàng ngay</a>
+                                    <p style="color: #ffb59f">[[${slmuvanh}]] sản phẩm</p>
+                                    <a href="/shop?categoryId=1" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -35,17 +35,17 @@
                             <div class="categories__item set-bg" data-setbg="../img/categories/category-3.png">
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ kết</h4>
-                                    <p style="color: #ffb59f">23 items</p>
-                                    <a href="#" class="text-white">Mua hàng ngay</a>
+                                    <p style="color: #ffb59f">[[${slmuket}]] sản phẩm</p>
+                                    <a href="/shop?categoryId=4" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 p-0">
                             <div class="categories__item set-bg" data-setbg="../img/categories/category-4.png">
                                 <div class="categories__text">
-                                    <h4 class="text-white">Mũ bucket</h4>
-                                    <p style="color: #ffb59f">19 items</p>
-                                    <a href="#" class="text-white">Mua hàng ngay</a>
+                                    <h4 class="text-white">Mũ jacket</h4>
+                                    <p style="color: #ffb59f">[[${slmujacket}]] sản phẩm</p>
+                                    <a href="/shop?categoryId=6" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -53,8 +53,8 @@
                             <div class="categories__item set-bg" data-setbg="../img/categories/categgory-5.png">
                                 <div class="categories__text">
                                     <h4 class="text-white">Mũ snapback</h4>
-                                    <p style="color: #ffb59f">27 items</p>
-                                    <a href="#" class="text-white">Mua hàng ngay</a>
+                                    <p style="color: #ffb59f">[[${slmusnapback}]] sản phẩm</p>
+                                    <a href="/shop?categoryId=7" class="text-white">Mua hàng ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -197,7 +197,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="trend__content">
                         <div class="section-title">
-                            <h4>Hot Trend</h4>
+                            <h4>XU HƯỚNG</h4>
                         </div>
                         <div class="trend__item" th:each="product:${top3hottrend}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
@@ -232,7 +232,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="trend__content" >
                         <div class="section-title">
-                            <h4>Best seller</h4>
+                            <h4>BÁN CHẠY</h4>
                         </div>
                         <div class="trend__item" th:each="product: ${top3bestsell}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
@@ -266,7 +266,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="trend__content">
                         <div class="section-title">
-                            <h4>Feature</h4>
+                            <h4>PHỔ BIẾN</h4>
                         </div>
                         <div class="trend__item" th:each="product:${top3feature}" th:if="${product.status == 1}">
                             <div class="trend__item__pic">
@@ -303,47 +303,7 @@
     </section>
     <!-- Trend Section End -->
 
-    <!-- Discount Section Begin -->
-    <section class="discount">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 p-0">
-                    <div class="discount__pic">
-                        <img src="img/discount.jpg" alt="">
-                    </div>
-                </div>
-                <div class="col-lg-6 p-0">
-                    <div class="discount__text">
-                        <div class="discount__text__title">
-                            <span>Discount</span>
-                            <h2>Spring 2025</h2>
-                            <h5><span>Sale</span> 50%</h5>
-                        </div>
-                        <div class="discount__countdown" id="countdown-time">
-                            <div class="countdown__item">
-                                <span>22</span>
-                                <p>Days</p>
-                            </div>
-                            <div class="countdown__item">
-                                <span>18</span>
-                                <p>Hour</p>
-                            </div>
-                            <div class="countdown__item">
-                                <span>46</span>
-                                <p>Min</p>
-                            </div>
-                            <div class="countdown__item">
-                                <span>05</span>
-                                <p>Sec</p>
-                            </div>
-                        </div>
-                        <a href="/shop">Shop now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Discount Section End -->
+
 
 </main>
 </body>
