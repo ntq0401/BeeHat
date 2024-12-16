@@ -108,19 +108,10 @@
                               th:if="${promotion.endDate.isBefore(#temporals.createNow())}">Đã kết thúc</span>
                     </td>
                     <td>
-                        <button class="btn btn-info ">
-                            <a th:href="@{/admin/promotion/detail/{id}(id=${promotion.id})}"><i class="ph ph-info"></i></a>
-                            <!-- Biểu tượng chi tiết -->
-                        </button>
-                        <button class="btn btn-warning ">
-                            <a th:href="@{/admin/promotion/update(id=${promotion.id})}"><i class="ph ph-pencil"></i></a>
-                            <!-- Biểu tượng sửa -->
-                        </button>
-                        <button th:if="${promotion.status!=2}" class="btn btn-info "
-                                onclick="return confirm('Bạn có chắc muốn dừng')">
-                            <a th:href="@{/admin/promotion/stop/{id}(id=${promotion.id})}"><i
+                            <a class="btn btn-info " th:href="@{/admin/promotion/detail/{id}(id=${promotion.id})}"><i class="ph ph-info"></i></a>
+                            <a class="btn btn-warning " th:href="@{/admin/promotion/update(id=${promotion.id})}"><i class="ph ph-pencil"></i></a>
+                            <a th:if="${promotion.status!=2}" class="btn btn-info " onclick="return confirm('Bạn có chắc muốn dừng')" th:href="@{/admin/promotion/stop/{id}(id=${promotion.id})}"><i
                                     class="ph ph-pause"></i></a>
-                        </button>
                     </td>
                 </tr>
                 </tbody>

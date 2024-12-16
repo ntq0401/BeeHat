@@ -165,17 +165,17 @@
                     <form th:action="@{/admin/employee/add}" th:object="${employee}" method="post" >
                         <input type="text" th:value="${showModal}" hidden id="showModal">
                         <div class="form-group">
-                            <label>Username</label>
+                            <label>Tài khoản</label>
                             <input type="text" maxlength="100" name="username" class="form-control" required/>
                             <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
 
                         </div>
                         <div class="form-group">
-                            <label>Password</label>
+                            <label>Mật khẩu</label>
                             <input type="password" maxlength="100" name="password" class="form-control" required/>
                         </div>
                         <div class="form-group">
-                            <label>Fullname</label>
+                            <label>Họ tên</label>
                             <input type="text" maxlength="100" name="fullname" class="form-control" required/>
                         </div>
                         <div class="form-group">
@@ -185,32 +185,32 @@
 
                         </div>
                         <div class="form-group">
-                            <label>Phone</label>
+                            <label>Số điện thoại</label>
                             <input type="text" name="phone" class="form-control" maxlength="10" pattern="0\d{9}" title="Số điện thoại phải gồm 10 số và bắt đầu bằng 0" required/>
                             <span th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></span>
 
                         </div>
                         <div class="form-group">
-                            <label>Role</label>
+                            <label>Chức vụ</label>
                             <select name="role" class="form-control" >
-                                <option value="1">Admin</option>
-                                <option value="0">Employee</option>
+                                <option value="1">Quản lý</option>
+                                <option value="0">Nhân viên</option>
                             </select>
                             <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label>Status</label><br>
+                            <label>Trạng thái</label><br>
                             <input type="radio"  name="status" value="1"required>
-                            <label>Active</label>
+                            <label>Hoạt động</label>
                             <input class="ml-5" type="radio"  name="status" value="0" >
-                            <label>Inactive</label>
+                            <label>Ngừng hoạt động</label>
                         </div>
                         <div class="form-group">
-                            <label for="photo">Photo</label>
+                            <label for="photo">Ảnh</label>
                             <input type="file" maxlength="500" name="photo" id="photo" class="form-control" accept="image/*">
                         </div>
                         <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary me-2">Save</button>
+                            <button type="submit" class="btn btn-primary me-2">Lưu</button>
                         </div>
                     </form>
                 </div>
