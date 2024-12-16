@@ -32,8 +32,9 @@
                         <i style="height: 300px;width: 300px" class="ph ph-check-circle"></i>
                         <h2 class="text-center">Đặt hàng thành công !</h2>
                         <p>Trong thời gian chờ xác nhận đơn hàng bạn có xem tình trạng đơn hàng</p>
-                        <p>Order Tracking Number : [[${invoice.invoiceTrackingNumber}]]</p>
-                        <a th:href="@{/shop}" class="btn btn-main mt-20" style="color: white;background-color: black">Continue Shopping</a>
+                        <p>Mã tra cứu đơn hàng : [[${invoice.invoiceTrackingNumber}]]</p>
+                        <a th:href="@{/shop}" class="btn btn-main mt-20" style="color: white;background-color: black">Tiếp tục mua sắm</a>
+                        <a th:href="@{/look-up(orderId=${invoice.invoiceTrackingNumber})}" class="btn btn-main mt-20" style="color: white;background-color: black">Xem trạng thái đơn hàng</a>
                     </div>
                 </div>
             </div>

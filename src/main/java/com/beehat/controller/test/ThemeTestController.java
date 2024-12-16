@@ -189,7 +189,46 @@ public class ThemeTestController {
     List<Size> listSize() {
         return sizeRepo.findByStatus(Byte.valueOf("1"));
     }
-
+    @ModelAttribute("slmuvanh")
+    Integer countmuvanh(){
+        Integer count = 0;
+        List<Product> list = productRepo.findByCategoryId(1);
+        List<ProductDTO> dtoList = list.stream().map(ProductDTO::new).collect(Collectors.toList());
+        for (ProductDTO dto : dtoList) {
+            count+=dto.getTotalStock();
+        }
+        return count;
+    }
+    @ModelAttribute("slmuket")
+    Integer countmuket(){
+        Integer count = 0;
+        List<Product> list = productRepo.findByCategoryId(4);
+        List<ProductDTO> dtoList = list.stream().map(ProductDTO::new).collect(Collectors.toList());
+        for (ProductDTO dto : dtoList) {
+            count+=dto.getTotalStock();
+        }
+        return count;
+    }
+    @ModelAttribute("slmujacket")
+    Integer countmujacket(){
+        Integer count = 0;
+        List<Product> list = productRepo.findByCategoryId(6);
+        List<ProductDTO> dtoList = list.stream().map(ProductDTO::new).collect(Collectors.toList());
+        for (ProductDTO dto : dtoList) {
+            count+=dto.getTotalStock();
+        }
+        return count;
+    }
+    @ModelAttribute("slmusnapback")
+    Integer countmusnapback(){
+        Integer count = 0;
+        List<Product> list = productRepo.findByCategoryId(7);
+        List<ProductDTO> dtoList = list.stream().map(ProductDTO::new).collect(Collectors.toList());
+        for (ProductDTO dto : dtoList) {
+            count+=dto.getTotalStock();
+        }
+        return count;
+    }
     @GetMapping("/")
     public String home(HttpServletRequest request, HttpServletResponse response,Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

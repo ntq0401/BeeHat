@@ -157,7 +157,7 @@
 <main layout:fragment="main">
 <div class="container">
     <div class="footer__newslatter" style="padding-top: 50px">
-        <h6>Order tracking number</h6>
+        <h6>Mã tra cứu đơn hàng</h6>
         <form th:action="@{/look-up}" method="get">
             <input type="text" name="orderId" placeholder="Nhập mã đơn hàng..." th:value="${param.orderId}" required>
             <button type="submit" class="site-btn">Tra cứu</button>

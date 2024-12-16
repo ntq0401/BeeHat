@@ -13,7 +13,7 @@
         <li><a href="javascript:void(0);" id="userDropdownToggleMobile"><span class="fa fa-user"></span>
             <div class="tip">5</div>
         </a></li>
-        <div class="drop-down" id="userMenu1" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111;"  >
+        <div class="drop-down" id="userMenu1" style="display: none;position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111;"  >
             <div id="notLoggedInOptions1" style="display: none; ">
                 <a href="/customer/login" class="dropdown-item" style="color: #FFFFFF;">Đăng nhập</a>
             </div>
@@ -65,7 +65,23 @@
             </div>
             <div class="col-lg-3">
                 <div class="header__right">
+                    <style>
+                        #userMenu .dropdown-item{
+                            color: #FFFFFF;
+                            background: #000000;
+                        }
+                        #userMenu .dropdown-item:hover {
+                            color: #000000; /* Màu chữ khi hover */
+                            background: #FFFFFF; /* Màu nền khi hover */
+                        }
 
+                        #userMenu button:hover {
+                            color: #000000; /* Màu chữ khi hover */
+                            background: #FFFFFF; /* Màu nền khi hover */
+                            border: none;
+                            cursor: pointer;
+                        }
+                    </style>
                     <ul class="header__right__widget">
                         <input type="hidden" id="isLoggedIn" th:value="${isLoggedIn}">
                         <input type="hidden" id="username" th:value="${username}">
@@ -74,16 +90,16 @@
                             <span class="ph ph-user" style="font-size:21px "></span>
                         </a>
                         </li>
-                        <div class="drop-down" id="userMenu" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;background: #111111; "  >
+                        <div class="drop-down" id="userMenu" style="display: none;  position: absolute; z-index: 9999; right: 0; text-align: left;"  >
                             <div id="notLoggedInOptions" style="display: none; ">
-                                <a href="/customer/login" class="dropdown-item" style="color: #b21f2d;">Đăng nhập</a>
+                                <a href="/customer/login" class="dropdown-item">Đăng nhập</a>
                             </div>
                             <div id="loggedInOptions" style="display: none; ">
 <!--                                <a class="dropdown-item fw-bold" id="usernameDisplay">User</a>-->
-                                <a href="/account" class="dropdown-item" id="userProfile" style="color: #b21f2d;">Thông tin cá nhân</a>
-                                <a href="/change-pass" class="dropdown-item " style="color: #b21f2d;">Đổi mật khẩu</a>
+                                <a href="/account" class="dropdown-item" id="userProfile">Thông tin cá nhân</a>
+                                <a href="/change-pass" class="dropdown-item ">Đổi mật khẩu</a>
                                 <form th:action="@{/customer/logout}" method="post">
-                                    <button class="dropdown-item" type="submit" style="color: #b21f2d;">Đăng xuất</button>
+                                    <button class="dropdown-item" type="submit" >Đăng xuất</button>
                                 </form>
                             </div>
                         </div>

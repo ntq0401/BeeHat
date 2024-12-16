@@ -97,23 +97,23 @@
         <a class="logo" href="/">
             <img th:src="@{/img/logo3.png}" alt="Logo" style="width: 70px; height: auto; display: block; margin: 0 auto; vertical-align: middle;">
         </a>
-        <h2 class="text-center">WELCOME BACK</h2>
+        <h2 class="text-center">CHÀO MỪNG TRỞ LẠI</h2>
         <div th:if="${param.error}" class="alert alert-danger ">
-            <span style="color: #b21f2d">Account or password is incorrect!.</span>
+            <span style="color: #b21f2d">Tài khoản hoặc mật khẩu không chính xác!.</span>
         </div>
         <form class="text-left clearfix" th:action="@{/customer/login}" method="post">
             <div class="form-group">
-                <input type="username" class="form-control" name="username" placeholder="Username" value="abc" required>
+                <input type="username" class="form-control" name="username" placeholder="Tài khoản" value="abc" required>
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" name="password" placeholder="Password" value="123" required>
+                <input type="password" class="form-control" name="password" placeholder="Mật khẩu" value="123" required>
             </div>
             <div>
-                <button type="submit" class="btn">LOGIN</button>
+                <button type="submit" class="btn">ĐĂNG NHẬP</button>
             </div>
         </form>
-        <p class="mt-20">Are you a new customer?
-            <a th:href="@{/customer/register}" style="color: #1a1e21">Create New Account</a>
+        <p class="mt-20">Bạn là khách hàng mới ?
+            <a th:href="@{/customer/register}" style="color: #1a1e21">Tạo tài khoản</a>
         </p>
     </div>
 </div>
